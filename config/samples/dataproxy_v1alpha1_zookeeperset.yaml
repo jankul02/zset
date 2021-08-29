@@ -1,0 +1,7 @@
+apiVersion: dataproxy.jankul02/v1alpha1
+kind: ZookeeperSet
+metadata:
+  name: zookeeperset-sample
+spec:
+  # Add fields here
+  foo: bar

@@ -1,0 +1,24 @@
+# permissions for end users to edit zookeepersets.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: zookeeperset-editor-role
+rules:
+- apiGroups:
+  - dataproxy.jankul02
+  resources:
+  - zookeepersets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - dataproxy.jankul02
+  resources:
+  - zookeepersets/status
+  verbs:
+  - get
