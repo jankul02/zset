@@ -3,5 +3,4 @@ kind: ZookeeperSet
 metadata:
   name: zookeeperset-sample
 spec:
-  # Add fields here
-  foo: bar
+  foo: 3

@@ -9,11 +9,17 @@ rules:
   ##
   - apiGroups:
       - ""
+      - "policy"
+
     resources:
       - secrets
+      - services
+      - policy
+      - poddisruptionbudgets
       - pods
       - pods/exec
       - pods/log
+      - namespaces
     verbs:
       - create
       - delete
