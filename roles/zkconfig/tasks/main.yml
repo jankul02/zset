@@ -12,7 +12,7 @@
 
 
 
-- name: remove pod 
+- name: reboot pod  
   k8s:
     definition:
       apiVersion: v1
