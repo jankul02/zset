@@ -71,13 +71,15 @@
 #             app: zookeepersetapp
 #         maxUnavailable: 1
 
-- name: start xookeeperset
+
+
+- name: start zookeepersetapp
   community.kubernetes.k8s:
     definition:
       apiVersion: apps/v1
       kind: StatefulSet
       metadata:
-        name: '{{ ansible_operator_meta.name }}-xookeeper'
+        name: zookeeperset
         namespace: '{{ ansible_operator_meta.namespace }}'
       spec:
         replicas: 1
@@ -92,10 +94,10 @@
           spec:
             containers:
             - name: zookeepersetapp
-              image: "k8s.gcr.io/kubernetes-zookeeper:1.0-3.4.10"
+              image: "zookeeper"
               resources:
                 requests:
-                  memory: "1Gi"
+                  memory: "0.5Gi"
                   cpu: "0.6"
               ports:
               - containerPort: 2181
@@ -104,27 +106,15 @@
                 name: server
               - containerPort: 3888
                 name: leader-election
-              command:
-              - sh
-              - -c
-              - "start-zookeeper \
-                --servers=3 \
-                --data_dir=/var/lib/zookeeper/data \
-                --data_log_dir=/var/lib/zookeeper/data/log \
-                --conf_dir=/opt/zookeeper/conf \
-                --client_port=2181 \
-                --election_port=3888 \
-                --server_port=2888 \
-                --tick_time=2000 \
-                --init_limit=10 \
-                --sync_limit=5 \
-                --heap=512M \
-                --max_client_cnxns=60 \
-                --snap_retain_count=3 \
-                --purge_interval=12 \
-                --max_session_timeout=40000 \
-                --min_session_timeout=4000 \
-                --log_level=INFO"
+              hostname: "{{ item.podid }}-0"
+              subdomain: zookeepersetapp-hsvc
+              env:
+                - name: ZOO_MY_ID
+                  value: "{{ item.zkid }}"
+                - name: ZOO_SERVERS
+                  value: "server.1=zk01-0.zookeepersetapp-hsvc.{{ ansible_operator_meta.namespace }}.svc.cluster.local:2888:3888;2181 server.2=zk02-0.zookeepersetapp-hsvc.{{ ansible_operator_meta.namespace }}.svc.cluster.local:2888:3888;2181 server.3=zk05-0.zookeepersetapp-hsvc.{{ ansible_operator_meta.namespace }}.svc.cluster.local:2888:3888;2181"                 
+                - name: ZOO_INIT_LIMIT
+                  value: 60  
               readinessProbe:
                 exec:
                   command:
@@ -141,6 +131,11 @@
                   - "zookeeper-ready 2181"
                 initialDelaySeconds: 10
                 timeoutSeconds: 5
+  with_items:
+    - { podid: 'zk01', zkid: 1 }
+    - { podid: 'zk02', zkid: 2 }
+    - { podid: 'zk05', zkid: 3 }
+
 
 
 # - name: Zookeeper deployment
