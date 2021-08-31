@@ -19,165 +19,31 @@
 
 
 
-- name: Service zookeepersetapp-hsvc
-  k8s:
-    definition:
-      kind: Service
-      apiVersion: v1
-      metadata:
-        name: zookeepersetapp-hsvc
-        namespace: '{{ ansible_operator_meta.namespace }}'
-        labels:
-          app: zookeepersetapp
-      spec:
-        ports:
-        - port: 2888
-          name: server
-        - port: 3888
-          name: leader-election
-        clusterIP: None
-        selector:
-          app: zookeepersetapp
-  
-
-- name: Service zookeepersetapp-csvc
-  k8s:
-    definition:
-      kind: Service
-      apiVersion: v1
-      metadata:
-        name: zookeepersetapp-csvc
-        namespace: '{{ ansible_operator_meta.namespace }}'
-        labels:
-          app: zookeepersetapp
-      spec:
-        ports:
-        - port: 2181
-          name: client
-        selector:
-          app: zookeepersetapp
-
-# - name: policy for pod disruption budget zookeepersetapp
-#   k8s:
-#     definition:
-#       apiVersion: policy/v1
-#       kind: PodDisruptionBudget
-#       metadata:
-#         name: zookeepersetapp-pdb
-#         namespace: '{{ ansible_operator_meta.namespace }}'
-#       spec:
-#         selector:
-#           matchLabels:
-#             app: zookeepersetapp
-#         maxUnavailable: 1
-
-
-
-- name: start zookeepersetapp
-  community.kubernetes.k8s:
-    definition:
-      apiVersion: apps/v1
-      kind: StatefulSet
-      metadata:
-        name: zookeeperset
-        namespace: '{{ ansible_operator_meta.namespace }}'
-      spec:
-        replicas: 1
-        selector:
-          matchLabels:
-            app: zookeepersetapp
-        serviceName: zookeepersetapp-hsvc
-        template:
-          metadata:
-            labels:
-              app: zookeepersetapp
-          spec:
-            containers:
-            - name: zookeepersetapp
-              image: "zookeeper"
-              resources:
-                requests:
-                  memory: "0.5Gi"
-                  cpu: "0.6"
-              ports:
-              - containerPort: 2181
-                name: client
-              - containerPort: 2888
-                name: server
-              - containerPort: 3888
-                name: leader-election
-              hostname: "{{ item.podid }}-0"
-              subdomain: zookeepersetapp-hsvc
-              env:
-                - name: ZOO_MY_ID
-                  value: "{{ item.zkid }}"
-                - name: ZOO_SERVERS
-                  value: "server.1=zk01-0.zookeepersetapp-hsvc.{{ ansible_operator_meta.namespace }}.svc.cluster.local:2888:3888;2181 server.2=zk02-0.zookeepersetapp-hsvc.{{ ansible_operator_meta.namespace }}.svc.cluster.local:2888:3888;2181 server.3=zk05-0.zookeepersetapp-hsvc.{{ ansible_operator_meta.namespace }}.svc.cluster.local:2888:3888;2181"                 
-                - name: ZOO_INIT_LIMIT
-                  value: 60  
-              readinessProbe:
-                exec:
-                  command:
-                  - sh
-                  - -c
-                  - "zookeeper-ready 2181"
-                initialDelaySeconds: 10
-                timeoutSeconds: 5
-              livenessProbe:
-                exec:
-                  command:
-                  - sh
-                  - -c
-                  - "zookeeper-ready 2181"
-                initialDelaySeconds: 10
-                timeoutSeconds: 5
-  with_items:
-    - { podid: 'zk01', zkid: 1 }
-    - { podid: 'zk02', zkid: 2 }
-    - { podid: 'zk05', zkid: 3 }
-
-
-
-# - name: Zookeeper deployment
-#   k8s:
+# - name: start zookeepersetapp
+#   community.kubernetes.k8s:
 #     definition:
 #       apiVersion: apps/v1
-#       kind: Deployment
+#       kind: StatefulSet
 #       metadata:
-#         name: '{{ ansible_operator_meta.name }}-zookeeper'
+#         name: zookeeperset
 #         namespace: '{{ ansible_operator_meta.namespace }}'
 #       spec:
+#         replicas: 1
 #         selector:
 #           matchLabels:
 #             app: zookeepersetapp
 #         serviceName: zookeepersetapp-hsvc
-#         replicas: 1
-#         updateStrategy:
-#           type: RollingUpdate
-#         podManagementPolicy: OrderedReady
 #         template:
 #           metadata:
-#             name: "id0"
 #             labels:
 #               app: zookeepersetapp
 #           spec:
-#             affinity:
-#               podAntiAffinity:
-#                 requiredDuringSchedulingIgnoredDuringExecution:
-#                   - labelSelector:
-#                       matchExpressions:
-#                         - key: "app"
-#                           operator: In
-#                           values:
-#                           - zookeepersetapp
-#                     topologyKey: "kubernetes.io/hostname"
 #             containers:
-#             - name: kubernetes-zookeeper
-#               imagePullPolicy: Always
-#               image: "k8s.gcr.io/kubernetes-zookeeper:1.0-3.4.10"
+#             - name: zookeepersetapp
+#               image: "zookeeper"
 #               resources:
 #                 requests:
-#                   memory: "1Gi"
+#                   memory: "0.5Gi"
 #                   cpu: "0.6"
 #               ports:
 #               - containerPort: 2181
@@ -186,27 +52,15 @@
 #                 name: server
 #               - containerPort: 3888
 #                 name: leader-election
-#               command:
-#               - sh
-#               - -c
-#               - "start-zookeeper \
-#                 --servers=3 \
-#                 --data_dir=/var/lib/zookeeper/data \
-#                 --data_log_dir=/var/lib/zookeeper/data/log \
-#                 --conf_dir=/opt/zookeeper/conf \
-#                 --client_port=2181 \
-#                 --election_port=3888 \
-#                 --server_port=2888 \
-#                 --tick_time=2000 \
-#                 --init_limit=10 \
-#                 --sync_limit=5 \
-#                 --heap=512M \
-#                 --max_client_cnxns=60 \
-#                 --snap_retain_count=3 \
-#                 --purge_interval=12 \
-#                 --max_session_timeout=40000 \
-#                 --min_session_timeout=4000 \
-#                 --log_level=INFO"
+#               hostname: "{{ item.podid }}-0"
+#               subdomain: zookeepersetapp-hsvc
+#               env:
+#                 - name: ZOO_MY_ID
+#                   value: "{{ item.zkid }}"
+#                 - name: ZOO_SERVERS
+#                   value: "server.1=zk01-0.zookeepersetapp-hsvc.{{ ansible_operator_meta.namespace }}.svc.cluster.local:2888:3888;2181 server.2=zk02-0.zookeepersetapp-hsvc.{{ ansible_operator_meta.namespace }}.svc.cluster.local:2888:3888;2181 server.3=zk05-0.zookeepersetapp-hsvc.{{ ansible_operator_meta.namespace }}.svc.cluster.local:2888:3888;2181"                 
+#                 - name: ZOO_INIT_LIMIT
+#                   value: 60  
 #               readinessProbe:
 #                 exec:
 #                   command:
@@ -223,18 +77,158 @@
 #                   - "zookeeper-ready 2181"
 #                 initialDelaySeconds: 10
 #                 timeoutSeconds: 5
-#               volumeMounts:
-#               - name: datadir
-#                 mountPath: /var/lib/zookeeper
-#             securityContext:
-#               runAsUser: 1000
-#               fsGroup: 1000
-#         volumeClaimTemplates:
-#         - metadata:
-#             name: datadir
-#           spec:
-#             accessModes: [ "ReadWriteOnce" ]
-#             resources:
-#               requests:
-#                 storage: 2Gi
+#   with_items:
+#     - { podid: 'zk01', zkid: 1 }
+#     - { podid: 'zk02', zkid: 2 }
+#     - { podid: 'zk05', zkid: 3 }
 
+
+- name: Service hsvc
+  k8s:
+    definition:
+      kind: Service
+      apiVersion: v1
+      metadata:
+        name: zk-hs
+        namespace: '{{ ansible_operator_meta.namespace }}'
+        labels:
+          app: zk
+      spec:
+        ports:
+        - port: 2888
+          name: server
+        - port: 3888
+          name: leader-election
+        clusterIP: None
+        selector:
+          app: zk
+
+- name: Service zookeepersetapp-csvc
+  k8s:
+    definition:
+      kind: Service
+      apiVersion: v1
+      metadata:
+        name: zk-cs
+        namespace: '{{ ansible_operator_meta.namespace }}'
+        labels:
+          app: zk
+      spec:
+        ports:
+        - port: 2181
+          name: client
+        selector:
+          app: zk
+
+- name: policy for pod disruption budget zookeepersetapp
+  k8s:
+    definition:
+      apiVersion: policy/v1
+      kind: PodDisruptionBudget
+      metadata:
+        name: zk-pdb
+        namespace: '{{ ansible_operator_meta.namespace }}'
+      spec:
+        selector:
+          matchLabels:
+            app: zk
+        maxUnavailable: 1
+
+- name: Zookeeperset deployment
+  community.kubernetes.k8s:
+    definition:
+      apiVersion: apps/v1
+      kind: StatefulSet
+      metadata:
+        name: zk
+        namespace: '{{ ansible_operator_meta.namespace }}'        
+      spec:
+        selector:
+          matchLabels:
+            app: zk
+        serviceName: zk-hs
+        replicas: 3
+        updateStrategy:
+          type: RollingUpdate
+        podManagementPolicy: OrderedReady
+        template:
+          metadata:
+            labels:
+              app: zk
+          spec:
+            affinity:
+              podAntiAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+                  - labelSelector:
+                      matchExpressions:
+                        - key: "app"
+                          operator: In
+                          values:
+                          - zk
+                    topologyKey: "kubernetes.io/hostname"
+            containers:
+            - name: kubernetes-zookeeper
+              imagePullPolicy: Always
+              image: "k8s.gcr.io/kubernetes-zookeeper:1.0-3.4.10"
+              resources:
+                requests:
+                  memory: "1Gi"
+                  cpu: "0.5"
+              ports:
+              - containerPort: 2181
+                name: client
+              - containerPort: 2888
+                name: server
+              - containerPort: 3888
+                name: leader-election
+              command:
+              - sh
+              - -c
+              - "start-zookeeper \
+                --servers=3 \
+                --data_dir=/var/lib/zookeeper/data \
+                --data_log_dir=/var/lib/zookeeper/data/log \
+                --conf_dir=/opt/zookeeper/conf \
+                --client_port=2181 \
+                --election_port=3888 \
+                --server_port=2888 \
+                --tick_time=2000 \
+                --init_limit=10 \
+                --sync_limit=5 \
+                --heap=512M \
+                --max_client_cnxns=60 \
+                --snap_retain_count=3 \
+                --purge_interval=12 \
+                --max_session_timeout=40000 \
+                --min_session_timeout=4000 \
+                --log_level=INFO"
+              readinessProbe:
+                exec:
+                  command:
+                  - sh
+                  - -c
+                  - "zookeeper-ready 2181"
+                initialDelaySeconds: 10
+                timeoutSeconds: 5
+              livenessProbe:
+                exec:
+                  command:
+                  - sh
+                  - -c
+                  - "zookeeper-ready 2181"
+                initialDelaySeconds: 10
+                timeoutSeconds: 5
+              volumeMounts:
+              - name: datadir
+                mountPath: /var/lib/zookeeper
+            securityContext:
+      #        runAsUser: 1000
+              fsGroup: 1000
+        volumeClaimTemplates:
+        - metadata:
+            name: datadir
+          spec:
+            accessModes: [ "ReadWriteOnce" ]
+            resources:
+              requests:
+                storage: 10Gi
