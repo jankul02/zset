@@ -13,4 +13,11 @@ resources:
   group: dataproxy
   kind: ZookeeperSet
   version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: jankul02
+  group: dataproxy
+  kind: ZkConfig
+  version: v1alpha1
 version: "3"

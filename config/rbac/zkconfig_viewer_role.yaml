@@ -1,0 +1,20 @@
+# permissions for end users to view zkconfigs.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: zkconfig-viewer-role
+rules:
+- apiGroups:
+  - dataproxy.jankul02
+  resources:
+  - zkconfigs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - dataproxy.jankul02
+  resources:
+  - zkconfigs/status
+  verbs:
+  - get

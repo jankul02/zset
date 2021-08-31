@@ -3,4 +3,5 @@
 # It should be run by config/default
 resources:
 - bases/dataproxy.jankul02_zookeepersets.yaml
+- bases/dataproxy.jankul02_zkconfigs.yaml
 #+kubebuilder:scaffold:crdkustomizeresource

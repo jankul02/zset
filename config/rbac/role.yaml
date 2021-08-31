@@ -61,4 +61,21 @@ rules:
       - patch
       - update
       - watch
+  ##
+  ## Rules for dataproxy.jankul02/v1alpha1, Kind: ZkConfig
+  ##
+  - apiGroups:
+      - dataproxy.jankul02
+    resources:
+      - zkconfigs
+      - zkconfigs/status
+      - zkconfigs/finalizers
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
 #+kubebuilder:scaffold:rules

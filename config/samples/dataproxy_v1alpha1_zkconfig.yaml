@@ -1,0 +1,7 @@
+apiVersion: dataproxy.jankul02/v1alpha1
+kind: ZkConfig
+metadata:
+  name: zkconfig-sample
+spec:
+  # Add fields here
+  foo: bar
