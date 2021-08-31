@@ -1,23 +1,12 @@
-- name: test ansible operator debug
-  debug:
-    msg: "test!"
-
-
 - name: Fetch a list of namespaces
   set_fact:
     projects: "{{ lookup('community.kubernetes.k8s', api_version='v1', kind='Namespace') }}"
 
 
-- name: getting inside json structure for a string
+- name: getting json structure for a string
   debug: 
     msg: "name={{ item.metadata.name }}"
   loop: "{{ projects }}"
-
-- name: test projects
-  debug:
-    var: projects
-
-
 
 - name: Get confs
   community.kubernetes.k8s_info:
@@ -177,8 +166,8 @@
                 --min_session_timeout=4000 \
                 --log_level=INFO"
               envFrom:
-              - configMapRef:
-                  name: common-config
+              # - configMapRef:
+              #     name: common-config
               - configMapRef:
                   name: zk-0
               - configMapRef:

@@ -37,8 +37,8 @@ spec:
             - zkid
             properties:
               id:
-                description: 'the zookeeper id from [1,2,3,4,5] '
-                type: integer 
+                description: 'the zookeeper id from ["0", "1","2","3","4","5"] '
+                type: string 
               data:
                 description: 'the cfg data'
                 type: object 

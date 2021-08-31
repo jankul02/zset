@@ -1,2 +1,24 @@
----
-# tasks file for ZkConfig
+- name: apply cnf 
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata: 
+        name: 'zk-{{zkid}}'
+        labels:
+          app: zkcfg
+        namespace: '{{ ansible_operator_meta.namespace }}'
+    state: present
+
+
+
+- name: remove pod 
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Pod
+      metadata: 
+        name: 'zk-{{zkid}}'
+        namespace: '{{ ansible_operator_meta.namespace }}'
+    state: absent
+  ignore_errors: yes
