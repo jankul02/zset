@@ -1,6 +1,9 @@
 apiVersion: dataproxy.jankul02/v1alpha1
 kind: ZookeeperSet
 metadata:
-  name: zookeeperset-sample
+  name: zookeeperset-lab
 spec:
-  foo: 3
+    replicas: 3
+
+
+
