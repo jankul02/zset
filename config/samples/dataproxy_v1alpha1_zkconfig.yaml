@@ -4,9 +4,9 @@ metadata:
   name: zkconfig-sample
 spec:
   # Add fields here
-  zkid: "1"
+  zkid: "0"
   data:
     cfg: |
-      loglevel=1
-      welcomemsg="hello world from zk-0"
-      additionalparam01="hello"
+      LOG_LEVEL=DEBUG
+      WELCOME_MESSAGE="buena vista Guten Abend hola mundo from zk-0"
+      ADDITIONAL_PARAM="12354678"

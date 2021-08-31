@@ -4,6 +4,7 @@ metadata:
   name: zookeeperset-lab
 spec:
     replicas: 3
+    image: jankul02/kubernetes-zookeeper:0.0.7
 
 
 

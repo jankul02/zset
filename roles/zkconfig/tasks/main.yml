@@ -8,6 +8,7 @@
         labels:
           app: zkcfg
         namespace: '{{ ansible_operator_meta.namespace }}'
+      data: '{{data}}'
     state: present
 
 

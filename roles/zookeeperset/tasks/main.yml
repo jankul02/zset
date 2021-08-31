@@ -39,11 +39,11 @@
         namespace: '{{ ansible_operator_meta.namespace }}'
     state: present
   loop:
-    - { name: 'zk-0', zkid: 1 }
-    - { name: 'zk-1', zkid: 2 }
-    - { name: 'zk-2', zkid: 3 }
-    - { name: 'zk-3', zkid: 4 }
-    - { name: 'zk-4', zkid: 5 }
+    - { name: 'zk-0', zkid: 0 }
+    - { name: 'zk-1', zkid: 1 }
+    - { name: 'zk-2', zkid: 2 }
+    - { name: 'zk-3', zkid: 3 }
+    - { name: 'zk-4', zkid: 4 }
   when:  item.name not in zkcfgs 
 
 - name: Service hsvc
@@ -110,7 +110,7 @@
           matchLabels:
             app: zk
         serviceName: zk-hs
-        replicas: 3
+        replicas: '{{replicas}}'
         updateStrategy:
           type: RollingUpdate
         podManagementPolicy: OrderedReady
@@ -132,7 +132,7 @@
             containers:
             - name: kubernetes-zookeeper
               imagePullPolicy: Always
-              image: "k8s.gcr.io/kubernetes-zookeeper:1.0-3.4.10"
+              image: "{{ image }}"
               resources:
                 requests:
                   memory: "1Gi"
@@ -148,36 +148,10 @@
               - sh
               - -c
               - "start-zookeeper \
-                --servers=3 \
-                --data_dir=/var/lib/zookeeper/data \
-                --data_log_dir=/var/lib/zookeeper/data/log \
-                --conf_dir=/opt/zookeeper/conf \
-                --client_port=2181 \
-                --election_port=3888 \
-                --server_port=2888 \
-                --tick_time=2000 \
-                --init_limit=10 \
-                --sync_limit=5 \
-                --heap=512M \
-                --max_client_cnxns=60 \
-                --snap_retain_count=3 \
-                --purge_interval=12 \
-                --max_session_timeout=40000 \
-                --min_session_timeout=4000 \
-                --log_level=INFO"
-              envFrom:
+                 --servers={{replicas}}"
+#              envFrom:
               # - configMapRef:
               #     name: common-config
-              - configMapRef:
-                  name: zk-0
-              - configMapRef:
-                  name: zk-1
-              - configMapRef:
-                  name: zk-2
-              - configMapRef:
-                  name: zk-3
-              - configMapRef:
-                  name: zk-4
               readinessProbe:
                 exec:
                   command:
@@ -197,6 +171,32 @@
               volumeMounts:
               - name: datadir
                 mountPath: /var/lib/zookeeper
+              - name: zk-0
+                mountPath: /mnt/zk-0  
+              - name: zk-1
+                mountPath: /mnt/zk-1  
+              - name: zk-2
+                mountPath: /mnt/zk-2  
+              - name: zk-3
+                mountPath: /mnt/zk-3  
+              - name: zk-4
+                mountPath: /mnt/zk-4  
+            volumes:
+            - name: zk-0
+              configMap:
+                name: zk-0                
+            - name: zk-1
+              configMap:
+                name: zk-1                
+            - name: zk-2
+              configMap:
+                name: zk-2                
+            - name: zk-3
+              configMap:
+                name: zk-3                
+            - name: zk-4
+              configMap:
+                name: zk-4                
             securityContext:
       #        runAsUser: 1000
               fsGroup: 1000
