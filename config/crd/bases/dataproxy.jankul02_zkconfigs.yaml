@@ -29,10 +29,20 @@ spec:
             type: string
           metadata:
             type: object
-          spec:
+          spec:        
             description: Spec defines the desired state of ZkConfig
             type: object
             x-kubernetes-preserve-unknown-fields: true
+            required:
+            - zkid
+            properties:
+              id:
+                description: 'the zookeeper id from [1,2,3,4,5] '
+                type: integer 
+              data:
+                description: 'the cfg data'
+                type: object 
+                x-kubernetes-preserve-unknown-fields: true
           status:
             description: Status defines the observed state of ZkConfig
             type: object
