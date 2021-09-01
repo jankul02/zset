@@ -1,26 +1,51 @@
-# zookeeperset
+# ZookeeperSet - operator
 
+## Overview
 
+The Zookeeperset Operator deploys a zookeeper cluster and automatically operates the cluster.
 
-Show myid files:
+The Operator implements:
+
+1. High Availability (HA) 
+    - instance distribution to different nodes
+    - automatic recovery for zookeeper instances
+    - Quorum Protection (Maintenance Fault Protection)
+    - liveness/health checks for instances 
+2. Data Persistance
+3. Automatic network setup
+4. Seameless upgrades/rollout with no disruption
+5. Full Lifecycle management of the zookeeper cluster: 
+    - automatic cluster deployment
+    - autoconfiguration during cluster deployment
+    - minor version upgrades for the cluster
+    - global re/configuration
+    - instance specific re/configuration
+6. Rollback support
+
+![ZookeeperSet](pictures/pictures/ZookeeperSet.png?raw=true "ZookeeperSet")
+
+## Showcases
+
+### Network setup
+#### Show myid files:
 ```
 for i in 0 1 2; do echo "myid zk-$i";kubectl exec zk-$i -- cat /var/lib/zookeeper/data/myid; done
 ```
 
-show fqdn
+#### Show fqdn
 
 ```
 for i in 0 1 2; do kubectl exec zk-$i -- hostname -f; done
 ```
 
-functional test: write to zk-0 and get it back from zk-1
+### functional case: write to zk-0 and get it back from zk-1
 ```
 kubectl exec zk-0 zkCli.sh create /mykey "hello world"
 
 kubectl exec zk-1 zkCli.sh get /mykey
 ```
 
-operational test: rollout and rollback
+### operational test: rollout and rollback
 
 change a cpu assignment
 ```
@@ -31,7 +56,7 @@ kubectl get pods -w # to observe the rollout
 kubectl rollout status sts/zk
 ```
 
-start a rollback:
+### start a rollback:
 ```
 kubectl rollout undo sts/zk
 
@@ -130,3 +155,27 @@ kubectl logs zk-0
 
 ```
 
+# Helpful oneliners
+
+### Build, push, deploy the operator 
+```
+make docker-build docker-push deploy VERSION=0.0.38
+```
+
+### create a zookeeperset from sample 
+```
+kubectl apply -f config/samples/dataproxy_v1alpha1_zookeeperset.yaml
+
+kubectl get pods -A
+
+kubectl logs zookeeperset-controller-manager-6dcd55bf77-5pqps -n zookeeperset-system manager
+```
+### delete the zookeeperset created from sample 
+```
+kubectl delete -f config/samples/dataproxy_v1alpha1_zookeeperset.yaml
+```
+
+### undeploy the zookeeperset operator 
+```
+make undeploy
+```
