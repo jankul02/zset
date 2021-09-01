@@ -24,6 +24,94 @@ The Operator implements:
 
 ![ZookeeperSet](pictures/zookeeperset.png "ZookeeperSet")
 
+## Deploying the operator
+```
+# deploy the latest version 
+make deploy
+# alternatively a specific version: 
+# make deploy VERSION='0.0.32" 
+```
+check if the operator is running:
+```
+kubectl get pods -n zookeeperset-system
+kubectl logs zookeeperset-controller-manager-6dcd55bf77-xj2rj -n zookeeperset-system manager
+```
+
+### Deploy a ZookeeperSet
+
+Create two definitions:
+
+- a ZookeeperSet CR and if required 
+- the individual ZkConfigs for each instance
+
+zookeeperset-lab.yaml
+```yaml
+apiVersion: dataproxy.jankul02/v1alpha1
+kind: ZookeeperSet
+metadata:
+  name: zookeeperset-lab
+  namespace: default
+spec:
+    replicas: 3
+    image: jankul02/kubernetes-zookeeper:0.0.9
+```
+
+zkconfig-zk0.yaml
+```yaml
+apiVersion: dataproxy.jankul02/v1alpha1
+kind: ZkConfig
+metadata:
+  name: zkconfig-0
+  namespace: default
+spec:
+  zkid: "0"
+  data:
+    cfg: |
+      LOG_LEVEL=DEBUG
+      WELCOME_MESSAGE="buena vista Guten Abend hola mundo from zk-0"
+      ADDITIONAL_PARAM="12354678"
+```
+
+zkconfig-zk2.yaml
+```yaml
+apiVersion: dataproxy.jankul02/v1alpha1
+kind: ZkConfig
+metadata:
+  name: zkconfig-2
+  namespace: default
+spec:
+  zkid: "2"
+  data:
+    cfg: |
+      LOG_LEVEL=INFO
+      WELCOME_MESSAGE="Dzien dobry from zk-2"
+      ANOTHER_ADDITIONAL_PARAM="12354678"
+```
+
+Deploy the zkconfig resources
+
+```
+kubectl create -f zkconfig-zk2.yaml
+kubectl create -f zkconfig-zk0.yaml
+# the zk-1 instance will have no specific setting
+
+kubectl get zkconfigs 
+```
+Deploy the ZookeeperSet
+```
+kubectl create -f zookeeperset-lab.yaml
+
+# observe the deployment
+kubectl get pods -w 
+
+```
+
+
+
+
+
+
+
 ## Showcases
 
 Assumed:
