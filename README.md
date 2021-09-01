@@ -26,6 +26,11 @@ The Operator implements:
 
 ## Showcases
 
+Assumed:
+1. 4 nodes cluster
+2. 3 zookeeper replicas
+
+
 ### Network setup
 #### Show myid files:
 ```
