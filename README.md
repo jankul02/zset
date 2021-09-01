@@ -22,7 +22,7 @@ The Operator implements:
     - instance specific re/configuration
 6. Rollback support
 
-![ZookeeperSet](pictures/pictures/zookeeperset.png "ZookeeperSet")
+![ZookeeperSet](pictures/zookeeperset.png "ZookeeperSet")
 
 ## Showcases
 
