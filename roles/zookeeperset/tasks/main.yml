@@ -2,13 +2,12 @@
   set_fact:
     projects: "{{ lookup('community.kubernetes.k8s', api_version='v1', kind='Namespace') }}"
 
-
 - name: getting json structure for a string
   debug: 
     msg: "name={{ item.metadata.name }}"
   loop: "{{ projects }}"
 
-- name: Get confs
+- name: Get local cnfs 
   community.kubernetes.k8s_info:
     api_version: v1
     kind: ConfigMap
@@ -17,17 +16,18 @@
     namespace: '{{ ansible_operator_meta.namespace }}'
   register: cnfs
 
-- name: Initialize cfgs list 
+- name: Initialize  cnf list 
   set_fact:
     zkcfgs: []
 
-- name: collect the list
+
+- name: collect the  cnf names
   set_fact:
     zkcfgs: "{{ zkcfgs + [ item.metadata.name ] }}"
   loop: "{{ cnfs.resources }}"
 
 
-- name: create default cnfs if needed
+- name: create default empty local cnfs if needed
   k8s:
     definition:
       apiVersion: v1
@@ -45,6 +45,22 @@
     - { name: 'zk-3', zkid: 3 }
     - { name: 'zk-4', zkid: 4 }
   when:  item.name not in zkcfgs 
+
+
+
+- name: create global cnf if needed
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata: 
+        name: zk-global
+        labels:
+          app: zkcfg
+        namespace: '{{ ansible_operator_meta.namespace }}'
+    state: present
+  when:  item.name not in zkcfgs 
+
 
 - name: Service hsvc
   k8s:
