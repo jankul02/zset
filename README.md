@@ -22,7 +22,47 @@ The Operator implements:
     - instance specific re/configuration
 6. Rollback support
 
+
+## Cluster Setup 
+
+
 ![ZookeeperSet](pictures/zookeeperset.png "ZookeeperSet")
+
+
+## Configuration
+The ZookeeperSet deploys SERVERS="replicas" number of instances.
+
+$SERVERS is available at start time.
+
+All zookeeper instances receive hostnames to be zk-{$ORD} (like zk-0, zk-1 ) where $ORD is 0..$SERVERS.
+All zookeeper instances have the same domain.
+The instances can access the host name and the domain in the following way:
+```
+HOST=`hostname -s`
+DOMAIN=`hostname -d`  # identical for all
+```
+### Global config
+
+[TODO: global cluster config - start parameters to be implemented]
+### Individual Configs for Zookeeper Instances
+
+
+For each zookeeper instance an implicit dedicated initially empty ConfigMap is created and mounted as file at /mnt/`hostname -s` (like zk-0, zk-1 ).
+It is the responsibility of the zookeeper image to create its own zoo.cfg from the image default parameters, global deployment parameters and from its specific ConfigMap.
+It is the responsibility of the image to read its corresponding configuration from its file mnt/zk-{$ORD}, for example
+```
+source /mnt/zk-2
+```
+
+Applying ZkConfig (i.e. zk-2) redefines the content of the individual instance configuration. In such a case the instance (the pod i.e. zk-2) will be restarted if the zookeeper quorum would be preserved. Other instances will not be indluenced.
+
+![ZkConfig](pictures/zkconfig.png "ZkConfig")
+
+## Ordered Rollout
+
+![Ordered Rollout](pictures/orderedrollout.png "Ordered ROllout")
+
+
 
 ## Deploying the operator
 ```
