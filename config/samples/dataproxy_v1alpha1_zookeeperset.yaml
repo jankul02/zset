@@ -2,9 +2,16 @@ apiVersion: dataproxy.jankul02/v1alpha1
 kind: ZookeeperSet
 metadata:
   name: zookeeperset-lab
-spec:
-    replicas: 3
-    image: jankul02/kubernetes-zookeeper:0.0.9
+  namespace: default
 
+spec:
+  replicas: 3
+  app: "zk"
+  image: jankul02/kubernetes-zookeeper:0.0.11
+  data:
+    cfg: |
+      LOG_LEVEL=INFO
+      WELCOME_MESSAGE="Hey Hey"
+      ADDITIONAL_PARAM=" Value"
 
 

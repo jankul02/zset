@@ -10,9 +10,7 @@
 - name: Get local cnfs 
   community.kubernetes.k8s_info:
     api_version: v1
-    kind: ConfigMap
-    label_selectors:
-      - app = zkcfg
+    kind: ZkConfig  
     namespace: '{{ ansible_operator_meta.namespace }}'
   register: cnfs
 
@@ -26,17 +24,40 @@
     zkcfgs: "{{ zkcfgs + [ item.metadata.name ] }}"
   loop: "{{ cnfs.resources }}"
 
+# - name: create default empty local cnfs if needed
+#   k8s:
+#     definition:
+#       apiVersion: v1
+#       kind: ConfigMap
+#       metadata: 
+#         name: '{{ item.name }}'
+#         labels:
+#           app: zkcfg
+#         namespace: '{{ ansible_operator_meta.namespace }}'
+#     state: present
+#   loop:
+#     - { name: 'zk-0', zkid: 0 }
+#     - { name: 'zk-1', zkid: 1 }
+#     - { name: 'zk-2', zkid: 2 }
+#     - { name: 'zk-3', zkid: 3 }
+#     - { name: 'zk-4', zkid: 4 }
+#   when:  item.name not in zkcfgs 
 
-- name: create default empty local cnfs if needed
+
+- name: create default empty ZkConfigs if needed
   k8s:
     definition:
-      apiVersion: v1
-      kind: ConfigMap
+      apiVersion: dataproxy.jankul02/v1alpha1
+      kind: ZkConfig
       metadata: 
         name: '{{ item.name }}'
-        labels:
-          app: zkcfg
-        namespace: '{{ ansible_operator_meta.namespace }}'
+        namespace: '{{ ansible_operator_meta.namespace }}'       
+      spec:
+        zkid: '{{ item.zkid }}'
+        app: '{{app}}'
+        data:
+          empty: |
+            empty=empty
     state: present
   loop:
     - { name: 'zk-0', zkid: 0 }
@@ -54,13 +75,12 @@
       apiVersion: v1
       kind: ConfigMap
       metadata: 
-        name: zk-global
-        labels:
-          app: zkcfg
+        name: zk-global   
         namespace: '{{ ansible_operator_meta.namespace }}'
+      data: '{{data}}'  
+      app: '{{ app }}'  
     state: present
-  when:  item.name not in zkcfgs 
-
+  when:  not 'zk-global' in zkcfgs
 
 - name: Service hsvc
   k8s:
@@ -71,7 +91,7 @@
         name: zk-hs
         namespace: '{{ ansible_operator_meta.namespace }}'
         labels:
-          app: zk
+          app: '{{ app }}'    
       spec:
         ports:
         - port: 2888
@@ -80,7 +100,7 @@
           name: leader-election
         clusterIP: None
         selector:
-          app: zk
+          app: '{{ app }}'    
 
 - name: Service zookeepersetapp-csvc
   k8s:
@@ -91,13 +111,13 @@
         name: zk-cs
         namespace: '{{ ansible_operator_meta.namespace }}'
         labels:
-          app: zk
+          app: '{{ app }}'    
       spec:
         ports:
         - port: 2181
           name: client
         selector:
-          app: zk
+          app: '{{ app }}'    
 
 - name: policy for pod disruption budget zookeepersetapp
   k8s:
@@ -110,7 +130,7 @@
       spec:
         selector:
           matchLabels:
-            app: zk
+            app: '{{ app }}'    
         maxUnavailable: 1
 
 - name: Zookeeperset deployment
@@ -120,11 +140,13 @@
       kind: StatefulSet
       metadata:
         name: zk
-        namespace: '{{ ansible_operator_meta.namespace }}'        
+        namespace: '{{ ansible_operator_meta.namespace }}' 
+        labels:
+          app: '{{ app }}'               
       spec:
         selector:
           matchLabels:
-            app: zk
+            app: '{{ app }}'    
         serviceName: zk-hs
         replicas: '{{replicas}}'
         updateStrategy:
@@ -133,7 +155,7 @@
         template:
           metadata:
             labels:
-              app: zk
+              app: '{{ app }}'    
           spec:
             affinity:
               podAntiAffinity:
@@ -143,7 +165,7 @@
                         - key: "app"
                           operator: In
                           values:
-                          - zk
+                          - '{{ app }}'    
                     topologyKey: "kubernetes.io/hostname"
             containers:
             - name: kubernetes-zookeeper
@@ -187,6 +209,8 @@
               volumeMounts:
               - name: datadir
                 mountPath: /var/lib/zookeeper
+              - name: zk-global
+                mountPath: /mnt/zk-global  
               - name: zk-0
                 mountPath: /mnt/zk-0  
               - name: zk-1
@@ -196,8 +220,11 @@
               - name: zk-3
                 mountPath: /mnt/zk-3  
               - name: zk-4
-                mountPath: /mnt/zk-4  
+                mountPath: /mnt/zk-4                  
             volumes:
+            - name: zk-global
+              configMap:
+                name: zk-global      
             - name: zk-0
               configMap:
                 name: zk-0                

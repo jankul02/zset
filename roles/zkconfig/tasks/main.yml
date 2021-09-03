@@ -5,15 +5,13 @@
       kind: ConfigMap
       metadata: 
         name: 'zk-{{zkid}}'
-        labels:
-          app: zkcfg
-        namespace: '{{ ansible_operator_meta.namespace }}'
+        namespace: '{{ ansible_operator_meta.namespace }}'       
       data: '{{data}}'
     state: present
 
 
 
-- name: reboot pod  
+- name: start the reinit of the pod  
   k8s:
     definition:
       apiVersion: v1

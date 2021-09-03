@@ -8,4 +8,5 @@
   group: dataproxy.jankul02
   kind: ZkConfig
   role: zkconfig
+  watchClusterScopedResources: true
 #+kubebuilder:scaffold:watch
