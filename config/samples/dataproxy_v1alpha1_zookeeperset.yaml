@@ -10,7 +10,7 @@ spec:
   app: "zk"
   annotations:
     updatetag: "random1"  
-  image: jankul02/kubernetes-zookeeper:0.0.11
+  image: jankul02/kubernetes-zookeeper:0.0.12
   data:
     cfg: |
       LOG_LEVEL=INFO
@@ -18,7 +18,7 @@ spec:
       ADDITIONAL_PARAM=" Value"
     0: |
       LOG_LEVEL=DEBUG
-      WELCOME_MESSAGE="Ho Ho Hey 0"
+      WELCOME_MESSAGE="Hula hop hej hej 0"
       ADDITIONAL_PARAM=" 231122"
     1: |
       LOG_LEVEL=DEBUG

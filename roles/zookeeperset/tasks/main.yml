@@ -1,128 +1,36 @@
-# - name: Fetch a list of namespaces
-#   set_fact:
-#     projects: "{{ lookup('community.kubernetes.k8s', api_version='v1', kind='Namespace') }}"
-
-# - name: getting json structure for a string
-#   debug: 
-#     msg: "name={{ item.metadata.name }}"
-#   loop: "{{ projects }}"
-
-# - name: Get local cnfs 
-#   community.kubernetes.k8s_info:
-#     api_version: v1
-#     kind: ConfigMap  
-#     namespace: '{{ ansible_operator_meta.namespace }}'
-#     label_selectors:
-#       app: {{app}}
-#   register: cnfs
-
-# - name: Initialize  cnf list 
-#   set_fact:
-#     zkcfgs: []
 
 
-# - name: collect the  cnf names
-#   set_fact:
-#     zkcfgs: "{{ zkcfgs + [ item.metadata.name ] }}"
-#   loop: "{{ cnfs.resources }}"
+- name: get configname   
+  set_fact:
+    configname: "zk-config-{{ data  | default({}) | to_uuid  }}"  
 
-# - name: create default empty local cnfs if needed
-#   k8s:
+
+
+- name: data is never empty   
+  set_fact:
+    data_to_set: "{{ data  | default({}) | combine({ 'metacfg': 'CONFIGNAME='+configname}) }}"
+
+- name: show data to set 
+  debug:
+    msg: "{{ data_to_set }}"    
+
+
+
+
+
+# - name: create empty cnf if needed
+#   community.kubernetes.k8s:
 #     definition:
 #       apiVersion: v1
 #       kind: ConfigMap
 #       metadata: 
-#         name: '{{ item.name }}'
-#         labels:
-#           app: {{app}}
+#         name: "zk-config"
 #         namespace: '{{ ansible_operator_meta.namespace }}'
+#         labels:
+#           app: '{{ app }}'
+#           configmap: zk-global 
 #     state: present
-#   loop:
-#     - { name: 'zk-0', zkid: 0 }
-#     - { name: 'zk-1', zkid: 1 }
-#     - { name: 'zk-2', zkid: 2 }
-#     - { name: 'zk-3', zkid: 3 }
-#     - { name: 'zk-4', zkid: 4 }
-#   when:  item.name not in zkcfgs 
-
-- name: Get the config if exists
-  community.kubernetes.k8s_info:
-    api_version: v1
-    kind: ConfigMap  
-    namespace: '{{ ansible_operator_meta.namespace }}'
-    label_selectors:
-      - "app = {{app}}"
-      - "configmap= zk-global"
-  register: cnfs
-
-- name: print cnfs
-  debug:
-    msg: "cnfs: {{ cnfs }}"    
-  when: ( cnfs is defined ) and  ( cnfs | count > 0 )
-
-- name: show new data 
-  debug:
-    msg: "{{ data }}"    
-  when:   data is defined 
-
-- name: show old data 
-  debug:
-    msg: "{{ data }}"    
-  when:   cfn is defined and cfn.data is defined 
-
-
- 
-- name: get the previous conf map if it exists
-  set_fact:
-    cnf: "{{ cnfs.resources[0] }}"    
-  when: ( cnfs is defined ) and  ( cnfs.resources | count > 0 )
-
-
-- name: new data is empty (always only zk-config as name)  
-  set_fact:
-    configname: "zk-config" 
-  when: data is undefined
-
-- name: new data is empty (always only zk-config as name)  
-  debug:
-    msg: "empty new config data: configname: zk-config"    
-  when: data is undefined
-
-- name: no changes to the exsiting data  
-  set_fact:
-    configname: "{{cnf.metadata.name}}" 
-  when: cnf is defined and ( (  cnf.data is defined and data is defined  and cnf.data == data ) or  ( cnf.data is undefined and data is undefined  ) )
-
-- name: no changes to the exsiting data  
-  debug:
-    msg: "no changes to data: configname: {{cnf.metadata.name}}"    
-  when: cnf is defined and ( (  cnf.data is defined and data is defined  and cnf.data == data ) or  ( cnf.data is undefined and data is undefined  ) )
-
-
-
-- name: new data is non-empty   
-  set_fact:
-    configname: "zk-config-{{ data | to_uuid  }}"  
-  when:   configname is undefined or configname != "zk-config" 
-
-- name: new data is empty   
-  set_fact:
-    configname: "zk-config-{{ data | to_uuid  }}"  
-  when:   configname != "zk-config" 
-
-- name: create empty cnf if needed
-  community.kubernetes.k8s:
-    definition:
-      apiVersion: v1
-      kind: ConfigMap
-      metadata: 
-        name: "zk-config"
-        namespace: '{{ ansible_operator_meta.namespace }}'
-        labels:
-          app: '{{ app }}'
-          configmap: zk-global 
-    state: present
-  when: configname == "zk-config"
+#   when: configname == "zk-config"
 
 - name: create non empty cnf if needed
   community.kubernetes.k8s:
@@ -130,14 +38,13 @@
       apiVersion: v1
       kind: ConfigMap
       metadata: 
-        name: "{{configname }}"
+        name: zk-config
         namespace: '{{ ansible_operator_meta.namespace }}'
         labels:
           app: '{{ app }}'
           configmap: zk-global
-      data: '{{data}}'  
+      data: '{{data_to_set}}'  
     state: present
-  when:   configname != "zk-config" 
 
 
 - name: Service hsvc
@@ -214,9 +121,10 @@
         template:
           metadata:
             labels:
-              app: '{{ app }}'   
+              app: '{{ app }}'
+            annotations: 
+              configname: '{{configname}}' 
           spec:
-            cfgid: {{ ansible_date_time.epoch }}
             affinity:
               podAntiAffinity:
                 requiredDuringSchedulingIgnoredDuringExecution:
@@ -274,7 +182,7 @@
             volumes:
             - name: zk-global
               configMap:
-                name: "{{configname}}"                   
+                name: zk-config                   
             securityContext:
       #        runAsUser: 1000
               fsGroup: 1000
