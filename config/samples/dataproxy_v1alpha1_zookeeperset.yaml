@@ -3,18 +3,14 @@ kind: ZookeeperSet
 metadata:
   name: zookeeperset-lab
   namespace: default
-  annotations:
-    updatetag: "random"
 spec:
   replicas: 3
   app: "zk"
-  annotations:
-    updatetag: "random1"  
   image: jankul02/kubernetes-zookeeper:0.0.12
   data:
     cfg: |
       LOG_LEVEL=INFO
-      WELCOME_MESSAGE="Hey Hey all"
+      WELCOME_MESSAGE="Hey Hey for all"
       ADDITIONAL_PARAM=" Value"
     0: |
       LOG_LEVEL=DEBUG
@@ -24,7 +20,23 @@ spec:
       LOG_LEVEL=DEBUG
       WELCOME_MESSAGE="Hi Hi Ho 1"
       ADDITIONAL_PARAM=" 23134122"
-
+  secrets:
+  - secretName: zksecret
+    items:
+    - key: username
+    - key: password
+  - secretName: zksecret-0
+    items:
+    - key: username
+    - key: password
+  - secretName: zksecret-2
+    items:
+    - key: username
+    - key: password        
+  - secretName: 1
+    items:
+    - key: username
+    - key: password        
 
 
 
