@@ -1,38 +1,15 @@
 
 
-- name: get configname   
+- name: get the configname (uuid) of the comming deployment    
   set_fact:
     configname: "zk-config-{{ data  | default({}) | to_uuid  }}"  
 
 
-
-- name: data is never empty   
+- name: append a stamp to have non empty data   
   set_fact:
     data_to_set: "{{ data  | default({}) | combine({ 'metacfg': 'CONFIGNAME='+configname}) }}"
 
-- name: show data to set 
-  debug:
-    msg: "{{ data_to_set }}"    
-
-
-
-
-
-# - name: create empty cnf if needed
-#   community.kubernetes.k8s:
-#     definition:
-#       apiVersion: v1
-#       kind: ConfigMap
-#       metadata: 
-#         name: "zk-config"
-#         namespace: '{{ ansible_operator_meta.namespace }}'
-#         labels:
-#           app: '{{ app }}'
-#           configmap: zk-global 
-#     state: present
-#   when: configname == "zk-config"
-
-- name: create non empty cnf if needed
+- name: create cnf
   community.kubernetes.k8s:
     definition:
       apiVersion: v1
@@ -98,6 +75,46 @@
           matchLabels:
             app: '{{ app }}'    
         maxUnavailable: 1
+
+- name: volumemounts
+  set_fact:
+    volumemounts:
+      - name: datadir
+        mountPath: /var/lib/zookeeper
+      - name: zk-global
+        mountPath: /mnt/zk-global
+
+- name: volumes
+  set_fact:
+    volumes:
+      - name: zk-global
+        configMap:
+          name: zk-config       
+
+- name: print secrets 
+  debug:
+    msg: "secret :{{item}}"
+  loop: "{{ secrets }}"  
+
+- name: print volumes pre
+  debug:
+    msg: "volumes {{ volumes }}"
+
+
+- name: volumemounts 
+  set_fact:
+    volumemounts: "{{ (volumemounts  | default([]) ) + [ { 'name' : item.secretname , 'mountPath' : '/mnt/'+ item.secretname , 'readOnly': true } ] }}"
+    volumes: "{{ ( volumes  | default([]) ) + [ { 'name' : item.secretname , 'secret' : { 'secretName' : item.secretname, 'items' : item['items'] }  } ] }}"
+  loop: "{{ secrets }}"  
+
+- name: print volumemounts 
+  debug:
+    msg: "volumemounts {{ volumemounts }}"
+
+- name: print volumes 
+  debug:
+    msg: "volumes {{ volumes }}"
+
 
 - name: Zookeeperset deployment
   community.kubernetes.k8s:
@@ -174,48 +191,9 @@
                   - "zookeeper-ready 2181"
                 initialDelaySeconds: 10
                 timeoutSeconds: 5
-              volumeMounts:
-              - name: datadir
-                mountPath: /var/lib/zookeeper
-              - name: zk-global
-                mountPath: /mnt/zk-global
-              - name: zk-secrets
-                mountPath: /mnt/zk-secrets
-                readOnly: true                               
-              - name: zk-secrets-0
-                mountPath: /mnt/zk-secrets-0
-                readOnly: true                               
-              - name: zk-secrets-2
-                mountPath: /mnt/zk-secrets-2
-                readOnly: true   
-            volumes:
-            - name: zk-global
-              configMap:
-                name: zk-config 
-            - name: zk-secrets
-              secret:
-                secretName: zk-secrets
-                items:
-                - key: username
-                  path: username
-                - key: password
-                  path: password
-            - name: zk-secrets-0
-              secret:
-                secretName: zk-secrets-0
-                items:
-                - key: username
-                  path: username
-                - key: password
-                  path: password
-            - name: zk-secrets-2
-              secret:
-                secretName: zk-secrets-2
-                items:
-                - key: username
-                  path: username
-                - key: password
-                  path: password
+              volumeMounts: "{{ volumemounts }}"
+            volumes: "{{ volumes }}"
+
 
             securityContext:
       #        runAsUser: 1000

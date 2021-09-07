@@ -21,22 +21,24 @@ spec:
       WELCOME_MESSAGE="Hi Hi Ho 1"
       ADDITIONAL_PARAM=" 23134122"
   secrets:
-  - secretName: zksecret
+  - secretname: zksecrets
     items:
     - key: username
+      path: zksecrets 
     - key: password
-  - secretName: zksecret-0
+      path: zksecrets 
+  - secretname: zksecrets0
     items:
     - key: username
+      path: zksecrets0 
     - key: password
-  - secretName: zksecret-2
+      path: zksecrets0 
+  - secretname: zksecrets2
     items:
     - key: username
-    - key: password        
-  - secretName: 1
-    items:
-    - key: username
-    - key: password        
+      path: zksecrets2
+    - key: password              
+      path: zksecrets2
 
 
 
