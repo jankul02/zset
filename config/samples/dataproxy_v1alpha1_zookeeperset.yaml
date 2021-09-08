@@ -20,6 +20,10 @@ spec:
       LOG_LEVEL=DEBUG
       WELCOME_MESSAGE="Hi Hi Ho 1"
       ADDITIONAL_PARAM=" 23134122"
+    2: |
+      LOG_LEVEL=DEBUG
+      WELCOME_MESSAGE="Hi Hi Ho 2"
+      ADDITIONAL_PARAM=" 23134122"
   secrets:
   - secretname: zksecrets
     items:
@@ -39,6 +43,9 @@ spec:
       path: zksecrets2
     - key: password              
       path: zksecrets2
+    - key: api              
+      path: zksecrets2
+  
 
 
 
