@@ -62,7 +62,7 @@
         selector:
           app: '{{ app }}'    
 
-- name: policy for pod disruption budget zookeepersetapp
+- name: policy for pod disruption budget 
   community.kubernetes.k8s:
     definition:
       apiVersion: policy/v1
@@ -91,29 +91,12 @@
         configMap:
           name: zk-config       
 
-- name: print secrets 
-  debug:
-    msg: "secret :{{item}}"
-  loop: "{{ secrets }}"  
 
-- name: print volumes pre
-  debug:
-    msg: "volumes {{ volumes }}"
-
-
-- name: volumemounts 
+- name: secret volumes & their mounts
   set_fact:
     volumemounts: "{{ (volumemounts  | default([]) ) + [ { 'name' : item.secretname , 'mountPath' : '/mnt/'+ item.secretname , 'readOnly': true } ] }}"
     volumes: "{{ ( volumes  | default([]) ) + [ { 'name' : item.secretname , 'secret' : { 'secretName' : item.secretname, 'items' : item['items'] }  } ] }}"
   loop: "{{ secrets }}"  
-
-- name: print volumemounts 
-  debug:
-    msg: "volumemounts {{ volumemounts }}"
-
-- name: print volumes 
-  debug:
-    msg: "volumes {{ volumes }}"
 
 
 - name: Zookeeperset deployment
@@ -172,9 +155,6 @@
               - -c
               - "start-zookeeper \
                  --servers={{replicas}}"
-#              envFrom:
-              # - configMapRef:
-              #     name: common-config
               readinessProbe:
                 exec:
                   command:
@@ -193,8 +173,6 @@
                 timeoutSeconds: 5
               volumeMounts: "{{ volumemounts }}"
             volumes: "{{ volumes }}"
-
-
             securityContext:
       #        runAsUser: 1000
               fsGroup: 1000
