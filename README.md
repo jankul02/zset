@@ -365,15 +365,13 @@ kubectl get pods -w -l # to observe the rollout
  
 1. change Configuration of the zk-2 instance in the zookeeperset resource file
 
-
-
 ```
-kubectl apply -f config/samples/dataproxy_v1alpha1_zkconfig.yaml
+kubectl apply -f config/samples/dataproxy_v1alpha1_zookeeperset.yaml
 
-kubectl get pods -w -l # to observe the restart zk-0 only 
+kubectl get pods -w -l # to observe the restart zk-2 only 
 
 # view the beginning of the log 
-kubectl logs zk-0
+kubectl logs zk-2
 
 ```
 
