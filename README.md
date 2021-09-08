@@ -10,7 +10,7 @@ The Operator implements:
     - instance distribution to different nodes
     - automatic recovery for zookeeper instances
     - Quorum Protection (Maintenance Fault Protection)
-    - liveness/health checks for instances 
+    - liveness/health checks for instances
 2. Data Persistance
 3. Automatic network setup
 4. Seameless upgrades/rollout with no disruption
@@ -18,9 +18,9 @@ The Operator implements:
     - automatic cluster deployment
     - autoconfiguration during cluster deployment
     - minor version upgrades for the cluster
-    - global re/configuration
-    - instance specific re/configuration
-6. Rollback support
+    - instance specific configuration
+    - instance specific secrets
+6. Rollback support for image upgrades
 
 
 ## Cluster Setup 

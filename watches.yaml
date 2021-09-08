@@ -4,8 +4,4 @@
   group: dataproxy.jankul02
   kind: ZookeeperSet
   role: zookeeperset
-- version: v1alpha1
-  group: dataproxy.jankul02
-  kind: ZkConfig
-  role: zkconfig
 #+kubebuilder:scaffold:watch

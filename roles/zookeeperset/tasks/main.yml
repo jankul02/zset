@@ -15,7 +15,7 @@
       apiVersion: v1
       kind: ConfigMap
       metadata: 
-        name: zk-config
+        name: zk-global
         namespace: '{{ ansible_operator_meta.namespace }}'
         labels:
           app: '{{ app }}'
@@ -89,7 +89,7 @@
     volumes:
       - name: zk-global
         configMap:
-          name: zk-config       
+          name: zk-global       
 
 
 - name: secret volumes & their mounts
@@ -138,7 +138,7 @@
             containers:
             - name: kubernetes-zookeeper
               imagePullPolicy: Always
-              image: "{{ image }}"
+              image: '{{ image }}'
               resources:
                 requests:
                   memory: "1Gi"
