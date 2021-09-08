@@ -32,31 +32,76 @@ The Operator implements:
 ## Configuration
 The ZookeeperSet deploys SERVERS="replicas" number of instances.
 
-$SERVERS is available at start time.
+$SERVERS is available at start time for the instance .
 
-All zookeeper instances receive hostnames to be zk-{$ORD} (like zk-0, zk-1 ) where $ORD is 0..$SERVERS.
-All zookeeper instances have the same domain.
+All zookeeper instances receive hostnames to be zk-{$ORD} (like zk-0, zk-1 ) where $ORD is 0..$SERVERS-1.
+All zookeeper instances have the same local dns domain.
 The instances can access the host name and the domain in the following way:
 ```
 HOST=`hostname -s`
 DOMAIN=`hostname -d`  # identical for all
 ```
-### Global config
-
-[TODO: global cluster config - start parameters to be implemented]
-### Individual Configs for Zookeeper Instances
+With this values the image can construct the zookeeper config file. 
 
 
-For each zookeeper instance an implicit dedicated initially empty ConfigMap is created and mounted as file at /mnt/`hostname -s` (like zk-0, zk-1 ).
-It is the responsibility of the zookeeper image to create its own zoo.cfg from the image default parameters, global deployment parameters and from its specific ConfigMap.
-It is the responsibility of the image to read its corresponding configuration from its file mnt/zk-{$ORD}, for example
+### Configuration
+
+The defaults for all instances ("global") are by defined under:
+```yaml
+data:
+    cfg: |
+      LOG_LEVEL=INFO
+      WELCOME_MESSAGE="Hey Hey for all"
+      ADDITIONAL_PARAM=" Value"
+``` 
+and will be mounted under:
 ```
-source /mnt/zk-2
+/mnt/zk-global
 ```
 
-Applying ZkConfig (i.e. zk-2) redefines the content of the individual instance configuration. In such a case the instance (the pod i.e. zk-2) will be restarted if the zookeeper quorum would be preserved. Other instances will not be indluenced.
+By conventions the instance specific configuration should be named ${ORD}-1 and specified under spec.data like
 
-![ZkConfig](pictures/zkconfig.png "ZkConfig")
+```yaml
+  spec:
+    data:
+      0: |
+        LOG_LEVEL=DEBUG
+        WELCOME_MESSAGE="Hula hop hej hej 0"
+        ADDITIONAL_PARAM=" 231122"
+      1: |
+        LOG_LEVEL=DEBUG
+        WELCOME_MESSAGE="Hi Hi Ho 1"
+        ADDITIONAL_PARAM=" 23134122"
+```
+The configuration will be mounted as a file with the name of ${ORD}-1 under /mnt/zk-global/:
+```
+cat /mnt/zk-config/0 | grep WELCOME_MESSAGE
+WELCOME_MESSAGE="Hula hop hej hej 0"
+```
+
+It is the responisibility of the instance to use the needed configuration in a secure way (like avoiding shell sourcing). 
+
+By conventions the instance specific secrets should be named zksecrets for common secrets and zksecrets0, zksecrets1 ... for instance specific secrets  and specified under spec.data like:
+```yaml
+spec:
+  secrets:
+  - secretname: zksecrets
+    items:
+    - key: username
+      path: zksecrets 
+    - key: password
+      path: zksecrets 
+  - secretname: zksecrets0
+    items:
+    - key: username
+      path: zksecrets0 
+    - key: password
+      path: zksecrets0 
+```
+The secrets will be mounted as a file with the name as their secretname under /mnt/:
+```
+ls /mnt/zksecrets0
+```
 
 ## Ordered Rollout
 
@@ -64,27 +109,73 @@ Applying ZkConfig (i.e. zk-2) redefines the content of the individual instance c
 
 
 
-## Deploying the operator
+## Deploying the Operator
 ```
 # deploy the latest version 
 make deploy
 # alternatively a specific version: 
-# make deploy VERSION='0.0.32" 
+# make docker-build docker-push deploy IMAGE_TAG_BASE='jankul02/zookeeperset' VERSION='0.0.151" 
 ```
 check if the operator is running:
 ```
 kubectl get pods -n zookeeperset-system
 kubectl logs zookeeperset-controller-manager-6dcd55bf77-xj2rj -n zookeeperset-system manager
+
 ```
 
 ### Deploy a ZookeeperSet
 
-Create two definitions:
+Create two resource definitions:
 
-- a ZookeeperSet CR and if required 
-- the individual ZkConfigs for each instance
+- all needed secrets
+- a ZookeeperSet CR 
 
-zookeeperset-lab.yaml
+zksecrets.yaml
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: zksecrets
+  namespace: default
+  labels:
+    app: zk
+type: Opaque
+data:
+  username: YWRtaW4=
+  password: ZGZhcXFkcXFhcXEzNDUyOA==  
+```
+zksecrets2.yaml
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: zksecrets2
+  namespace: default
+  labels:
+    app: zk
+type: Opaque
+data:
+  username: YWRtaW4=
+  password: YXFxZHFxYXFxMzQ1Mjg=
+  api: aHR0cHM6Ly9hcGkuZXhhbXBsZS5jb20=
+```
+
+zksecrets0.yaml
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: zksecrets0
+  namespace: default
+  labels:
+    app: zk
+type: Opaque
+data:
+  username: YWRtaW4=
+  password: MWYyZDFlMmU2N2Rm
+```
+
+ and a file like zookeeperset-lab.yaml
 ```yaml
 apiVersion: dataproxy.jankul02/v1alpha1
 kind: ZookeeperSet
@@ -92,72 +183,69 @@ metadata:
   name: zookeeperset-lab
   namespace: default
 spec:
-    replicas: 3
-    image: jankul02/kubernetes-zookeeper:0.0.9
-```
-
-zkconfig-zk0.yaml
-```yaml
-apiVersion: dataproxy.jankul02/v1alpha1
-kind: ZkConfig
-metadata:
-  name: zkconfig-0
-  namespace: default
-spec:
-  zkid: "0"
-  data:
-    cfg: |
-      LOG_LEVEL=DEBUG
-      WELCOME_MESSAGE="buena vista Guten Abend hola mundo from zk-0"
-      ADDITIONAL_PARAM="12354678"
-```
-
-zkconfig-zk2.yaml
-```yaml
-apiVersion: dataproxy.jankul02/v1alpha1
-kind: ZkConfig
-metadata:
-  name: zkconfig-2
-  namespace: default
-spec:
-  zkid: "2"
+  replicas: 3
+  app: "zk"
+  image: jankul02/kubernetes-zookeeper:0.0.12
   data:
     cfg: |
       LOG_LEVEL=INFO
-      WELCOME_MESSAGE="Dzien dobry from zk-2"
-      ANOTHER_ADDITIONAL_PARAM="12354678"
+      WELCOME_MESSAGE="Hey Hey for all"
+      ADDITIONAL_PARAM=" Value"
+    0: |
+      LOG_LEVEL=DEBUG
+      WELCOME_MESSAGE="Hula hop hej hej 0"
+      ADDITIONAL_PARAM=" 231122"
+    1: |
+      LOG_LEVEL=DEBUG
+      WELCOME_MESSAGE="Hi Hi Ho 1"
+      ADDITIONAL_PARAM=" 23134122"
+    2: |
+      LOG_LEVEL=DEBUG
+      WELCOME_MESSAGE="Hi Hi Ho 2"
+      ADDITIONAL_PARAM=" 23134122"
+  secrets:
+  - secretname: zksecrets
+    items:
+    - key: username
+      path: zksecrets 
+    - key: password
+      path: zksecrets 
+  - secretname: zksecrets0
+    items:
+    - key: username
+      path: zksecrets0 
+    - key: password
+      path: zksecrets0 
+  - secretname: zksecrets2
+    items:
+    - key: username
+      path: zksecrets2
+    - key: password              
+      path: zksecrets2
+    - key: api              
+      path: zksecrets2
 ```
 
-Deploy the zkconfig resources
+Deploy the secrets and the ZookeeperSet
+```
+kubectl apply -f zksecrets.yaml
+kubectl apply -f zksecrets0.yaml
+kubectl apply -f zksecrets2.yaml
 
-```
-kubectl create -f zkconfig-zk2.yaml
-kubectl create -f zkconfig-zk0.yaml
-# the zk-1 instance will have no specific setting
 
-kubectl get zkconfigs 
-```
-Deploy the ZookeeperSet
-```
-kubectl create -f zookeeperset-lab.yaml
+kubectl apply -f zookeeperset-lab.yaml
 
 # observe the deployment
 kubectl get pods -w 
 
 ```
 
-
-
-
-
-
-
 ## Showcases
 
 Assumed:
+
 1. 4 nodes cluster
 2. 3 zookeeper replicas
-
 
 ### Network setup
 #### Show myid files:
@@ -189,7 +277,7 @@ kubectl get pods -w # to observe the rollout
 kubectl rollout status sts/zk
 ```
 
-### start a rollback:
+#### start a rollback:
 ```
 kubectl rollout undo sts/zk
 
@@ -212,15 +300,15 @@ kubectl get pod -w -l
 ```
 
 ### Liveness
-remove check
+remove the check to force fail the check
 ```
 kubectl exec zk-0 -- rm /usr/bin/zookeeper-ready
 kubectl get pod -w -l 
 ```
 
 ### Deployment: No Single Point of Failure
-Instances automatically deployed on different nodes
-No collocation on one node
+Instances are automatically deployed on different nodes of the cluster
+There is no collocation on one node
 affinity / antiaffinity settings
 ```
 for i in 0 1 2; do kubectl get pod zk-$i --template {{.spec.nodeName}}; echo ""; done
@@ -264,9 +352,9 @@ kubectl uncordon node-1231
 ## Deployment and configuration
 
 ### Deployment
- 
-1. change the image in the zookeeperset resource file
-2. apply:
+
+Change the image name in the zookeeperset resource file and then apply it and observe
+
 ```
 kubectl apply -f config/samples/dataproxy_v1alpha1_zookeeperset.yaml
 
@@ -275,8 +363,9 @@ kubectl get pods -w -l # to observe the rollout
 
 ### Instance Configuration
  
-1. change Configuration of the zk-0 instance in the zkconfig resource file
-2. apply
+1. change Configuration of the zk-2 instance in the zookeeperset resource file
+
+
 
 ```
 kubectl apply -f config/samples/dataproxy_v1alpha1_zkconfig.yaml
