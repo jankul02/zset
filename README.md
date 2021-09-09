@@ -6,7 +6,7 @@ The Zookeeperset Operator deploys a zookeeper cluster and automatically operates
 
 The Operator implements:
 
-1. High Availability (HA) 
+1. High Availability (HA)
     - instance distribution to different nodes
     - automatic recovery for zookeeper instances
     - Quorum Protection (Maintenance Fault Protection)
@@ -18,8 +18,8 @@ The Operator implements:
     - automatic cluster deployment
     - autoconfiguration during cluster deployment
     - minor version upgrades for the cluster
-    - instance specific configuration
-    - instance specific secrets
+    - instance specific configuration using instance image logic
+    - instance specific secrets using instance image logic
 6. Rollback support for image upgrades
 
 
@@ -255,7 +255,6 @@ kubectl delete -f config/samples/dataproxy_v1alpha1_zookeeperset.yaml
 ```
 make undeploy
 ```
-
 
 ## Advanced Configuration
 
