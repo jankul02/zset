@@ -123,26 +123,6 @@ kubectl exec zk-0 zkCli.sh create /mykey "hello world"
 kubectl exec zk-1 zkCli.sh get /mykey
 ```
 
-### operational test: rollout and rollback
-
-change a cpu assignment
-```
-kubectl patch sts zk --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/resources/requests/cpu", "value":"0.3"}]'
-
-kubectl get pods -w # to observe the rollout 
-
-kubectl rollout status sts/zk
-```
-
-#### start a rollback:
-```
-kubectl rollout undo sts/zk
-
-kubectl get pods -w # to observe the rollout 
-
-kubectl rollout status sts/zk
-```
-
 ## HA
 
 ### Recovering from a failure:
@@ -164,9 +144,11 @@ kubectl get pod -w -l
 ```
 
 ### Deployment: No Single Point of Failure
+
 Instances are automatically deployed on different nodes of the cluster
 There is no collocation on one node
 affinity / antiaffinity settings
+
 ```
 for i in 0 1 2; do kubectl get pod zk-$i --template {{.spec.nodeName}}; echo ""; done
 ```
@@ -451,6 +433,7 @@ kubectl get pods -w
 
 ```
 
-## Scaling
-(Re)scalling is not implemented and there is no protection against changing the value of replicas.
-The results of scalling is unknown and currently unpredictable.
+## Scaling **not implemented**
+
+(Re)scalling is **not implemented** and there is no protection against changing the value of replicas.
+The results of scalling are unknown and currently unpredictable.
