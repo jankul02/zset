@@ -23,7 +23,7 @@ spec:
     2: |
       LOG_LEVEL=DEBUG
       WELCOME_MESSAGE="Hi Hi Ho 2"
-      ADDITIONAL_PARAM=" 23134122"
+      ADDITIONAL_PARAM=" 23134122"      
   secrets:
   - secretname: zksecrets
     items:
