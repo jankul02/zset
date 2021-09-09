@@ -91,13 +91,12 @@
         configMap:
           name: zk-global       
 
-
 - name: secret volumes & their mounts
   set_fact:
     volumemounts: "{{ (volumemounts  | default([]) ) + [ { 'name' : item.secretname , 'mountPath' : '/mnt/'+ item.secretname , 'readOnly': true } ] }}"
     volumes: "{{ ( volumes  | default([]) ) + [ { 'name' : item.secretname , 'secret' : { 'secretName' : item.secretname, 'items' : item['items'] }  } ] }}"
-  loop: "{{ secrets }}"  
-
+  loop: "{{ secrets }}" 
+  when: secrets is defined 
 
 - name: Zookeeperset deployment
   community.kubernetes.k8s:
@@ -153,14 +152,14 @@
               command:
               - sh
               - -c
-              - "start-zookeeper \
+              - "/etc/confluent/docker/start-zookeeper \
                  --servers={{replicas}}"
               readinessProbe:
                 exec:
                   command:
                   - sh
                   - -c
-                  - "zookeeper-ready 2181"
+                  - "/etc/confluent/docker/zookeeper-ready 2181"
                 initialDelaySeconds: 10
                 timeoutSeconds: 5
               livenessProbe:
@@ -168,7 +167,7 @@
                   command:
                   - sh
                   - -c
-                  - "zookeeper-ready 2181"
+                  - "/etc/confluent/docker/zookeeper-ready 2181"
                 initialDelaySeconds: 10
                 timeoutSeconds: 5
               volumeMounts: "{{ volumemounts }}"

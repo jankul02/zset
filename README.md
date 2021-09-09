@@ -79,7 +79,7 @@ metadata:
 spec:
   replicas: 3
   app: "zk"
-  image: jankul02/kubernetes-zookeeper:0.0.12
+  image: jankul02/kubernetes-zookeeper:0.0.25
   data:
     cfg: |
       LOG_LEVEL=INFO
@@ -139,8 +139,8 @@ kubectl get pod -w -l
 ### Liveness
 remove the check to force fail the check
 ```
-kubectl exec zk-0 -- rm /usr/bin/zookeeper-ready
-kubectl get pod -w -l 
+kubectl exec zk-0 -- rm /etc/confluent/docker/zookeeper-ready
+kubectl get pod -w  
 ```
 
 ### Deployment: No Single Point of Failure
@@ -276,14 +276,20 @@ By conventions the instance specific configuration should be named ${ORD}-1 and 
 ```yaml
   spec:
     data:
-      0: |
-        LOG_LEVEL=DEBUG
-        WELCOME_MESSAGE="Hula hop hej hej 0"
-        ADDITIONAL_PARAM=" 231122"
-      1: |
-        LOG_LEVEL=DEBUG
-        WELCOME_MESSAGE="Hi Hi Ho 1"
-        ADDITIONAL_PARAM=" 23134122"
+      ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL=DEBUG
+      ZOOKEEPER_LOG4J_ROOT_LOGLEVEL=DEBUG
+      WELCOME_MESSAGE="Hey Hey for all"
+      ADDITIONAL_PARAM=" Value"
+    0: |
+      ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL=INFO
+      ZOOKEEPER_LOG4J_ROOT_LOGLEVEL=INFO
+      WELCOME_MESSAGE="Hula hop hej hej 0"
+      ADDITIONAL_PARAM=" 231122"
+    2: |
+      ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL=WARN
+      ZOOKEEPER_LOG4J_ROOT_LOGLEVEL=WARN
+      WELCOME_MESSAGE="Hi Hi Ho 2"
+      ADDITIONAL_PARAM=" 23134122" 
 ```
 The configuration will be mounted as a file with the name of ${ORD}-1 under /mnt/zk-global/:
 ```
@@ -377,24 +383,23 @@ metadata:
 spec:
   replicas: 3
   app: "zk"
-  image: jankul02/kubernetes-zookeeper:0.0.12
+  image: jankul02/kubernetes-zookeeper:0.0.25
   data:
     cfg: |
-      LOG_LEVEL=INFO
+      ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL=DEBUG
+      ZOOKEEPER_LOG4J_ROOT_LOGLEVEL=DEBUG
       WELCOME_MESSAGE="Hey Hey for all"
       ADDITIONAL_PARAM=" Value"
     0: |
-      LOG_LEVEL=DEBUG
+      ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL=INFO
+      ZOOKEEPER_LOG4J_ROOT_LOGLEVEL=INFO
       WELCOME_MESSAGE="Hula hop hej hej 0"
       ADDITIONAL_PARAM=" 231122"
-    1: |
-      LOG_LEVEL=DEBUG
-      WELCOME_MESSAGE="Hi Hi Ho 1"
-      ADDITIONAL_PARAM=" 23134122"
     2: |
-      LOG_LEVEL=DEBUG
+      ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL=WARN
+      ZOOKEEPER_LOG4J_ROOT_LOGLEVEL=WARN
       WELCOME_MESSAGE="Hi Hi Ho 2"
-      ADDITIONAL_PARAM=" 23134122"
+      ADDITIONAL_PARAM=" 23134122" 
   secrets:
   - secretname: zksecrets
     items:
