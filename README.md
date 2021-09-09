@@ -167,9 +167,26 @@ affinity / antiaffinity settings
 for i in 0 1 2; do kubectl get pod zk-$i --template {{.spec.nodeName}}; echo ""; done
 ```
 
+### Protection against Node outage
+
+![Node Outage](pictures/zookeepersetnodeoutage.png "Node Outage")
+
+```
+kubectl get pdb zk-pdb
+# show the pod/node assoc
+for i in 0 1 2; do kubectl get pod zk-$i --template {{.spec.nodeName}}; echo ""; done
+# drain zk-2 node
+kubectl drain $(kubectl get pod zk-2 --template {{.spec.nodeName}}) --ignore-daemonsets --force --delete-emptydir-data
+
+kubectl get pods -w -l # watch
+
+# kubectl drain succeeds and the zk-2 is rescheduled to another node
+```
+
 
 ### Protection against maintenance failures
-disruption protection
+
+Disruption protection:
 
 ```
 kubectl get pdb zk-pdb
