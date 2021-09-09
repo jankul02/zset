@@ -86,9 +86,12 @@ spec:
       WELCOME_MESSAGE="Hey Hey for all"
       ADDITIONAL_PARAM=" Value"
 ```
-kubectl apply -f zookeeperset-lab.yaml
+
+Apply the CR defintion.
 
 ```
+kubectl apply -f zookeeperset-lab.yaml
+
 # observe the deployment
 kubectl get pods -w 
 
