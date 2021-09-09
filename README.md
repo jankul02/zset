@@ -29,7 +29,7 @@ The Operator implements:
 ![ZookeeperSet](pictures/zookeeperset.png "ZookeeperSet")
 
 
-## Configuration
+## Basic Configuration
 The ZookeeperSet deploys SERVERS="replicas" number of instances.
 
 $SERVERS is available at start time for the instance .
@@ -44,72 +44,12 @@ DOMAIN=`hostname -d`  # identical for all
 With this values the image can construct the zookeeper config file. 
 
 
-### Configuration
-
-The defaults for all instances ("global") are by defined under:
-```yaml
-data:
-    cfg: |
-      LOG_LEVEL=INFO
-      WELCOME_MESSAGE="Hey Hey for all"
-      ADDITIONAL_PARAM=" Value"
-``` 
-and will be mounted under:
-```
-/mnt/zk-global
-```
-
-By conventions the instance specific configuration should be named ${ORD}-1 and specified under spec.data like
-
-```yaml
-  spec:
-    data:
-      0: |
-        LOG_LEVEL=DEBUG
-        WELCOME_MESSAGE="Hula hop hej hej 0"
-        ADDITIONAL_PARAM=" 231122"
-      1: |
-        LOG_LEVEL=DEBUG
-        WELCOME_MESSAGE="Hi Hi Ho 1"
-        ADDITIONAL_PARAM=" 23134122"
-```
-The configuration will be mounted as a file with the name of ${ORD}-1 under /mnt/zk-global/:
-```
-cat /mnt/zk-config/0 | grep WELCOME_MESSAGE
-WELCOME_MESSAGE="Hula hop hej hej 0"
-```
-
-It is the responisibility of the instance to use the needed configuration in a secure way (like avoiding shell sourcing). 
-
-By conventions the instance specific secrets should be named zksecrets for common secrets and zksecrets0, zksecrets1 ... for instance specific secrets  and specified under spec.data like:
-```yaml
-spec:
-  secrets:
-  - secretname: zksecrets
-    items:
-    - key: username
-      path: zksecrets 
-    - key: password
-      path: zksecrets 
-  - secretname: zksecrets0
-    items:
-    - key: username
-      path: zksecrets0 
-    - key: password
-      path: zksecrets0 
-```
-The secrets will be mounted as a file with the name as their secretname under /mnt/:
-```
-ls /mnt/zksecrets0
-```
-
-## Ordered Rollout
+## Ordered Automatic Rollout
 
 ![Ordered Rollout](pictures/orderedrollout.png "Ordered ROllout")
 
-
-
 ## Deploying the Operator
+
 ```
 # deploy the latest version 
 make deploy
@@ -123,59 +63,12 @@ kubectl logs zookeeperset-controller-manager-6dcd55bf77-xj2rj -n zookeeperset-sy
 
 ```
 
-### Deploy a ZookeeperSet
+### Deploy a ZookeeperSet (Basics)
 
-Create two resource definitions:
+Create the resource definitions (a ZookeeperSet CR) 
 
-- all needed secrets
-- a ZookeeperSet CR 
+A file like zookeeperset-lab.yaml:
 
-zksecrets.yaml
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: zksecrets
-  namespace: default
-  labels:
-    app: zk
-type: Opaque
-data:
-  username: YWRtaW4=
-  password: ZGZhcXFkcXFhcXEzNDUyOA==  
-```
-zksecrets2.yaml
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: zksecrets2
-  namespace: default
-  labels:
-    app: zk
-type: Opaque
-data:
-  username: YWRtaW4=
-  password: YXFxZHFxYXFxMzQ1Mjg=
-  api: aHR0cHM6Ly9hcGkuZXhhbXBsZS5jb20=
-```
-
-zksecrets0.yaml
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: zksecrets0
-  namespace: default
-  labels:
-    app: zk
-type: Opaque
-data:
-  username: YWRtaW4=
-  password: MWYyZDFlMmU2N2Rm
-```
-
- and a file like zookeeperset-lab.yaml
 ```yaml
 apiVersion: dataproxy.jankul02/v1alpha1
 kind: ZookeeperSet
@@ -191,50 +84,10 @@ spec:
       LOG_LEVEL=INFO
       WELCOME_MESSAGE="Hey Hey for all"
       ADDITIONAL_PARAM=" Value"
-    0: |
-      LOG_LEVEL=DEBUG
-      WELCOME_MESSAGE="Hula hop hej hej 0"
-      ADDITIONAL_PARAM=" 231122"
-    1: |
-      LOG_LEVEL=DEBUG
-      WELCOME_MESSAGE="Hi Hi Ho 1"
-      ADDITIONAL_PARAM=" 23134122"
-    2: |
-      LOG_LEVEL=DEBUG
-      WELCOME_MESSAGE="Hi Hi Ho 2"
-      ADDITIONAL_PARAM=" 23134122"
-  secrets:
-  - secretname: zksecrets
-    items:
-    - key: username
-      path: zksecrets 
-    - key: password
-      path: zksecrets 
-  - secretname: zksecrets0
-    items:
-    - key: username
-      path: zksecrets0 
-    - key: password
-      path: zksecrets0 
-  - secretname: zksecrets2
-    items:
-    - key: username
-      path: zksecrets2
-    - key: password              
-      path: zksecrets2
-    - key: api              
-      path: zksecrets2
 ```
-
-Deploy the secrets and the ZookeeperSet
-```
-kubectl apply -f zksecrets.yaml
-kubectl apply -f zksecrets0.yaml
-kubectl apply -f zksecrets2.yaml
-
-
 kubectl apply -f zookeeperset-lab.yaml
 
+```
 # observe the deployment
 kubectl get pods -w 
 
@@ -244,8 +97,8 @@ kubectl get pods -w
 
 Assumed:
 
-1. 4 nodes cluster
-2. 3 zookeeper replicas
+1. 4 nodes cluster (minikube start --nodes 4)
+2. 3 zookeeper replicas (replicas: 3)
 
 ### Network setup
 #### Show myid files:
@@ -398,4 +251,181 @@ kubectl delete -f config/samples/dataproxy_v1alpha1_zookeeperset.yaml
 ### undeploy the zookeeperset operator 
 ```
 make undeploy
+```
+
+
+## Advanced Configuration
+
+The defaults for all instances ("global") are by defined under:
+```yaml
+data:
+    cfg: |
+      LOG_LEVEL=INFO
+      WELCOME_MESSAGE="Hey Hey for all"
+      ADDITIONAL_PARAM=" Value"
+``` 
+and will be mounted under:
+```
+/mnt/zk-global
+```
+
+By conventions the instance specific configuration should be named ${ORD}-1 and specified under spec.data like
+
+```yaml
+  spec:
+    data:
+      0: |
+        LOG_LEVEL=DEBUG
+        WELCOME_MESSAGE="Hula hop hej hej 0"
+        ADDITIONAL_PARAM=" 231122"
+      1: |
+        LOG_LEVEL=DEBUG
+        WELCOME_MESSAGE="Hi Hi Ho 1"
+        ADDITIONAL_PARAM=" 23134122"
+```
+The configuration will be mounted as a file with the name of ${ORD}-1 under /mnt/zk-global/:
+```
+cat /mnt/zk-config/0 | grep WELCOME_MESSAGE
+WELCOME_MESSAGE="Hula hop hej hej 0"
+```
+
+It is the responisibility of the instance to use the needed configuration in a secure way (like avoiding shell sourcing). 
+
+By conventions the instance specific secrets should be named zksecrets for common secrets and zksecrets0, zksecrets1 ... for instance specific secrets  and specified under spec.data like:
+```yaml
+spec:
+  secrets:
+  - secretname: zksecrets
+    items:
+    - key: username
+      path: zksecrets 
+    - key: password
+      path: zksecrets 
+  - secretname: zksecrets0
+    items:
+    - key: username
+      path: zksecrets0 
+    - key: password
+      path: zksecrets0 
+```
+The secrets will be mounted as files with the name as their secretname under /mnt/:
+```
+ls /mnt/zksecrets0
+```
+
+## Advanced Configuration Deployment
+
+Create resource definitions:
+
+- all needed secrets
+- a ZookeeperSet CR 
+
+zksecrets.yaml
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: zksecrets
+  namespace: default
+  labels:
+    app: zk
+type: Opaque
+data:
+  username: YWRtaW4=
+  password: ZGZhcXFkcXFhcXEzNDUyOA==  
+```
+zksecrets2.yaml
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: zksecrets2
+  namespace: default
+  labels:
+    app: zk
+type: Opaque
+data:
+  username: YWRtaW4=
+  password: YXFxZHFxYXFxMzQ1Mjg=
+  api: aHR0cHM6Ly9hcGkuZXhhbXBsZS5jb20=
+```
+
+zksecrets0.yaml
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: zksecrets0
+  namespace: default
+  labels:
+    app: zk
+type: Opaque
+data:
+  username: YWRtaW4=
+  password: MWYyZDFlMmU2N2Rm
+```
+
+ and a file like zookeeperset-lab.yaml
+```yaml
+apiVersion: dataproxy.jankul02/v1alpha1
+kind: ZookeeperSet
+metadata:
+  name: zookeeperset-lab
+  namespace: default
+spec:
+  replicas: 3
+  app: "zk"
+  image: jankul02/kubernetes-zookeeper:0.0.12
+  data:
+    cfg: |
+      LOG_LEVEL=INFO
+      WELCOME_MESSAGE="Hey Hey for all"
+      ADDITIONAL_PARAM=" Value"
+    0: |
+      LOG_LEVEL=DEBUG
+      WELCOME_MESSAGE="Hula hop hej hej 0"
+      ADDITIONAL_PARAM=" 231122"
+    1: |
+      LOG_LEVEL=DEBUG
+      WELCOME_MESSAGE="Hi Hi Ho 1"
+      ADDITIONAL_PARAM=" 23134122"
+    2: |
+      LOG_LEVEL=DEBUG
+      WELCOME_MESSAGE="Hi Hi Ho 2"
+      ADDITIONAL_PARAM=" 23134122"
+  secrets:
+  - secretname: zksecrets
+    items:
+    - key: username
+      path: zksecrets 
+    - key: password
+      path: zksecrets 
+  - secretname: zksecrets0
+    items:
+    - key: username
+      path: zksecrets0 
+    - key: password
+      path: zksecrets0 
+  - secretname: zksecrets2
+    items:
+    - key: username
+      path: zksecrets2
+    - key: password              
+      path: zksecrets2
+    - key: api              
+      path: zksecrets2
+```
+
+Deploy the secrets and the ZookeeperSet
+```
+kubectl apply -f zksecrets.yaml
+kubectl apply -f zksecrets0.yaml
+kubectl apply -f zksecrets2.yaml
+
+
+kubectl apply -f zookeeperset-lab.yaml
+
+# observe the deployment
+kubectl get pods -w 
+
 ```
