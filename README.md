@@ -30,9 +30,10 @@ The Operator implements:
 
 
 ## Basic Configuration
+
 The ZookeeperSet deploys SERVERS="replicas" number of instances.
 
-$SERVERS is available at start time for the instance .
+$SERVERS is available at start time for all instances .
 
 All zookeeper instances receive hostnames to be zk-{$ORD} (like zk-0, zk-1 ) where $ORD is 0..$SERVERS-1.
 All zookeeper instances have the same local dns domain.
@@ -446,3 +447,7 @@ kubectl apply -f zookeeperset-lab.yaml
 kubectl get pods -w 
 
 ```
+
+## Scaling
+(Re)scalling is not implemented and there is no protection against changing the value of replicas.
+The results of scalling is unknown and currently unpredictable.
