@@ -39,7 +39,7 @@
         - port: 2888
           name: tcp-server
         - port: 3888
-          name: tcp-leader-election
+          name: tcp-leader-el
         clusterIP: None
         selector:
           app: '{{ app }}'   
@@ -148,7 +148,7 @@
               - containerPort: 2888
                 name: tcp-server
               - containerPort: 3888
-                name: tcp-leader-election            
+                name: tcp-leader-el            
               command:
               - sh
               - -c
