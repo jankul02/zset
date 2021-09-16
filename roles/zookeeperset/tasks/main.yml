@@ -37,9 +37,9 @@
       spec:
         ports:
         - port: 2888
-          name: server
+          name: tcp-server
         - port: 3888
-          name: leader-election
+          name: tcp-leader-election
         clusterIP: None
         selector:
           app: '{{ app }}'   
@@ -144,11 +144,11 @@
                   cpu: "0.5"
               ports:
               - containerPort: 2181
-                name: client
+                name: tcp-client
               - containerPort: 2888
-                name: server
+                name: tcp-server
               - containerPort: 3888
-                name: leader-election            
+                name: tcp-leader-election            
               command:
               - sh
               - -c

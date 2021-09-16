@@ -6,7 +6,7 @@ metadata:
 spec:
   replicas: 3
   app: "zk"
-  image: jankul02/kubernetes-zookeeper:0.0.28
+  image: jankul02/kubernetes-zookeeper:0.0.25
   data:
     cfg: |
       ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL=DEBUG
@@ -23,27 +23,7 @@ spec:
       ZOOKEEPER_LOG4J_ROOT_LOGLEVEL=WARN
       WELCOME_MESSAGE="Hi Hi Ho 2"
       ADDITIONAL_PARAM=" 23134122"      
-  secrets:
-  - secretname: zksecrets
-    items:
-    - key: username
-      path: zksecrets 
-    - key: password
-      path: zksecrets 
-  - secretname: zksecrets0
-    items:
-    - key: username
-      path: zksecrets0 
-    - key: password
-      path: zksecrets0 
-  - secretname: zksecrets2
-    items:
-    - key: username
-      path: zksecrets2
-    - key: password              
-      path: zksecrets2
-    - key: api              
-      path: zksecrets2
+
   
 
 

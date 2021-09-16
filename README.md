@@ -121,6 +121,9 @@ for i in 0 1 2; do kubectl exec zk-$i -- hostname -f; done
 kubectl exec zk-0 zkCli.sh create /mykey "hello world"
 
 kubectl exec zk-1 zkCli.sh get /mykey
+
+# kubectl exec zk-0 -- zookeeper-shell localhost:2181 create /mykey "Hello World"
+
 ```
 
 ## HA
@@ -342,7 +345,7 @@ data:
   username: YWRtaW4=
   password: ZGZhcXFkcXFhcXEzNDUyOA==  
 ```
-zksecrets2.yaml
+zksecrets2.yaml 
 ```yaml
 apiVersion: v1
 kind: Secret
