@@ -58,7 +58,7 @@
       spec:
         ports:
         - port: 2181
-          name: client
+          name: tcp-client
         selector:
           app: '{{ app }}'    
 
