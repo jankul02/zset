@@ -4,4 +4,5 @@
   group: dataproxy.jankul02
   kind: ZookeeperSet
   role: zookeeperset
+  snakeCaseParameters: false
 #+kubebuilder:scaffold:watch

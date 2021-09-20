@@ -50,19 +50,14 @@
       metadata:
         name: 'zk-{{ item.id }}'
         namespace: '{{namespace}}'
-      spec:
+      spec: 
         selector:
           matchLabels:
             app: '{{app}}'
             podnamerequired: 'zk-{{ item.id }}'
-        env: '{{ item.spec.env }}'
-        volumes: 
-          - name: '{{ item.spec.volumes.0.name }}'
-            secret: 
-              secretName: '{{ item.spec.volumes.0.secret.secret_name }}'
-        volumeMounts: 
-          - name : '{{ item.spec.volume_mounts.0.name }}'
-            mountPath : '{{ item.spec.volume_mounts.0.mount_path }}'
+        env: '{{ item.spec.env | default([]) }}'
+        volumes: '{{ item.spec.volumes | default([]) }}'
+        volumeMounts: '{{ item.spec.volumeMounts | default([]) }}'
   loop: "{{ instances }}"
 
 

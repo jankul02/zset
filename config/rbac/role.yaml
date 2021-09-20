@@ -21,6 +21,10 @@ rules:
       - pods/log
       - namespaces
       - configmaps
+      - podpresets
+      - podpresets
+      - podpresets/status
+      - podpresets/finalizers      
     verbs:
       - create
       - delete
@@ -31,11 +35,16 @@ rules:
       - watch
   - apiGroups:
       - apps
+      - redhatcop.redhat.io 
     resources:
+      - podpresets
+      - podpresets/status
+      - podpresets/finalizers    
       - deployments
       - daemonsets
       - replicasets
       - statefulsets
+      - podpresets
     verbs:
       - create
       - delete
@@ -78,4 +87,22 @@ rules:
       - patch
       - update
       - watch
+
+      
+  - apiGroups:
+      - redhatcop.redhat.io
+    resources:
+      - podpresets
+      - podpresets/status
+      - podpresets/finalizers
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+
+
 #+kubebuilder:scaffold:rules
