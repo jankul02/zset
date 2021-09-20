@@ -1,3 +1,153 @@
+- name: print configuration values    
+  debug:
+    msg:  '{{ app }} has  autoscale.range.min: {{ autoscale.range.min }}  '
+
+- name: calculate replicas  
+  #TODO real calculation upon node metrics and external hints
+  set_fact:
+    replicas: '{{autoscale.range.min | int}}'
+
+- name: print replicas    
+  debug:
+    msg:  'replicas {{ replicas }}'    
+  
+
+
+
+- name: init specs    
+  set_fact:
+    instancesspeclist:  []  
+ 
+- name: print allspecs   
+  debug:
+    msg:  'instance {{ item }}  '    
+  loop: "{{ instances }}"
+
+
+
+# - name: collect allspecs with added preset labels    
+#   set_fact:
+#      instancesspeclist:  "{{ instancesspeclist + [ item | combine({'spec':(item.spec  | default({}))|combine({ 'matchLabels': ( spec.matchLabels | default([]) ) + [ { 'podnamerequired': 'zk-'+ item.id } ] }  ) }) ] }}"
+#   loop: "{{ instances }}"
+
+
+- name: print allspecs    
+  debug:
+    msg:  'instancesspec {{ item }}  '    
+  loop: "{{ instancesspeclist }}"
+
+- name: print specs
+  debug:
+    msg:  'spec: {{ item.spec }}'    
+  loop: "{{ instances }}"
+ 
+
+- name: define pod presets
+  community.kubernetes.k8s:
+    definition:
+      apiVersion: redhatcop.redhat.io/v1alpha1
+      kind: PodPreset
+      metadata:
+        name: 'zk-{{ item.id }}'
+        namespace: '{{namespace}}'
+      spec:
+        selector:
+          matchLabels:
+            app: '{{app}}'
+            podnamerequired: 'zk-{{ item.id }}'
+        env: '{{ item.spec.env }}'
+        volumes: 
+          - name: '{{ item.spec.volumes.0.name }}'
+            secret: 
+              secretName: '{{ item.spec.volumes.0.secret.secret_name }}'
+        volumeMounts: 
+          - name : '{{ item.spec.volume_mounts.0.name }}'
+            mountPath : '{{ item.spec.volume_mounts.0.mount_path }}'
+  loop: "{{ instances }}"
+
+
+# - name: define pod presets
+#   community.kubernetes.k8s:
+#     definition:
+#       apiVersion: redhatcop.redhat.io/v1alpha1
+#       kind: PodPreset
+#       metadata:
+#         name: 'zk-0'
+#         namespace: '{{namespace}}'
+#       spec:
+#         selector:
+#           matchLabels:
+#             app: '{{app}}'
+#             podnamerequired: 'zk-0'
+#         env: 
+#           - name: ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL
+#             value: INFO
+#           - name: ZOOKEEPER_LOG4J_ROOT_LOGLEVEL
+#             value: INFO
+#           - name: WELCOME_MESSAGE
+#             value: "Hello hopla hey hey 0000"
+#           - name: ADDITIONAL_PARAM
+#             value: " 231122"
+#         volumeMounts:
+#           # name must match the volume name below
+#           - name: zksecrets0
+#             mountPath: /mnt/zksecrets
+#           # The secret data is exposed to Containers in the Pod through a Volume.
+#         volumes:
+#           - name: zksecrets0
+#             secret:
+#               secretName: zksecrets0
+#  loop: "{{ instances }}"
+  
+
+
+# - name: nginx services
+#   community.kubernetes.k8s:
+#     state: present
+#     definition:
+#       apiVersion: v1
+#       kind: Service
+#       metadata:
+#         name: my-nginx{{item}}-svc
+#         namespace: default        
+#         labels:
+#           app: nginx{{item}}
+#       spec:
+#         type: LoadBalancer
+#         ports:
+#         - port: 80
+#         selector:
+#           app: nginx{{item}}    
+#   loop: "{{ range(0, 20, 1)|list }}"
+
+# - name: nginx apps
+#   community.kubernetes.k8s:
+#     state: present
+#     definition:
+#       apiVersion: apps/v1
+#       kind: Deployment
+#       metadata:
+#         name: my-nginx{{item}}
+#         namespace: default            
+#         labels:
+#           app: nginx{{item}}
+#       spec:
+#         replicas: 1
+#         selector:
+#           matchLabels:
+#             app: nginx{{item}}
+#         template:
+#           metadata:
+#             labels:
+#               app: nginx{{item}}
+#           spec:
+#             containers:
+#             - name: nginx{{item}}
+#               image: nginx:1.14.2
+#               ports:
+#               - containerPort: 80
+#   loop: "{{ range(0, 20, 1)|list }}"
+
 
 
 - name: get the configname (uuid) of the comming deployment    
@@ -16,7 +166,7 @@
       kind: ConfigMap
       metadata: 
         name: zk-global
-        namespace: '{{ ansible_operator_meta.namespace }}'
+        namespace: '{{ namespace }}'
         labels:
           app: '{{ app }}'
           configmap: zk-global
@@ -31,7 +181,7 @@
       apiVersion: v1
       metadata:
         name: zk-hs
-        namespace: '{{ ansible_operator_meta.namespace }}'
+        namespace: '{{ namespace }}'
         labels:
           app: '{{ app }}'    
       spec:
@@ -52,13 +202,13 @@
       apiVersion: v1
       metadata:
         name: zk-cs
-        namespace: '{{ ansible_operator_meta.namespace }}'
+        namespace: '{{ namespace }}'
         labels:
           app: '{{ app }}'    
       spec:
         ports:
         - port: 2181
-          name: tcp-client
+          name: client
         selector:
           app: '{{ app }}'    
 
@@ -69,12 +219,13 @@
       kind: PodDisruptionBudget
       metadata:
         name: zk-pdb
-        namespace: '{{ ansible_operator_meta.namespace }}'
+        namespace: '{{ namespace }}'
       spec:
         selector:
           matchLabels:
             app: '{{ app }}'    
-        maxUnavailable: 1
+        #TODO: variable for maxUnavailable
+        maxUnavailable: 1  
 
 - name: volumemounts
   set_fact:
@@ -91,12 +242,6 @@
         configMap:
           name: zk-global       
 
-- name: secret volumes & their mounts
-  set_fact:
-    volumemounts: "{{ (volumemounts  | default([]) ) + [ { 'name' : item.secretname , 'mountPath' : '/mnt/'+ item.secretname , 'readOnly': true } ] }}"
-    volumes: "{{ ( volumes  | default([]) ) + [ { 'name' : item.secretname , 'secret' : { 'secretName' : item.secretname, 'items' : item['items'] }  } ] }}"
-  loop: "{{ secrets }}" 
-  when: secrets is defined 
 
 - name: Zookeeperset deployment
   community.kubernetes.k8s:
@@ -105,15 +250,15 @@
       kind: StatefulSet
       metadata:
         name: zk
-        namespace: '{{ ansible_operator_meta.namespace }}'       
+        namespace: '{{ namespace }}'       
         labels:
           app: '{{ app }}'               
       spec:
         selector:
           matchLabels:
-            app: '{{ app }}'    
+            app: '{{ app }}'
         serviceName: zk-hs
-        replicas: '{{replicas}}'
+        replicas: 3        
         updateStrategy:
           type: RollingUpdate
         podManagementPolicy: OrderedReady

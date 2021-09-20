@@ -444,3 +444,12 @@ kubectl get pods -w
 
 (Re)scalling is **not implemented** and there is no protection against changing the value of replicas.
 The results of scalling are unknown and currently unpredictable.
+
+
+```
+#cert manager
+curl -L -o kubectl-cert-manager.tar.gz https://github.com/jetstack/cert-manager/releases/latest/download/kubectl-cert_manager-linux-amd64.tar.gz
+tar xzf kubectl-cert-manager.tar.gz
+sudo mv kubectl-cert_manager /usr/local/bin
+
+kubectl cert-manager x install
