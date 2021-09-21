@@ -453,3 +453,4 @@ tar xzf kubectl-cert-manager.tar.gz
 sudo mv kubectl-cert_manager /usr/local/bin
 
 kubectl cert-manager x install
+````

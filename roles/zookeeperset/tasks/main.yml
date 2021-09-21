@@ -40,7 +40,21 @@
   debug:
     msg:  'spec: {{ item.spec }}'    
   loop: "{{ instances }}"
- 
+
+
+
+
+- name: Search for all preset labelled app
+  community.kubernetes.k8s_info:
+    kind: PodPreset
+    api_version: v1alpha1
+    # label_selectors:
+    #   - 'app = {{app}}'
+  register: podpresetsbefore
+
+- name: print podpresetsbefore
+  debug:
+    msg:  '{{ podpresetsbefore }}'    
 
 - name: define pod presets
   community.kubernetes.k8s:
@@ -59,6 +73,13 @@
         volumes: '{{ item.spec.volumes | default([]) }}'
         volumeMounts: '{{ item.spec.volumeMounts | default([]) }}'
   loop: "{{ instances }}"
+  register: presettingresults
+
+- name: print presettingresult
+  debug:
+    msg:  '{{ presettingresults }}'    
+
+
 
 
 # - name: define pod presets
@@ -237,6 +258,38 @@
         configMap:
           name: zk-global       
 
+- name:  ZookeeperSet depends on
+  community.kubernetes.k8s_info:
+    kind: '{{item.kind}}'
+    name: '{{item.name}}'
+    namespace: '{{namespace}}'
+  loop: '{{ updateOnChange }}'  
+  register: updateonchangeresources
+
+- name: print updateonchangeresources
+  debug:
+    msg:  '{{ updateonchangeresources }}'    
+
+- name: print resources
+  debug:
+    msg:  'item: {{ item }}'    
+  loop: '{{ updateonchangeresources.results }}'  
+
+
+- name: annotate dependent update ZookeeperSet
+  set_fact:
+      annotation: '{{ ( annotation | default([]) ) + item.resources }}'
+  loop: '{{ updateonchangeresources.results }}'  
+  when: item.resources | length > 0
+
+- name: print dependent update ZookeeperSet
+  debug:
+    msg:  '{{ annotation }}'  
+
+- name: make annotation update ZookeeperSet
+  set_fact:
+      rolloutAnnotation: "{{ annotation | hash('sha1') }}" 
+
 
 - name: Zookeeperset deployment
   community.kubernetes.k8s:
@@ -247,7 +300,7 @@
         name: zk
         namespace: '{{ namespace }}'       
         labels:
-          app: '{{ app }}'               
+          app: '{{ app }}'
       spec:
         selector:
           matchLabels:
@@ -263,6 +316,7 @@
               app: '{{ app }}'
             annotations: 
               configname: '{{configname}}' 
+              rolloutAnnotation: '{{rolloutAnnotation}}'                
           spec:
             affinity:
               podAntiAffinity:
@@ -323,3 +377,11 @@
             resources:
               requests:
                 storage: 10Gi
+  register: stsresult
+
+
+- name: print stsresult
+  debug:
+    msg:  '{{ stsresult }}'    
+
+
