@@ -69,3 +69,25 @@ spec:
             secretName: zksecrets2
   kafkaapp: kafkaapp
 
+# secureClientPort=2182
+# serverCnxnFactory=org.apache.zookeeper.server.NettyServerCnxnFactory
+# authProvider.x509=org.apache.zookeeper.server.auth.X509AuthenticationProvider
+# ssl.keyStore.location=<path-to-zookeeper-keystore>
+# ssl.keyStore.password=<zookeeper-keystore-password>
+# ssl.trustStore.location=<path-to-zookeeper-trustore>
+# ssl.trustStore.password=<zookeeper-truststore-password>
+
+
+# # Connect to the ZooKeeper port configured for TLS
+# zookeeper.connect=zk1:2182,zk2:2182,zk3:2182
+# # Required to use TLS-to-ZooKeeper (default is false)
+# zookeeper.ssl.client.enable=true
+# # Required to use TLS-to-ZooKeeper
+# zookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty
+# # Define key/trust stores to use TLS-to-ZooKeeper; ignored unless zookeeper.ssl.client.enable=true
+# zookeeper.ssl.keystore.location=<path-to-kafka-keystore>
+#   =<kafka-keystore-password>
+# zookeeper.ssl.truststore.location=<path-to-kafka-trustore>
+# zookeeper.ssl.truststore.password=<kafka-truststore-password>
+# # Tells broker to create ACLs on znodes
+# zookeeper.set.acl=true
