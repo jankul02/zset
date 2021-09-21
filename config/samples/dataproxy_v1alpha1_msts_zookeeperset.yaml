@@ -67,6 +67,5 @@ spec:
         - name: zksecrets2
           secret:
             secretName: zksecrets2
-
-
+  kafkaapp: kafkaapp
 
