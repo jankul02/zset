@@ -454,3 +454,9 @@ sudo mv kubectl-cert_manager /usr/local/bin
 
 kubectl cert-manager x install
 ````
+
+kubectl delete pvc datadir-0-kafka-0 datadir-0-kafka-1 datadir-0-kafka-2 datadir-zk-0 datadir-zk-1 datadir-zk-2
+
+
+```
+keytool -keystore server.keystore.jks -alias localhost -validity 5555 -genkey -keyalg RSA -ext SAN=DNS:{FQDN}
