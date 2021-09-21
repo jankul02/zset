@@ -1,13 +1,1393 @@
-{"level":"info","ts":1632215414.9131668,"logger":"cmd","msg":"Version","Go Version":"go1.16.7","GOOS":"linux","GOARCH":"amd64","ansible-operator":"v1.11.0","commit":"28dcd12a776d8a8ff597e1d8527b08792e7312fd"}
-{"level":"info","ts":1632215414.913388,"logger":"cmd","msg":"Watch namespaces not configured by environment variable WATCH_NAMESPACE or file. Watching all namespaces.","Namespace":""}
-{"level":"info","ts":1632215415.4202552,"logger":"controller-runtime.metrics","msg":"metrics server is starting to listen","addr":"127.0.0.1:8080"}
-{"level":"info","ts":1632215415.4212427,"logger":"watches","msg":"Environment variable not set; using default value","envVar":"ANSIBLE_VERBOSITY_ZOOKEEPERSET_DATAPROXY_JANKUL02","default":2}
-{"level":"info","ts":1632215415.4213674,"logger":"cmd","msg":"Environment variable not set; using default value","Namespace":"","envVar":"ANSIBLE_DEBUG_LOGS","ANSIBLE_DEBUG_LOGS":false}
-{"level":"info","ts":1632215415.4214034,"logger":"ansible-controller","msg":"Watching resource","Options.Group":"dataproxy.jankul02","Options.Version":"v1alpha1","Options.Kind":"ZookeeperSet"}
-{"level":"info","ts":1632215415.4226604,"logger":"proxy","msg":"Starting to serve","Address":"127.0.0.1:8888"}
-{"level":"info","ts":1632215415.4228325,"logger":"controller-runtime.manager","msg":"starting metrics server","path":"/metrics"}
-I0921 09:10:15.422798       8 leaderelection.go:243] attempting to acquire leader lease zookeeperset-system/zookeeperset...
-I0921 09:10:15.434725       8 leaderelection.go:253] successfully acquired lease zookeeperset-system/zookeeperset
-{"level":"info","ts":1632215415.4349463,"logger":"controller-runtime.manager.controller.zookeeperset-controller","msg":"Starting EventSource","source":"kind source: dataproxy.jankul02/v1alpha1, Kind=ZookeeperSet"}
-{"level":"info","ts":1632215415.434991,"logger":"controller-runtime.manager.controller.zookeeperset-controller","msg":"Starting Controller"}
-{"level":"info","ts":1632215415.5352337,"logger":"controller-runtime.manager.controller.zookeeperset-controller","msg":"Starting workers","worker count":3}
+{"level":"info","ts":1632255653.7110422,"logger":"cmd","msg":"Version","Go Version":"go1.16.7","GOOS":"linux","GOARCH":"amd64","ansible-operator":"v1.11.0","commit":"28dcd12a776d8a8ff597e1d8527b08792e7312fd"}
+{"level":"info","ts":1632255653.7114139,"logger":"cmd","msg":"Watch namespaces not configured by environment variable WATCH_NAMESPACE or file. Watching all namespaces.","Namespace":""}
+{"level":"info","ts":1632255654.2158713,"logger":"controller-runtime.metrics","msg":"metrics server is starting to listen","addr":"127.0.0.1:8080"}
+{"level":"info","ts":1632255654.2162802,"logger":"watches","msg":"Environment variable not set; using default value","envVar":"ANSIBLE_VERBOSITY_ZOOKEEPERSET_DATAPROXY_JANKUL02","default":2}
+{"level":"info","ts":1632255654.2163517,"logger":"cmd","msg":"Environment variable not set; using default value","Namespace":"","envVar":"ANSIBLE_DEBUG_LOGS","ANSIBLE_DEBUG_LOGS":false}
+{"level":"info","ts":1632255654.2164142,"logger":"ansible-controller","msg":"Watching resource","Options.Group":"dataproxy.jankul02","Options.Version":"v1alpha1","Options.Kind":"ZookeeperSet"}
+{"level":"info","ts":1632255654.2169955,"logger":"proxy","msg":"Starting to serve","Address":"127.0.0.1:8888"}
+I0921 20:20:54.217151       8 leaderelection.go:243] attempting to acquire leader lease zookeeperset-system/zookeeperset...
+{"level":"info","ts":1632255654.2171967,"logger":"controller-runtime.manager","msg":"starting metrics server","path":"/metrics"}
+I0921 20:20:54.223362       8 leaderelection.go:253] successfully acquired lease zookeeperset-system/zookeeperset
+{"level":"info","ts":1632255654.2238085,"logger":"controller-runtime.manager.controller.zookeeperset-controller","msg":"Starting EventSource","source":"kind source: dataproxy.jankul02/v1alpha1, Kind=ZookeeperSet"}
+{"level":"info","ts":1632255654.2239826,"logger":"controller-runtime.manager.controller.zookeeperset-controller","msg":"Starting Controller"}
+{"level":"info","ts":1632255654.4252903,"logger":"controller-runtime.manager.controller.zookeeperset-controller","msg":"Starting workers","worker count":3}
+{"level":"info","ts":1632255675.5410817,"logger":"logging_event_handler","msg":"[playbook debug]","name":"zookeeperset-lab","namespace":"default","gvk":"dataproxy.jankul02/v1alpha1, Kind=ZookeeperSet","event_type":"runner_on_ok","job":"7710321925090064213","EventData.TaskArgs":""}
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+ TASK [print configuration values] ******************************** 
+ok: [localhost] => {
+    "msg": "zk has  autoscale.range.min: 3  "
+}
+
+-------------------------------------------------------------------------------
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+ TASK [print replicas] ******************************** 
+ok: [localhost] => {
+    "msg": "replicas 3"
+}
+{"level":"info","ts":1632255675.6449401,"logger":"logging_event_handler","msg":"[playbook debug]","name":"zookeeperset-lab","namespace":"default","gvk":"dataproxy.jankul02/v1alpha1, Kind=ZookeeperSet","event_type":"runner_on_ok","job":"7710321925090064213","EventData.TaskArgs":""}
+
+-------------------------------------------------------------------------------
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+ TASK [print allspecs] ******************************** 
+ok: [localhost] => (item={'id': '0', 'nodeSelector': {'zkinstanceid': '0'}, 'spec': {'env': [{'name': 'ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL', 'value': 'DEBUG'}, {'name': 'ZOOKEEPER_LOG4J_ROOT_LOGLEVEL', 'value': 'INFO'}, {'name': 'WELCOME_MESSAGE', 'value': 'Hello ajaja 1000'}, {'name': 'ADDITIONAL_PARAM', 'value': ' 2311225'}], 'volumeMounts': [{'mountPath': '/mnt/zksecrets', 'name': 'zksecrets0'}], 'volumes': [{'name': 'zksecrets0', 'secret': {'secretName': 'zksecrets0'}}]}, 'updateOnChange': [{'kind': 'Secret', 'name': 'zksecrets0'}]}) => {
+    "msg": "instance {'id': '0', 'nodeSelector': {'zkinstanceid': '0'}, 'spec': {'env': [{'name': 'ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL', 'value': 'DEBUG'}, {'name': 'ZOOKEEPER_LOG4J_ROOT_LOGLEVEL', 'value': 'INFO'}, {'name': 'WELCOME_MESSAGE', 'value': 'Hello ajaja 1000'}, {'name': 'ADDITIONAL_PARAM', 'value': ' 2311225'}], 'volumeMounts': [{'mountPath': '/mnt/zksecrets', 'name': 'zksecrets0'}], 'volumes': [{'name': 'zksecrets0', 'secret': {'secretName': 'zksecrets0'}}]}, 'updateOnChange': [{'kind': 'Secret', 'name': 'zksecrets0'}]}  "
+}
+
+-------------------------------------------------------------------------------
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+ TASK [print allspecs] ******************************** 
+ok: [localhost] => (item={'id': '2', 'nodeSelector': {'zkinstanceid': '2'}, 'spec': {'env': [{'name': 'ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL', 'value': 'INFO'}, {'name': 'ZOOKEEPER_LOG4J_ROOT_LOGLEVEL', 'value': 'INFO'}, {'name': 'WELCOME_MESSAGE', 'value': 'How are you 2ooo'}, {'name': 'ADDITIONAL_PARAM', 'value': ' 231100-q3242'}], 'volumeMounts': [{'mountPath': '/mnt/zksecrets', 'name': 'zksecrets2'}], 'volumes': [{'name': 'zksecrets2', 'secret': {'secretName': 'zksecrets2'}}]}, 'updateOnChange': [{'kind': 'Secret', 'name': 'zksecrets2'}]}) => {
+    "msg": "instance {'id': '2', 'nodeSelector': {'zkinstanceid': '2'}, 'spec': {'env': [{'name': 'ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL', 'value': 'INFO'}, {'name': 'ZOOKEEPER_LOG4J_ROOT_LOGLEVEL', 'value': 'INFO'}, {'name': 'WELCOME_MESSAGE', 'value': 'How are you 2ooo'}, {'name': 'ADDITIONAL_PARAM', 'value': ' 231100-q3242'}], 'volumeMounts': [{'mountPath': '/mnt/zksecrets', 'name': 'zksecrets2'}], 'volumes': [{'name': 'zksecrets2', 'secret': {'secretName': 'zksecrets2'}}]}, 'updateOnChange': [{'kind': 'Secret', 'name': 'zksecrets2'}]}  "
+}
+
+-------------------------------------------------------------------------------
+{"level":"info","ts":1632255675.7205336,"logger":"logging_event_handler","msg":"[playbook debug]","name":"zookeeperset-lab","namespace":"default","gvk":"dataproxy.jankul02/v1alpha1, Kind=ZookeeperSet","event_type":"runner_on_ok","job":"7710321925090064213","EventData.TaskArgs":""}
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+ TASK [print specs] ******************************** 
+ok: [localhost] => (item={'id': '0', 'nodeSelector': {'zkinstanceid': '0'}, 'spec': {'env': [{'name': 'ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL', 'value': 'DEBUG'}, {'name': 'ZOOKEEPER_LOG4J_ROOT_LOGLEVEL', 'value': 'INFO'}, {'name': 'WELCOME_MESSAGE', 'value': 'Hello ajaja 1000'}, {'name': 'ADDITIONAL_PARAM', 'value': ' 2311225'}], 'volumeMounts': [{'mountPath': '/mnt/zksecrets', 'name': 'zksecrets0'}], 'volumes': [{'name': 'zksecrets0', 'secret': {'secretName': 'zksecrets0'}}]}, 'updateOnChange': [{'kind': 'Secret', 'name': 'zksecrets0'}]}) => {
+    "msg": "spec: {'env': [{'name': 'ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL', 'value': 'DEBUG'}, {'name': 'ZOOKEEPER_LOG4J_ROOT_LOGLEVEL', 'value': 'INFO'}, {'name': 'WELCOME_MESSAGE', 'value': 'Hello ajaja 1000'}, {'name': 'ADDITIONAL_PARAM', 'value': ' 2311225'}], 'volumeMounts': [{'mountPath': '/mnt/zksecrets', 'name': 'zksecrets0'}], 'volumes': [{'name': 'zksecrets0', 'secret': {'secretName': 'zksecrets0'}}]}"
+}
+
+-------------------------------------------------------------------------------
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+ TASK [print specs] ******************************** 
+ok: [localhost] => (item={'id': '2', 'nodeSelector': {'zkinstanceid': '2'}, 'spec': {'env': [{'name': 'ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL', 'value': 'INFO'}, {'name': 'ZOOKEEPER_LOG4J_ROOT_LOGLEVEL', 'value': 'INFO'}, {'name': 'WELCOME_MESSAGE', 'value': 'How are you 2ooo'}, {'name': 'ADDITIONAL_PARAM', 'value': ' 231100-q3242'}], 'volumeMounts': [{'mountPath': '/mnt/zksecrets', 'name': 'zksecrets2'}], 'volumes': [{'name': 'zksecrets2', 'secret': {'secretName': 'zksecrets2'}}]}, 'updateOnChange': [{'kind': 'Secret', 'name': 'zksecrets2'}]}) => {
+    "msg": "spec: {'env': [{'name': 'ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL', 'value': 'INFO'}, {'name': 'ZOOKEEPER_LOG4J_ROOT_LOGLEVEL', 'value': 'INFO'}, {'name': 'WELCOME_MESSAGE', 'value': 'How are you 2ooo'}, {'name': 'ADDITIONAL_PARAM', 'value': ' 231100-q3242'}], 'volumeMounts': [{'mountPath': '/mnt/zksecrets', 'name': 'zksecrets2'}], 'volumes': [{'name': 'zksecrets2', 'secret': {'secretName': 'zksecrets2'}}]}"
+}
+
+-------------------------------------------------------------------------------
+{"level":"info","ts":1632255675.8403323,"logger":"logging_event_handler","msg":"[playbook debug]","name":"zookeeperset-lab","namespace":"default","gvk":"dataproxy.jankul02/v1alpha1, Kind=ZookeeperSet","event_type":"runner_on_ok","job":"7710321925090064213","EventData.TaskArgs":""}
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+TASK [zookeeperset : Search for all preset labelled app] ***********************
+task path: /opt/ansible/roles/zookeeperset/tasks/main.yml:47
+
+-------------------------------------------------------------------------------
+{"level":"info","ts":1632255675.8437376,"logger":"logging_event_handler","msg":"[playbook task start]","name":"zookeeperset-lab","namespace":"default","gvk":"dataproxy.jankul02/v1alpha1, Kind=ZookeeperSet","event_type":"playbook_on_task_start","job":"7710321925090064213","EventData.Name":"zookeeperset : Search for all preset labelled app"}
+{"level":"info","ts":1632255677.2066576,"logger":"proxy","msg":"Read object from cache","resource":{"IsResourceRequest":true,"Path":"/apis/redhatcop.redhat.io/v1alpha1/podpresets","Verb":"list","APIPrefix":"apis","APIGroup":"redhatcop.redhat.io","APIVersion":"v1alpha1","Namespace":"","Resource":"podpresets","Subresource":"","Name":"","Parts":["podpresets"]}}
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+ TASK [print podpresetsbefore] ******************************** 
+ok: [localhost] => {
+    "msg": {
+        "api_found": true,
+        "changed": false,
+        "failed": false,
+        "resources": []
+    }
+}
+
+-------------------------------------------------------------------------------
+{"level":"info","ts":1632255677.3283522,"logger":"logging_event_handler","msg":"[playbook debug]","name":"zookeeperset-lab","namespace":"default","gvk":"dataproxy.jankul02/v1alpha1, Kind=ZookeeperSet","event_type":"runner_on_ok","job":"7710321925090064213","EventData.TaskArgs":""}
+{"level":"info","ts":1632255677.331178,"logger":"logging_event_handler","msg":"[playbook task start]","name":"zookeeperset-lab","namespace":"default","gvk":"dataproxy.jankul02/v1alpha1, Kind=ZookeeperSet","event_type":"playbook_on_task_start","job":"7710321925090064213","EventData.Name":"zookeeperset : define zk pod presets"}
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+TASK [zookeeperset : define zk pod presets] ************************************
+task path: /opt/ansible/roles/zookeeperset/tasks/main.yml:59
+
+-------------------------------------------------------------------------------
+{"level":"info","ts":1632255678.0986025,"logger":"proxy","msg":"Cache miss: redhatcop.redhat.io/v1alpha1, Kind=PodPreset, default/zk-0"}
+{"level":"info","ts":1632255678.1031365,"logger":"proxy","msg":"Injecting owner reference"}
+{"level":"info","ts":1632255678.103413,"logger":"proxy","msg":"Watching child resource","kind":"redhatcop.redhat.io/v1alpha1, Kind=PodPreset","enqueue_kind":"dataproxy.jankul02/v1alpha1, Kind=ZookeeperSet"}
+{"level":"info","ts":1632255678.1035087,"logger":"controller-runtime.manager.controller.zookeeperset-controller","msg":"Starting EventSource","source":"kind source: redhatcop.redhat.io/v1alpha1, Kind=PodPreset"}
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+ TASK [define zk pod presets] ******************************** 
+changed: [localhost] => (item={'id': '0', 'nodeSelector': {'zkinstanceid': '0'}, 'spec': {'env': [{'name': 'ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL', 'value': 'DEBUG'}, {'name': 'ZOOKEEPER_LOG4J_ROOT_LOGLEVEL', 'value': 'INFO'}, {'name': 'WELCOME_MESSAGE', 'value': 'Hello ajaja 1000'}, {'name': 'ADDITIONAL_PARAM', 'value': ' 2311225'}], 'volumeMounts': [{'mountPath': '/mnt/zksecrets', 'name': 'zksecrets0'}], 'volumes': [{'name': 'zksecrets0', 'secret': {'secretName': 'zksecrets0'}}]}, 'updateOnChange': [{'kind': 'Secret', 'name': 'zksecrets0'}]}) => {"ansible_loop_var": "item", "changed": true, "item": {"id": "0", "nodeSelector": {"zkinstanceid": "0"}, "spec": {"env": [{"name": "ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL", "value": "DEBUG"}, {"name": "ZOOKEEPER_LOG4J_ROOT_LOGLEVEL", "value": "INFO"}, {"name": "WELCOME_MESSAGE", "value": "Hello ajaja 1000"}, {"name": "ADDITIONAL_PARAM", "value": " 2311225"}], "volumeMounts": [{"mountPath": "/mnt/zksecrets", "name": "zksecrets0"}], "volumes": [{"name": "zksecrets0", "secret": {"secretName": "zksecrets0"}}]}, "updateOnChange": [{"kind": "Secret", "name": "zksecrets0"}]}, "method": "create", "result": {"apiVersion": "redhatcop.redhat.io/v1alpha1", "kind": "PodPreset", "metadata": {"creationTimestamp": "2021-09-21T20:21:18Z", "generation": 1, "managedFields": [{"apiVersion": "redhatcop.redhat.io/v1alpha1", "fieldsType": "FieldsV1", "fieldsV1": {"f:metadata": {"f:ownerReferences": {".": {}, "k:{\"uid\":\"0a0c1cfb-936e-4475-a9e7-37c21b6832bd\"}": {}}}, "f:spec": {".": {}, "f:env": {}, "f:selector": {".": {}, "f:matchLabels": {".": {}, "f:app": {}, "f:podnamerequired": {}}}, "f:volumeMounts": {}, "f:volumes": {}}}, "manager": "OpenAPI-Generator", "operation": "Update", "time": "2021-09-21T20:21:18Z"}], "name": "zk-0", "namespace": "default", "ownerReferences": [{"apiVersion": "dataproxy.jankul02/v1alpha1", "kind": "ZookeeperSet", "name": "zookeeperset-lab", "uid": "0a0c1cfb-936e-4475-a9e7-37c21b6832bd"}], "resourceVersion": "776856", "uid": "4e4134b7-c053-4aae-a3cc-e1d3a0df8239"}, "spec": {"env": [{"name": "ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL", "value": "DEBUG"}, {"name": "ZOOKEEPER_LOG4J_ROOT_LOGLEVEL", "value": "INFO"}, {"name": "WELCOME_MESSAGE", "value": "Hello ajaja 1000"}, {"name": "ADDITIONAL_PARAM", "value": " 2311225"}], "selector": {"matchLabels": {"app": "zk", "podnamerequired": "zk-0"}}, "volumeMounts": [{"mountPath": "/mnt/zksecrets", "name": "zksecrets0"}], "volumes": [{"name": "zksecrets0", "secret": {"secretName": "zksecrets0"}}]}}}
+
+-------------------------------------------------------------------------------
+{"level":"info","ts":1632255678.5909758,"logger":"proxy","msg":"Cache miss: redhatcop.redhat.io/v1alpha1, Kind=PodPreset, default/zk-2"}
+{"level":"info","ts":1632255678.5935907,"logger":"proxy","msg":"Injecting owner reference"}
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+ TASK [define zk pod presets] ******************************** 
+changed: [localhost] => (item={'id': '2', 'nodeSelector': {'zkinstanceid': '2'}, 'spec': {'env': [{'name': 'ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL', 'value': 'INFO'}, {'name': 'ZOOKEEPER_LOG4J_ROOT_LOGLEVEL', 'value': 'INFO'}, {'name': 'WELCOME_MESSAGE', 'value': 'How are you 2ooo'}, {'name': 'ADDITIONAL_PARAM', 'value': ' 231100-q3242'}], 'volumeMounts': [{'mountPath': '/mnt/zksecrets', 'name': 'zksecrets2'}], 'volumes': [{'name': 'zksecrets2', 'secret': {'secretName': 'zksecrets2'}}]}, 'updateOnChange': [{'kind': 'Secret', 'name': 'zksecrets2'}]}) => {"ansible_loop_var": "item", "changed": true, "item": {"id": "2", "nodeSelector": {"zkinstanceid": "2"}, "spec": {"env": [{"name": "ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL", "value": "INFO"}, {"name": "ZOOKEEPER_LOG4J_ROOT_LOGLEVEL", "value": "INFO"}, {"name": "WELCOME_MESSAGE", "value": "How are you 2ooo"}, {"name": "ADDITIONAL_PARAM", "value": " 231100-q3242"}], "volumeMounts": [{"mountPath": "/mnt/zksecrets", "name": "zksecrets2"}], "volumes": [{"name": "zksecrets2", "secret": {"secretName": "zksecrets2"}}]}, "updateOnChange": [{"kind": "Secret", "name": "zksecrets2"}]}, "method": "create", "result": {"apiVersion": "redhatcop.redhat.io/v1alpha1", "kind": "PodPreset", "metadata": {"creationTimestamp": "2021-09-21T20:21:18Z", "generation": 1, "managedFields": [{"apiVersion": "redhatcop.redhat.io/v1alpha1", "fieldsType": "FieldsV1", "fieldsV1": {"f:metadata": {"f:ownerReferences": {".": {}, "k:{\"uid\":\"0a0c1cfb-936e-4475-a9e7-37c21b6832bd\"}": {}}}, "f:spec": {".": {}, "f:env": {}, "f:selector": {".": {}, "f:matchLabels": {".": {}, "f:app": {}, "f:podnamerequired": {}}}, "f:volumeMounts": {}, "f:volumes": {}}}, "manager": "OpenAPI-Generator", "operation": "Update", "time": "2021-09-21T20:21:18Z"}], "name": "zk-2", "namespace": "default", "ownerReferences": [{"apiVersion": "dataproxy.jankul02/v1alpha1", "kind": "ZookeeperSet", "name": "zookeeperset-lab", "uid": "0a0c1cfb-936e-4475-a9e7-37c21b6832bd"}], "resourceVersion": "776861", "uid": "d2873747-2b5c-4ed1-9bb5-09c495c7cece"}, "spec": {"env": [{"name": "ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL", "value": "INFO"}, {"name": "ZOOKEEPER_LOG4J_ROOT_LOGLEVEL", "value": "INFO"}, {"name": "WELCOME_MESSAGE", "value": "How are you 2ooo"}, {"name": "ADDITIONAL_PARAM", "value": " 231100-q3242"}], "selector": {"matchLabels": {"app": "zk", "podnamerequired": "zk-2"}}, "volumeMounts": [{"mountPath": "/mnt/zksecrets", "name": "zksecrets2"}], "volumes": [{"name": "zksecrets2", "secret": {"secretName": "zksecrets2"}}]}}}
+
+-------------------------------------------------------------------------------
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+ TASK [print presettingresult] ******************************** 
+ok: [localhost] => {
+    "msg": {
+        "changed": true,
+        "msg": "All items completed",
+        "results": [
+            {
+                "ansible_loop_var": "item",
+                "changed": true,
+                "failed": false,
+                "invocation": {
+                    "module_args": {
+                        "api_key": null,
+                        "api_version": "v1",
+                        "append_hash": false,
+                        "apply": false,
+                        "ca_cert": null,
+                        "client_cert": null,
+                        "client_key": null,
+                        "context": null,
+                        "delete_options": null,
+                        "force": false,
+                        "host": null,
+{"level":"info","ts":1632255678.7250712,"logger":"logging_event_handler","msg":"[playbook debug]","name":"zookeeperset-lab","namespace":"default","gvk":"dataproxy.jankul02/v1alpha1, Kind=ZookeeperSet","event_type":"runner_on_ok","job":"7710321925090064213","EventData.TaskArgs":""}
+                        "kind": null,
+                        "kubeconfig": null,
+                        "merge_type": null,
+                        "name": null,
+                        "namespace": null,
+                        "password": null,
+                        "persist_config": null,
+                        "proxy": null,
+                        "resource_definition": {
+                            "apiVersion": "redhatcop.redhat.io/v1alpha1",
+                            "kind": "PodPreset",
+                            "metadata": {
+                                "name": "zk-0",
+                                "namespace": "default"
+                            },
+                            "spec": {
+                                "env": [
+                                    {
+                                        "name": "ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL",
+                                        "value": "DEBUG"
+                                    },
+                                    {
+                                        "name": "ZOOKEEPER_LOG4J_ROOT_LOGLEVEL",
+                                        "value": "INFO"
+                                    },
+                                    {
+                                        "name": "WELCOME_MESSAGE",
+                                        "value": "Hello ajaja 1000"
+                                    },
+                                    {
+                                        "name": "ADDITIONAL_PARAM",
+                                        "value": " 2311225"
+                                    }
+                                ],
+                                "selector": {
+                                    "matchLabels": {
+                                        "app": "zk",
+                                        "podnamerequired": "zk-0"
+                                    }
+                                },
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/mnt/zksecrets",
+                                        "name": "zksecrets0"
+                                    }
+                                ],
+                                "volumes": [
+                                    {
+                                        "name": "zksecrets0",
+                                        "secret": {
+                                            "secretName": "zksecrets0"
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        "src": null,
+                        "state": "present",
+                        "template": null,
+                        "username": null,
+                        "validate": null,
+                        "validate_certs": null,
+                        "wait": false,
+                        "wait_condition": null,
+                        "wait_sleep": 5,
+                        "wait_timeout": 120
+                    }
+                },
+                "item": {
+                    "id": "0",
+                    "nodeSelector": {
+                        "zkinstanceid": "0"
+                    },
+                    "spec": {
+                        "env": [
+                            {
+                                "name": "ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL",
+                                "value": "DEBUG"
+                            },
+                            {
+                                "name": "ZOOKEEPER_LOG4J_ROOT_LOGLEVEL",
+                                "value": "INFO"
+                            },
+                            {
+                                "name": "WELCOME_MESSAGE",
+                                "value": "Hello ajaja 1000"
+                            },
+                            {
+                                "name": "ADDITIONAL_PARAM",
+                                "value": " 2311225"
+                            }
+                        ],
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/mnt/zksecrets",
+                                "name": "zksecrets0"
+                            }
+                        ],
+                        "volumes": [
+                            {
+                                "name": "zksecrets0",
+                                "secret": {
+                                    "secretName": "zksecrets0"
+                                }
+                            }
+                        ]
+                    },
+                    "updateOnChange": [
+                        {
+                            "kind": "Secret",
+                            "name": "zksecrets0"
+                        }
+                    ]
+                },
+                "method": "create",
+                "result": {
+                    "apiVersion": "redhatcop.redhat.io/v1alpha1",
+                    "kind": "PodPreset",
+                    "metadata": {
+                        "creationTimestamp": "2021-09-21T20:21:18Z",
+                        "generation": 1,
+                        "managedFields": [
+                            {
+                                "apiVersion": "redhatcop.redhat.io/v1alpha1",
+                                "fieldsType": "FieldsV1",
+                                "fieldsV1": {
+                                    "f:metadata": {
+                                        "f:ownerReferences": {
+                                            ".": {},
+                                            "k:{\"uid\":\"0a0c1cfb-936e-4475-a9e7-37c21b6832bd\"}": {}
+                                        }
+                                    },
+                                    "f:spec": {
+                                        ".": {},
+                                        "f:env": {},
+                                        "f:selector": {
+                                            ".": {},
+                                            "f:matchLabels": {
+                                                ".": {},
+                                                "f:app": {},
+                                                "f:podnamerequired": {}
+                                            }
+                                        },
+                                        "f:volumeMounts": {},
+                                        "f:volumes": {}
+                                    }
+                                },
+                                "manager": "OpenAPI-Generator",
+                                "operation": "Update",
+                                "time": "2021-09-21T20:21:18Z"
+                            }
+                        ],
+                        "name": "zk-0",
+                        "namespace": "default",
+                        "ownerReferences": [
+                            {
+                                "apiVersion": "dataproxy.jankul02/v1alpha1",
+                                "kind": "ZookeeperSet",
+                                "name": "zookeeperset-lab",
+                                "uid": "0a0c1cfb-936e-4475-a9e7-37c21b6832bd"
+                            }
+                        ],
+                        "resourceVersion": "776856",
+                        "uid": "4e4134b7-c053-4aae-a3cc-e1d3a0df8239"
+                    },
+                    "spec": {
+                        "env": [
+                            {
+                                "name": "ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL",
+                                "value": "DEBUG"
+                            },
+                            {
+                                "name": "ZOOKEEPER_LOG4J_ROOT_LOGLEVEL",
+                                "value": "INFO"
+                            },
+                            {
+                                "name": "WELCOME_MESSAGE",
+                                "value": "Hello ajaja 1000"
+                            },
+                            {
+                                "name": "ADDITIONAL_PARAM",
+                                "value": " 2311225"
+                            }
+                        ],
+                        "selector": {
+                            "matchLabels": {
+                                "app": "zk",
+                                "podnamerequired": "zk-0"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/mnt/zksecrets",
+                                "name": "zksecrets0"
+                            }
+                        ],
+                        "volumes": [
+                            {
+                                "name": "zksecrets0",
+                                "secret": {
+                                    "secretName": "zksecrets0"
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "ansible_loop_var": "item",
+                "changed": true,
+                "failed": false,
+                "invocation": {
+                    "module_args": {
+                        "api_key": null,
+                        "api_version": "v1",
+                        "append_hash": false,
+                        "apply": false,
+                        "ca_cert": null,
+                        "client_cert": null,
+                        "client_key": null,
+                        "context": null,
+                        "delete_options": null,
+                        "force": false,
+                        "host": null,
+                        "kind": null,
+                        "kubeconfig": null,
+                        "merge_type": null,
+                        "name": null,
+                        "namespace": null,
+                        "password": null,
+                        "persist_config": null,
+                        "proxy": null,
+                        "resource_definition": {
+                            "apiVersion": "redhatcop.redhat.io/v1alpha1",
+                            "kind": "PodPreset",
+                            "metadata": {
+                                "name": "zk-2",
+                                "namespace": "default"
+                            },
+                            "spec": {
+                                "env": [
+                                    {
+                                        "name": "ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL",
+                                        "value": "INFO"
+                                    },
+                                    {
+                                        "name": "ZOOKEEPER_LOG4J_ROOT_LOGLEVEL",
+                                        "value": "INFO"
+                                    },
+                                    {
+                                        "name": "WELCOME_MESSAGE",
+                                        "value": "How are you 2ooo"
+                                    },
+                                    {
+                                        "name": "ADDITIONAL_PARAM",
+                                        "value": " 231100-q3242"
+                                    }
+                                ],
+                                "selector": {
+                                    "matchLabels": {
+                                        "app": "zk",
+                                        "podnamerequired": "zk-2"
+                                    }
+                                },
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/mnt/zksecrets",
+                                        "name": "zksecrets2"
+                                    }
+                                ],
+                                "volumes": [
+                                    {
+                                        "name": "zksecrets2",
+                                        "secret": {
+                                            "secretName": "zksecrets2"
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        "src": null,
+                        "state": "present",
+                        "template": null,
+                        "username": null,
+                        "validate": null,
+                        "validate_certs": null,
+                        "wait": false,
+                        "wait_condition": null,
+                        "wait_sleep": 5,
+                        "wait_timeout": 120
+                    }
+                },
+                "item": {
+                    "id": "2",
+                    "nodeSelector": {
+                        "zkinstanceid": "2"
+                    },
+                    "spec": {
+                        "env": [
+                            {
+                                "name": "ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL",
+                                "value": "INFO"
+                            },
+                            {
+                                "name": "ZOOKEEPER_LOG4J_ROOT_LOGLEVEL",
+                                "value": "INFO"
+                            },
+                            {
+                                "name": "WELCOME_MESSAGE",
+                                "value": "How are you 2ooo"
+                            },
+                            {
+                                "name": "ADDITIONAL_PARAM",
+                                "value": " 231100-q3242"
+                            }
+                        ],
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/mnt/zksecrets",
+                                "name": "zksecrets2"
+                            }
+                        ],
+                        "volumes": [
+                            {
+                                "name": "zksecrets2",
+                                "secret": {
+                                    "secretName": "zksecrets2"
+                                }
+                            }
+                        ]
+                    },
+                    "updateOnChange": [
+                        {
+                            "kind": "Secret",
+                            "name": "zksecrets2"
+                        }
+                    ]
+                },
+                "method": "create",
+                "result": {
+                    "apiVersion": "redhatcop.redhat.io/v1alpha1",
+                    "kind": "PodPreset",
+                    "metadata": {
+                        "creationTimestamp": "2021-09-21T20:21:18Z",
+                        "generation": 1,
+                        "managedFields": [
+                            {
+                                "apiVersion": "redhatcop.redhat.io/v1alpha1",
+                                "fieldsType": "FieldsV1",
+                                "fieldsV1": {
+                                    "f:metadata": {
+                                        "f:ownerReferences": {
+                                            ".": {},
+                                            "k:{\"uid\":\"0a0c1cfb-936e-4475-a9e7-37c21b6832bd\"}": {}
+                                        }
+                                    },
+                                    "f:spec": {
+                                        ".": {},
+                                        "f:env": {},
+                                        "f:selector": {
+                                            ".": {},
+                                            "f:matchLabels": {
+                                                ".": {},
+                                                "f:app": {},
+                                                "f:podnamerequired": {}
+                                            }
+                                        },
+                                        "f:volumeMounts": {},
+                                        "f:volumes": {}
+                                    }
+                                },
+                                "manager": "OpenAPI-Generator",
+                                "operation": "Update",
+                                "time": "2021-09-21T20:21:18Z"
+                            }
+                        ],
+                        "name": "zk-2",
+                        "namespace": "default",
+                        "ownerReferences": [
+                            {
+                                "apiVersion": "dataproxy.jankul02/v1alpha1",
+                                "kind": "ZookeeperSet",
+                                "name": "zookeeperset-lab",
+                                "uid": "0a0c1cfb-936e-4475-a9e7-37c21b6832bd"
+                            }
+                        ],
+                        "resourceVersion": "776861",
+                        "uid": "d2873747-2b5c-4ed1-9bb5-09c495c7cece"
+                    },
+                    "spec": {
+                        "env": [
+                            {
+                                "name": "ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL",
+                                "value": "INFO"
+                            },
+                            {
+                                "name": "ZOOKEEPER_LOG4J_ROOT_LOGLEVEL",
+                                "value": "INFO"
+                            },
+                            {
+                                "name": "WELCOME_MESSAGE",
+                                "value": "How are you 2ooo"
+                            },
+                            {
+                                "name": "ADDITIONAL_PARAM",
+                                "value": " 231100-q3242"
+                            }
+                        ],
+                        "selector": {
+                            "matchLabels": {
+                                "app": "zk",
+                                "podnamerequired": "zk-2"
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/mnt/zksecrets",
+                                "name": "zksecrets2"
+                            }
+                        ],
+                        "volumes": [
+                            {
+                                "name": "zksecrets2",
+                                "secret": {
+                                    "secretName": "zksecrets2"
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    }
+}
+
+-------------------------------------------------------------------------------
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+TASK [zookeeperset : create cnf] ***********************************************
+task path: /opt/ansible/roles/zookeeperset/tasks/main.yml:94
+
+-------------------------------------------------------------------------------
+{"level":"info","ts":1632255678.8382323,"logger":"logging_event_handler","msg":"[playbook task start]","name":"zookeeperset-lab","namespace":"default","gvk":"dataproxy.jankul02/v1alpha1, Kind=ZookeeperSet","event_type":"playbook_on_task_start","job":"7710321925090064213","EventData.Name":"zookeeperset : create cnf"}
+{"level":"info","ts":1632255679.4458566,"logger":"proxy","msg":"Cache miss: /v1, Kind=ConfigMap, default/zk-global"}
+{"level":"info","ts":1632255679.4560857,"logger":"proxy","msg":"Injecting owner reference"}
+{"level":"info","ts":1632255679.456859,"logger":"proxy","msg":"Watching child resource","kind":"/v1, Kind=ConfigMap","enqueue_kind":"dataproxy.jankul02/v1alpha1, Kind=ZookeeperSet"}
+{"level":"info","ts":1632255679.457046,"logger":"controller-runtime.manager.controller.zookeeperset-controller","msg":"Starting EventSource","source":"kind source: /v1, Kind=ConfigMap"}
+{"level":"info","ts":1632255679.5669882,"logger":"logging_event_handler","msg":"[playbook task start]","name":"zookeeperset-lab","namespace":"default","gvk":"dataproxy.jankul02/v1alpha1, Kind=ZookeeperSet","event_type":"playbook_on_task_start","job":"7710321925090064213","EventData.Name":"zookeeperset : Service hsvc"}
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+TASK [zookeeperset : Service hsvc] *********************************************
+task path: /opt/ansible/roles/zookeeperset/tasks/main.yml:109
+
+-------------------------------------------------------------------------------
+{"level":"info","ts":1632255680.15504,"logger":"proxy","msg":"Cache miss: /v1, Kind=Service, default/zk-hs"}
+{"level":"info","ts":1632255680.1951425,"logger":"proxy","msg":"Injecting owner reference"}
+{"level":"info","ts":1632255680.1954596,"logger":"proxy","msg":"Watching child resource","kind":"/v1, Kind=Service","enqueue_kind":"dataproxy.jankul02/v1alpha1, Kind=ZookeeperSet"}
+{"level":"info","ts":1632255680.1955605,"logger":"controller-runtime.manager.controller.zookeeperset-controller","msg":"Starting EventSource","source":"kind source: /v1, Kind=Service"}
+{"level":"info","ts":1632255680.2797031,"logger":"logging_event_handler","msg":"[playbook task start]","name":"zookeeperset-lab","namespace":"default","gvk":"dataproxy.jankul02/v1alpha1, Kind=ZookeeperSet","event_type":"playbook_on_task_start","job":"7710321925090064213","EventData.Name":"Service zookeepersetapp-csvc"}
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+TASK [Service zookeepersetapp-csvc] ********************************************
+task path: /opt/ansible/roles/zookeeperset/tasks/main.yml:134
+
+-------------------------------------------------------------------------------
+{"level":"info","ts":1632255680.7772417,"logger":"proxy","msg":"Cache miss: /v1, Kind=Service, default/zk-cs"}
+{"level":"info","ts":1632255680.7801516,"logger":"proxy","msg":"Injecting owner reference"}
+{"level":"info","ts":1632255680.8757336,"logger":"logging_event_handler","msg":"[playbook task start]","name":"zookeeperset-lab","namespace":"default","gvk":"dataproxy.jankul02/v1alpha1, Kind=ZookeeperSet","event_type":"playbook_on_task_start","job":"7710321925090064213","EventData.Name":"zookeeperset : policy for pod disruption budget"}
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+TASK [zookeeperset : policy for pod disruption budget] *************************
+task path: /opt/ansible/roles/zookeeperset/tasks/main.yml:151
+
+-------------------------------------------------------------------------------
+{"level":"info","ts":1632255681.439538,"logger":"proxy","msg":"Cache miss: policy/v1, Kind=PodDisruptionBudget, default/zk-pdb"}
+{"level":"info","ts":1632255681.4492388,"logger":"proxy","msg":"Injecting owner reference"}
+{"level":"info","ts":1632255681.4500153,"logger":"proxy","msg":"Watching child resource","kind":"policy/v1, Kind=PodDisruptionBudget","enqueue_kind":"dataproxy.jankul02/v1alpha1, Kind=ZookeeperSet"}
+{"level":"info","ts":1632255681.4500852,"logger":"controller-runtime.manager.controller.zookeeperset-controller","msg":"Starting EventSource","source":"kind source: policy/v1, Kind=PodDisruptionBudget"}
+{"level":"info","ts":1632255681.5704234,"logger":"logging_event_handler","msg":"[playbook task start]","name":"zookeeperset-lab","namespace":"default","gvk":"dataproxy.jankul02/v1alpha1, Kind=ZookeeperSet","event_type":"playbook_on_task_start","job":"7710321925090064213","EventData.Name":"zookeeperset : ZookeeperSet depends on"}
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+TASK [zookeeperset : ZookeeperSet depends on] **********************************
+task path: /opt/ansible/roles/zookeeperset/tasks/main.yml:185
+
+-------------------------------------------------------------------------------
+{"level":"info","ts":1632255682.0648203,"logger":"proxy","msg":"Cache miss: /v1, Kind=ConfigMap, default/zk-config"}
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+ TASK [ZookeeperSet depends on] ******************************** 
+ok: [localhost] => (item={'kind': 'ConfigMap', 'name': 'zk-config'}) => {"ansible_loop_var": "item", "api_found": true, "changed": false, "item": {"kind": "ConfigMap", "name": "zk-config"}, "resources": []}
+
+-------------------------------------------------------------------------------
+{"level":"info","ts":1632255682.6690753,"logger":"proxy","msg":"Read object from cache","resource":{"IsResourceRequest":true,"Path":"/api/v1/namespaces/default/secrets/zksecrets0","Verb":"get","APIPrefix":"api","APIGroup":"","APIVersion":"v1","Namespace":"default","Resource":"secrets","Subresource":"","Name":"zksecrets0","Parts":["secrets","zksecrets0"]}}
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+ TASK [ZookeeperSet depends on] ******************************** 
+ok: [localhost] => (item={'kind': 'Secret', 'name': 'zksecrets0'}) => {"ansible_loop_var": "item", "api_found": true, "changed": false, "item": {"kind": "Secret", "name": "zksecrets0"}, "resources": [{"apiVersion": "v1", "data": {"password": "YWJlY2FkbG96cGllY2FzcGFkbGxvCg==", "username": "YWRtaW4="}, "kind": "Secret", "metadata": {"annotations": {"kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"data\":{\"password\":\"YWJlY2FkbG96cGllY2FzcGFkbGxvCg==\",\"username\":\"YWRtaW4=\"},\"kind\":\"Secret\",\"metadata\":{\"annotations\":{},\"labels\":{\"app\":\"zk\"},\"name\":\"zksecrets0\",\"namespace\":\"default\"},\"type\":\"Opaque\"}\n"}, "creationTimestamp": "2021-09-16T16:14:57Z", "labels": {"app": "zk"}, "managedFields": [{"apiVersion": "v1", "fieldsType": "FieldsV1", "fieldsV1": {"f:data": {".": {}, "f:password": {}, "f:username": {}}, "f:metadata": {"f:annotations": {".": {}, "f:kubectl.kubernetes.io/last-applied-configuration": {}}, "f:labels": {".": {}, "f:app": {}}}, "f:type": {}}, "manager": "kubectl", "operation": "Update", "time": "2021-09-16T16:14:57Z"}], "name": "zksecrets0", "namespace": "default", "resourceVersion": "618707", "uid": "58e0ebba-0a96-4fd6-b1e3-106bab59c646"}, "type": "Opaque"}]}
+
+-------------------------------------------------------------------------------
+{"level":"info","ts":1632255682.8103251,"logger":"logging_event_handler","msg":"[playbook debug]","name":"zookeeperset-lab","namespace":"default","gvk":"dataproxy.jankul02/v1alpha1, Kind=ZookeeperSet","event_type":"runner_on_ok","job":"7710321925090064213","EventData.TaskArgs":""}
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+ TASK [print updateonchangeresources] ******************************** 
+ok: [localhost] => {
+    "msg": {
+        "changed": false,
+        "msg": "All items completed",
+        "results": [
+            {
+                "ansible_loop_var": "item",
+                "api_found": true,
+                "changed": false,
+                "failed": false,
+                "invocation": {
+                    "module_args": {
+                        "api_key": null,
+                        "api_version": "v1",
+                        "ca_cert": null,
+                        "client_cert": null,
+                        "client_key": null,
+                        "context": null,
+                        "field_selectors": [],
+                        "host": null,
+                        "kind": "ConfigMap",
+                        "kubeconfig": null,
+                        "label_selectors": [],
+                        "name": "zk-config",
+                        "namespace": "default",
+                        "password": null,
+                        "persist_config": null,
+                        "proxy": null,
+                        "username": null,
+                        "validate_certs": null,
+                        "wait": false,
+                        "wait_condition": null,
+                        "wait_sleep": 5,
+                        "wait_timeout": 120
+                    }
+                },
+                "item": {
+                    "kind": "ConfigMap",
+                    "name": "zk-config"
+                },
+                "resources": []
+            },
+            {
+                "ansible_loop_var": "item",
+                "api_found": true,
+                "changed": false,
+                "failed": false,
+                "invocation": {
+                    "module_args": {
+                        "api_key": null,
+                        "api_version": "v1",
+                        "ca_cert": null,
+                        "client_cert": null,
+                        "client_key": null,
+                        "context": null,
+                        "field_selectors": [],
+                        "host": null,
+                        "kind": "Secret",
+                        "kubeconfig": null,
+                        "label_selectors": [],
+                        "name": "zksecrets0",
+                        "namespace": "default",
+                        "password": null,
+                        "persist_config": null,
+                        "proxy": null,
+                        "username": null,
+                        "validate_certs": null,
+                        "wait": false,
+                        "wait_condition": null,
+                        "wait_sleep": 5,
+                        "wait_timeout": 120
+                    }
+                },
+                "item": {
+                    "kind": "Secret",
+                    "name": "zksecrets0"
+                },
+                "resources": [
+                    {
+                        "apiVersion": "v1",
+                        "data": {
+                            "password": "YWJlY2FkbG96cGllY2FzcGFkbGxvCg==",
+                            "username": "YWRtaW4="
+                        },
+                        "kind": "Secret",
+                        "metadata": {
+                            "annotations": {
+                                "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"data\":{\"password\":\"YWJlY2FkbG96cGllY2FzcGFkbGxvCg==\",\"username\":\"YWRtaW4=\"},\"kind\":\"Secret\",\"metadata\":{\"annotations\":{},\"labels\":{\"app\":\"zk\"},\"name\":\"zksecrets0\",\"namespace\":\"default\"},\"type\":\"Opaque\"}\n"
+                            },
+                            "creationTimestamp": "2021-09-16T16:14:57Z",
+                            "labels": {
+                                "app": "zk"
+                            },
+                            "managedFields": [
+                                {
+                                    "apiVersion": "v1",
+                                    "fieldsType": "FieldsV1",
+                                    "fieldsV1": {
+                                        "f:data": {
+                                            ".": {},
+                                            "f:password": {},
+                                            "f:username": {}
+                                        },
+                                        "f:metadata": {
+                                            "f:annotations": {
+                                                ".": {},
+                                                "f:kubectl.kubernetes.io/last-applied-configuration": {}
+                                            },
+                                            "f:labels": {
+                                                ".": {},
+                                                "f:app": {}
+                                            }
+                                        },
+                                        "f:type": {}
+                                    },
+                                    "manager": "kubectl",
+                                    "operation": "Update",
+                                    "time": "2021-09-16T16:14:57Z"
+                                }
+                            ],
+                            "name": "zksecrets0",
+                            "namespace": "default",
+                            "resourceVersion": "618707",
+                            "uid": "58e0ebba-0a96-4fd6-b1e3-106bab59c646"
+                        },
+                        "type": "Opaque"
+                    }
+                ]
+            }
+        ]
+    }
+}
+
+-------------------------------------------------------------------------------
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+ TASK [print resources] ******************************** 
+ok: [localhost] => (item={'changed': False, 'resources': [], 'api_found': True, 'invocation': {'module_args': {'kind': 'ConfigMap', 'name': 'zk-config', 'namespace': 'default', 'wait': False, 'wait_sleep': 5, 'wait_timeout': 120, 'api_version': 'v1', 'label_selectors': [], 'field_selectors': [], 'kubeconfig': None, 'context': None, 'host': None, 'api_key': None, 'username': None, 'password': None, 'validate_certs': None, 'ca_cert': None, 'client_cert': None, 'client_key': None, 'proxy': None, 'persist_config': None, 'wait_condition': None}}, 'failed': False, 'item': {'kind': 'ConfigMap', 'name': 'zk-config'}, 'ansible_loop_var': 'item'}) => {
+    "msg": "item: {'changed': False, 'resources': [], 'api_found': True, 'invocation': {'module_args': {'kind': 'ConfigMap', 'name': 'zk-config', 'namespace': 'default', 'wait': False, 'wait_sleep': 5, 'wait_timeout': 120, 'api_version': 'v1', 'label_selectors': [], 'field_selectors': [], 'kubeconfig': None, 'context': None, 'host': None, 'api_key': None, 'username': None, 'password': None, 'validate_certs': None, 'ca_cert': None, 'client_cert': None, 'client_key': None, 'proxy': None, 'persist_config': None, 'wait_condition': None}}, 'failed': False, 'item': {'kind': 'ConfigMap', 'name': 'zk-config'}, 'ansible_loop_var': 'item'}"
+}
+
+-------------------------------------------------------------------------------
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+ TASK [print resources] ******************************** 
+ok: [localhost] => (item={'changed': False, 'resources': [{'apiVersion': 'v1', 'data': {'password': 'YWJlY2FkbG96cGllY2FzcGFkbGxvCg==', 'username': 'YWRtaW4='}, 'kind': 'Secret', 'metadata': {'annotations': {'kubectl.kubernetes.io/last-applied-configuration': '{"apiVersion":"v1","data":{"password":"YWJlY2FkbG96cGllY2FzcGFkbGxvCg==","username":"YWRtaW4="},"kind":"Secret","metadata":{"annotations":{},"labels":{"app":"zk"},"name":"zksecrets0","namespace":"default"},"type":"Opaque"}\n'}, 'creationTimestamp': '2021-09-16T16:14:57Z', 'labels': {'app': 'zk'}, 'managedFields': [{'apiVersion': 'v1', 'fieldsType': 'FieldsV1', 'fieldsV1': {'f:data': {'.': {}, 'f:password': {}, 'f:username': {}}, 'f:metadata': {'f:annotations': {'.': {}, 'f:kubectl.kubernetes.io/last-applied-configuration': {}}, 'f:labels': {'.': {}, 'f:app': {}}}, 'f:type': {}}, 'manager': 'kubectl', 'operation': 'Update', 'time': '2021-09-16T16:14:57Z'}], 'name': 'zksecrets0', 'namespace': 'default', 'resourceVersion': '618707', 'uid': '58e0ebba-0a96-4fd6-b1e3-106bab59c646'}, 'type': 'Opaque'}], 'api_found': True, 'invocation': {'module_args': {'kind': 'Secret', 'name': 'zksecrets0', 'namespace': 'default', 'wait': False, 'wait_sleep': 5, 'wait_timeout': 120, 'api_version': 'v1', 'label_selectors': [], 'field_selectors': [], 'kubeconfig': None, 'context': None, 'host': None, 'api_key': None, 'username': None, 'password': None, 'validate_certs': None, 'ca_cert': None, 'client_cert': None, 'client_key': None, 'proxy': None, 'persist_config': None, 'wait_condition': None}}, 'failed': False, 'item': {'kind': 'Secret', 'name': 'zksecrets0'}, 'ansible_loop_var': 'item'}) => {
+    "msg": "item: {'changed': False, 'resources': [{'apiVersion': 'v1', 'data': {'password': 'YWJlY2FkbG96cGllY2FzcGFkbGxvCg==', 'username': 'YWRtaW4='}, 'kind': 'Secret', 'metadata': {'annotations': {'kubectl.kubernetes.io/last-applied-configuration': '{\"apiVersion\":\"v1\",\"data\":{\"password\":\"YWJlY2FkbG96cGllY2FzcGFkbGxvCg==\",\"username\":\"YWRtaW4=\"},\"kind\":\"Secret\",\"metadata\":{\"annotations\":{},\"labels\":{\"app\":\"zk\"},\"name\":\"zksecrets0\",\"namespace\":\"default\"},\"type\":\"Opaque\"}\\n'}, 'creationTimestamp': '2021-09-16T16:14:57Z', 'labels': {'app': 'zk'}, 'managedFields': [{'apiVersion': 'v1', 'fieldsType': 'FieldsV1', 'fieldsV1': {'f:data': {'.': {}, 'f:password': {}, 'f:username': {}}, 'f:metadata': {'f:annotations': {'.': {}, 'f:kubectl.kubernetes.io/last-applied-configuration': {}}, 'f:labels': {'.': {}, 'f:app': {}}}, 'f:type': {}}, 'manager': 'kubectl', 'operation': 'Update', 'time': '2021-09-16T16:14:57Z'}], 'name': 'zksecrets0', 'namespace': 'default', 'resourceVersion': '618707', 'uid': '58e0ebba-0a96-4fd6-b1e3-106bab59c646'}, 'type': 'Opaque'}], 'api_found': True, 'invocation': {'module_args': {'kind': 'Secret', 'name': 'zksecrets0', 'namespace': 'default', 'wait': False, 'wait_sleep': 5, 'wait_timeout': 120, 'api_version': 'v1', 'label_selectors': [], 'field_selectors': [], 'kubeconfig': None, 'context': None, 'host': None, 'api_key': None, 'username': None, 'password': None, 'validate_certs': None, 'ca_cert': None, 'client_cert': None, 'client_key': None, 'proxy': None, 'persist_config': None, 'wait_condition': None}}, 'failed': False, 'item': {'kind': 'Secret', 'name': 'zksecrets0'}, 'ansible_loop_var': 'item'}"
+}
+
+-------------------------------------------------------------------------------
+{"level":"info","ts":1632255682.8732579,"logger":"logging_event_handler","msg":"[playbook debug]","name":"zookeeperset-lab","namespace":"default","gvk":"dataproxy.jankul02/v1alpha1, Kind=ZookeeperSet","event_type":"runner_on_ok","job":"7710321925090064213","EventData.TaskArgs":""}
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+ TASK [annotate dependent update ZookeeperSet] ******************************** 
+ok: [localhost] => (item={'changed': False, 'resources': [{'apiVersion': 'v1', 'data': {'password': 'YWJlY2FkbG96cGllY2FzcGFkbGxvCg==', 'username': 'YWRtaW4='}, 'kind': 'Secret', 'metadata': {'annotations': {'kubectl.kubernetes.io/last-applied-configuration': '{"apiVersion":"v1","data":{"password":"YWJlY2FkbG96cGllY2FzcGFkbGxvCg==","username":"YWRtaW4="},"kind":"Secret","metadata":{"annotations":{},"labels":{"app":"zk"},"name":"zksecrets0","namespace":"default"},"type":"Opaque"}\n'}, 'creationTimestamp': '2021-09-16T16:14:57Z', 'labels': {'app': 'zk'}, 'managedFields': [{'apiVersion': 'v1', 'fieldsType': 'FieldsV1', 'fieldsV1': {'f:data': {'.': {}, 'f:password': {}, 'f:username': {}}, 'f:metadata': {'f:annotations': {'.': {}, 'f:kubectl.kubernetes.io/last-applied-configuration': {}}, 'f:labels': {'.': {}, 'f:app': {}}}, 'f:type': {}}, 'manager': 'kubectl', 'operation': 'Update', 'time': '2021-09-16T16:14:57Z'}], 'name': 'zksecrets0', 'namespace': 'default', 'resourceVersion': '618707', 'uid': '58e0ebba-0a96-4fd6-b1e3-106bab59c646'}, 'type': 'Opaque'}], 'api_found': True, 'invocation': {'module_args': {'kind': 'Secret', 'name': 'zksecrets0', 'namespace': 'default', 'wait': False, 'wait_sleep': 5, 'wait_timeout': 120, 'api_version': 'v1', 'label_selectors': [], 'field_selectors': [], 'kubeconfig': None, 'context': None, 'host': None, 'api_key': None, 'username': None, 'password': None, 'validate_certs': None, 'ca_cert': None, 'client_cert': None, 'client_key': None, 'proxy': None, 'persist_config': None, 'wait_condition': None}}, 'failed': False, 'item': {'kind': 'Secret', 'name': 'zksecrets0'}, 'ansible_loop_var': 'item'}) => {"ansible_facts": {"annotation": [{"apiVersion": "v1", "data": {"password": "YWJlY2FkbG96cGllY2FzcGFkbGxvCg==", "username": "YWRtaW4="}, "kind": "Secret", "metadata": {"annotations": {"kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"data\":{\"password\":\"YWJlY2FkbG96cGllY2FzcGFkbGxvCg==\",\"username\":\"YWRtaW4=\"},\"kind\":\"Secret\",\"metadata\":{\"annotations\":{},\"labels\":{\"app\":\"zk\"},\"name\":\"zksecrets0\",\"namespace\":\"default\"},\"type\":\"Opaque\"}\n"}, "creationTimestamp": "2021-09-16T16:14:57Z", "labels": {"app": "zk"}, "managedFields": [{"apiVersion": "v1", "fieldsType": "FieldsV1", "fieldsV1": {"f:data": {".": {}, "f:password": {}, "f:username": {}}, "f:metadata": {"f:annotations": {".": {}, "f:kubectl.kubernetes.io/last-applied-configuration": {}}, "f:labels": {".": {}, "f:app": {}}}, "f:type": {}}, "manager": "kubectl", "operation": "Update", "time": "2021-09-16T16:14:57Z"}], "name": "zksecrets0", "namespace": "default", "resourceVersion": "618707", "uid": "58e0ebba-0a96-4fd6-b1e3-106bab59c646"}, "type": "Opaque"}]}, "ansible_loop_var": "item", "changed": false, "item": {"ansible_loop_var": "item", "api_found": true, "changed": false, "failed": false, "invocation": {"module_args": {"api_key": null, "api_version": "v1", "ca_cert": null, "client_cert": null, "client_key": null, "context": null, "field_selectors": [], "host": null, "kind": "Secret", "kubeconfig": null, "label_selectors": [], "name": "zksecrets0", "namespace": "default", "password": null, "persist_config": null, "proxy": null, "username": null, "validate_certs": null, "wait": false, "wait_condition": null, "wait_sleep": 5, "wait_timeout": 120}}, "item": {"kind": "Secret", "name": "zksecrets0"}, "resources": [{"apiVersion": "v1", "data": {"password": "YWJlY2FkbG96cGllY2FzcGFkbGxvCg==", "username": "YWRtaW4="}, "kind": "Secret", "metadata": {"annotations": {"kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"data\":{\"password\":\"YWJlY2FkbG96cGllY2FzcGFkbGxvCg==\",\"username\":\"YWRtaW4=\"},\"kind\":\"Secret\",\"metadata\":{\"annotations\":{},\"labels\":{\"app\":\"zk\"},\"name\":\"zksecrets0\",\"namespace\":\"default\"},\"type\":\"Opaque\"}\n"}, "creationTimestamp": "2021-09-16T16:14:57Z", "labels": {"app": "zk"}, "managedFields": [{"apiVersion": "v1", "fieldsType": "FieldsV1", "fieldsV1": {"f:data": {".": {}, "f:password": {}, "f:username": {}}, "f:metadata": {"f:annotations": {".": {}, "f:kubectl.kubernetes.io/last-applied-configuration": {}}, "f:labels": {".": {}, "f:app": {}}}, "f:type": {}}, "manager": "kubectl", "operation": "Update", "time": "2021-09-16T16:14:57Z"}], "name": "zksecrets0", "namespace": "default", "resourceVersion": "618707", "uid": "58e0ebba-0a96-4fd6-b1e3-106bab59c646"}, "type": "Opaque"}]}}
+
+-------------------------------------------------------------------------------
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+ TASK [print dependent update ZookeeperSet] ******************************** 
+ok: [localhost] => {
+    "msg": [
+        {
+            "apiVersion": "v1",
+            "data": {
+                "password": "YWJlY2FkbG96cGllY2FzcGFkbGxvCg==",
+                "username": "YWRtaW4="
+            },
+            "kind": "Secret",
+            "metadata": {
+                "annotations": {
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"data\":{\"password\":\"YWJlY2FkbG96cGllY2FzcGFkbGxvCg==\",\"username\":\"YWRtaW4=\"},\"kind\":\"Secret\",\"metadata\":{\"annotations\":{},\"labels\":{\"app\":\"zk\"},\"name\":\"zksecrets0\",\"namespace\":\"default\"},\"type\":\"Opaque\"}\n"
+                },
+                "creationTimestamp": "2021-09-16T16:14:57Z",
+                "labels": {
+                    "app": "zk"
+                },
+                "managedFields": [
+                    {
+                        "apiVersion": "v1",
+                        "fieldsType": "FieldsV1",
+                        "fieldsV1": {
+                            "f:data": {
+                                ".": {},
+                                "f:password": {},
+                                "f:username": {}
+                            },
+                            "f:metadata": {
+                                "f:annotations": {
+                                    ".": {},
+                                    "f:kubectl.kubernetes.io/last-applied-configuration": {}
+                                },
+                                "f:labels": {
+                                    ".": {},
+                                    "f:app": {}
+{"level":"info","ts":1632255682.9911048,"logger":"logging_event_handler","msg":"[playbook debug]","name":"zookeeperset-lab","namespace":"default","gvk":"dataproxy.jankul02/v1alpha1, Kind=ZookeeperSet","event_type":"runner_on_ok","job":"7710321925090064213","EventData.TaskArgs":""}
+                                }
+                            },
+                            "f:type": {}
+                        },
+                        "manager": "kubectl",
+                        "operation": "Update",
+                        "time": "2021-09-16T16:14:57Z"
+                    }
+                ],
+                "name": "zksecrets0",
+                "namespace": "default",
+                "resourceVersion": "618707",
+                "uid": "58e0ebba-0a96-4fd6-b1e3-106bab59c646"
+            },
+            "type": "Opaque"
+        }
+    ]
+}
+
+-------------------------------------------------------------------------------
+{"level":"info","ts":1632255683.045093,"logger":"logging_event_handler","msg":"[playbook task start]","name":"zookeeperset-lab","namespace":"default","gvk":"dataproxy.jankul02/v1alpha1, Kind=ZookeeperSet","event_type":"playbook_on_task_start","job":"7710321925090064213","EventData.Name":"zookeeperset : Zookeeperset deployment"}
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+TASK [zookeeperset : Zookeeperset deployment] **********************************
+task path: /opt/ansible/roles/zookeeperset/tasks/main.yml:218
+
+-------------------------------------------------------------------------------
+{"level":"info","ts":1632255683.6052217,"logger":"proxy","msg":"Cache miss: apps/v1, Kind=StatefulSet, default/zk"}
+{"level":"info","ts":1632255683.617156,"logger":"proxy","msg":"Injecting owner reference"}
+{"level":"info","ts":1632255683.6182175,"logger":"proxy","msg":"Watching child resource","kind":"apps/v1, Kind=StatefulSet","enqueue_kind":"dataproxy.jankul02/v1alpha1, Kind=ZookeeperSet"}
+{"level":"info","ts":1632255683.6182923,"logger":"controller-runtime.manager.controller.zookeeperset-controller","msg":"Starting EventSource","source":"kind source: apps/v1, Kind=StatefulSet"}
+{"level":"info","ts":1632255683.8250027,"logger":"logging_event_handler","msg":"[playbook debug]","name":"zookeeperset-lab","namespace":"default","gvk":"dataproxy.jankul02/v1alpha1, Kind=ZookeeperSet","event_type":"runner_on_ok","job":"7710321925090064213","EventData.TaskArgs":""}
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+ TASK [print stsresult] ******************************** 
+ok: [localhost] => {
+    "msg": {
+        "changed": true,
+        "failed": false,
+        "method": "create",
+        "result": {
+            "apiVersion": "apps/v1",
+            "kind": "StatefulSet",
+            "metadata": {
+                "creationTimestamp": "2021-09-21T20:21:23Z",
+                "generation": 1,
+                "labels": {
+                    "app": "zk"
+                },
+                "managedFields": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "fieldsType": "FieldsV1",
+                        "fieldsV1": {
+                            "f:metadata": {
+                                "f:labels": {
+                                    ".": {},
+                                    "f:app": {}
+                                },
+                                "f:ownerReferences": {
+                                    ".": {},
+                                    "k:{\"uid\":\"0a0c1cfb-936e-4475-a9e7-37c21b6832bd\"}": {}
+                                }
+                            },
+                            "f:spec": {
+                                "f:podManagementPolicy": {},
+                                "f:replicas": {},
+                                "f:revisionHistoryLimit": {},
+                                "f:selector": {},
+                                "f:serviceName": {},
+                                "f:template": {
+                                    "f:metadata": {
+                                        "f:annotations": {
+                                            ".": {},
+                                            "f:configname": {},
+                                            "f:rolloutAnnotation": {}
+                                        },
+                                        "f:labels": {
+                                            ".": {},
+                                            "f:app": {}
+                                        }
+                                    },
+                                    "f:spec": {
+                                        "f:affinity": {
+                                            ".": {},
+                                            "f:podAntiAffinity": {
+                                                ".": {},
+                                                "f:requiredDuringSchedulingIgnoredDuringExecution": {}
+                                            }
+                                        },
+                                        "f:containers": {
+                                            "k:{\"name\":\"kubernetes-zookeeper\"}": {
+                                                ".": {},
+                                                "f:command": {},
+                                                "f:env": {
+                                                    ".": {},
+                                                    "k:{\"name\":\"KAFKA_HEAP_OPTS\"}": {
+                                                        ".": {},
+                                                        "f:name": {},
+                                                        "f:value": {}
+                                                    },
+                                                    "k:{\"name\":\"KAFKA_JMX_PORT\"}": {
+                                                        ".": {},
+                                                        "f:name": {},
+                                                        "f:value": {}
+                                                    },
+                                                    "k:{\"name\":\"ZOOKEEPER_AUTOPURGE_PURGE_INTERVAL\"}": {
+                                                        ".": {},
+                                                        "f:name": {},
+                                                        "f:value": {}
+                                                    },
+                                                    "k:{\"name\":\"ZOOKEEPER_AUTOPURGE_SNAP_RETAIN_COUNT\"}": {
+                                                        ".": {},
+                                                        "f:name": {},
+                                                        "f:value": {}
+                                                    },
+                                                    "k:{\"name\":\"ZOOKEEPER_CLIENT_PORT\"}": {
+                                                        ".": {},
+                                                        "f:name": {},
+                                                        "f:value": {}
+                                                    },
+                                                    "k:{\"name\":\"ZOOKEEPER_INIT_LIMIT\"}": {
+                                                        ".": {},
+                                                        "f:name": {},
+                                                        "f:value": {}
+                                                    },
+                                                    "k:{\"name\":\"ZOOKEEPER_MAX_CLIENT_CNXNS\"}": {
+                                                        ".": {},
+                                                        "f:name": {},
+                                                        "f:value": {}
+                                                    },
+                                                    "k:{\"name\":\"ZOOKEEPER_SERVERS\"}": {
+                                                        ".": {},
+                                                        "f:name": {},
+                                                        "f:value": {}
+                                                    },
+                                                    "k:{\"name\":\"ZOOKEEPER_SERVER_ID\"}": {
+                                                        ".": {},
+                                                        "f:name": {},
+                                                        "f:valueFrom": {
+                                                            ".": {},
+                                                            "f:fieldRef": {}
+                                                        }
+                                                    },
+                                                    "k:{\"name\":\"ZOOKEEPER_SYNC_LIMIT\"}": {
+                                                        ".": {},
+                                                        "f:name": {},
+                                                        "f:value": {}
+                                                    },
+                                                    "k:{\"name\":\"ZOOKEEPER_TICK_TIME\"}": {
+                                                        ".": {},
+                                                        "f:name": {},
+                                                        "f:value": {}
+                                                    }
+                                                },
+                                                "f:image": {},
+                                                "f:imagePullPolicy": {},
+                                                "f:livenessProbe": {
+                                                    ".": {},
+                                                    "f:exec": {
+                                                        ".": {},
+                                                        "f:command": {}
+                                                    },
+                                                    "f:failureThreshold": {},
+                                                    "f:initialDelaySeconds": {},
+                                                    "f:periodSeconds": {},
+                                                    "f:successThreshold": {},
+                                                    "f:timeoutSeconds": {}
+                                                },
+                                                "f:name": {},
+                                                "f:ports": {
+                                                    ".": {},
+                                                    "k:{\"containerPort\":2181,\"protocol\":\"TCP\"}": {
+                                                        ".": {},
+                                                        "f:containerPort": {},
+                                                        "f:name": {},
+                                                        "f:protocol": {}
+                                                    },
+                                                    "k:{\"containerPort\":2888,\"protocol\":\"TCP\"}": {
+                                                        ".": {},
+                                                        "f:containerPort": {},
+                                                        "f:name": {},
+                                                        "f:protocol": {}
+                                                    },
+                                                    "k:{\"containerPort\":3888,\"protocol\":\"TCP\"}": {
+                                                        ".": {},
+                                                        "f:containerPort": {},
+                                                        "f:name": {},
+                                                        "f:protocol": {}
+                                                    },
+                                                    "k:{\"containerPort\":5555,\"protocol\":\"TCP\"}": {
+                                                        ".": {},
+                                                        "f:containerPort": {},
+                                                        "f:name": {},
+                                                        "f:protocol": {}
+                                                    }
+                                                },
+                                                "f:readinessProbe": {
+                                                    ".": {},
+                                                    "f:exec": {
+                                                        ".": {},
+                                                        "f:command": {}
+                                                    },
+                                                    "f:failureThreshold": {},
+                                                    "f:initialDelaySeconds": {},
+                                                    "f:periodSeconds": {},
+                                                    "f:successThreshold": {},
+                                                    "f:timeoutSeconds": {}
+                                                },
+                                                "f:resources": {},
+                                                "f:terminationMessagePath": {},
+                                                "f:terminationMessagePolicy": {},
+                                                "f:volumeMounts": {
+                                                    ".": {},
+                                                    "k:{\"mountPath\":\"/var/lib/zookeeper/data\"}": {
+                                                        ".": {},
+                                                        "f:mountPath": {},
+                                                        "f:name": {}
+                                                    },
+                                                    "k:{\"mountPath\":\"/var/lib/zookeeper/log\"}": {
+                                                        ".": {},
+                                                        "f:mountPath": {},
+                                                        "f:name": {}
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "f:dnsPolicy": {},
+                                        "f:restartPolicy": {},
+                                        "f:schedulerName": {},
+                                        "f:securityContext": {
+                                            ".": {},
+                                            "f:fsGroup": {}
+                                        },
+                                        "f:terminationGracePeriodSeconds": {},
+                                        "f:volumes": {
+                                            ".": {},
+                                            "k:{\"name\":\"zk-global\"}": {
+                                                ".": {},
+                                                "f:configMap": {
+                                                    ".": {},
+                                                    "f:defaultMode": {},
+                                                    "f:name": {}
+                                                },
+                                                "f:name": {}
+                                            }
+                                        }
+                                    }
+                                },
+                                "f:updateStrategy": {
+                                    "f:type": {}
+                                },
+                                "f:volumeClaimTemplates": {}
+                            }
+                        },
+                        "manager": "OpenAPI-Generator",
+                        "operation": "Update",
+                        "time": "2021-09-21T20:21:23Z"
+                    }
+                ],
+                "name": "zk",
+                "namespace": "default",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "dataproxy.jankul02/v1alpha1",
+                        "kind": "ZookeeperSet",
+                        "name": "zookeeperset-lab",
+                        "uid": "0a0c1cfb-936e-4475-a9e7-37c21b6832bd"
+                    }
+                ],
+                "resourceVersion": "776888",
+                "uid": "b6fbe798-3a56-4613-ae5b-cfbd32bdcd82"
+            },
+            "spec": {
+                "podManagementPolicy": "OrderedReady",
+                "replicas": 3,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "app": "zk"
+                    }
+                },
+                "serviceName": "zk-hs",
+                "template": {
+                    "metadata": {
+                        "annotations": {
+                            "configname": "zk-config-03e92b63-d911-5d04-87f1-688ddfc2638f",
+                            "rolloutAnnotation": "5c66920c0f700f70edc415483975e44f41e5dcc9"
+                        },
+                        "creationTimestamp": null,
+                        "labels": {
+                            "app": "zk"
+                        }
+                    },
+                    "spec": {
+                        "affinity": {
+                            "podAntiAffinity": {
+                                "requiredDuringSchedulingIgnoredDuringExecution": [
+                                    {
+                                        "labelSelector": {
+                                            "matchExpressions": [
+                                                {
+                                                    "key": "app",
+                                                    "operator": "In",
+                                                    "values": [
+                                                        "zk"
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        "topologyKey": "kubernetes.io/hostname"
+                                    }
+                                ]
+                            }
+                        },
+                        "containers": [
+                            {
+                                "command": [
+                                    "sh",
+                                    "-c",
+                                    "/etc/confluent/docker/start-zookeeper --servers=3"
+                                ],
+                                "env": [
+                                    {
+                                        "name": "KAFKA_HEAP_OPTS",
+                                        "value": "-Xms512M -Xmx512M"
+                                    },
+                                    {
+                                        "name": "KAFKA_JMX_PORT",
+                                        "value": "5555"
+                                    },
+                                    {
+                                        "name": "ZOOKEEPER_TICK_TIME",
+                                        "value": "2000"
+                                    },
+                                    {
+                                        "name": "ZOOKEEPER_SYNC_LIMIT",
+                                        "value": "5"
+                                    },
+                                    {
+                                        "name": "ZOOKEEPER_INIT_LIMIT",
+                                        "value": "10"
+                                    },
+                                    {
+                                        "name": "ZOOKEEPER_MAX_CLIENT_CNXNS",
+                                        "value": "60"
+                                    },
+                                    {
+                                        "name": "ZOOKEEPER_AUTOPURGE_SNAP_RETAIN_COUNT",
+                                        "value": "3"
+                                    },
+                                    {
+                                        "name": "ZOOKEEPER_AUTOPURGE_PURGE_INTERVAL",
+                                        "value": "24"
+                                    },
+                                    {
+                                        "name": "ZOOKEEPER_CLIENT_PORT",
+                                        "value": "2181"
+                                    },
+                                    {
+                                        "name": "ZOOKEEPER_SERVERS",
+                                        "value": "zk-0.zk-hs.default:2888:3888;zk-1.zk-hs.default:2888:3888;zk-2.zk-hs.default:2888:3888"
+                                    },
+                                    {
+                                        "name": "ZOOKEEPER_SERVER_ID",
+                                        "valueFrom": {
+                                            "fieldRef": {
+                                                "apiVersion": "v1",
+                                                "fieldPath": "metadata.name"
+                                            }
+                                        }
+                                    }
+                                ],
+                                "image": "jankul02/kubernetes-zookeeper:0.0.31",
+                                "imagePullPolicy": "Always",
+                                "livenessProbe": {
+                                    "exec": {
+                                        "command": [
+                                            "sh",
+                                            "-c",
+                                            "/etc/confluent/docker/zookeeper-ready 2181"
+                                        ]
+                                    },
+                                    "failureThreshold": 3,
+                                    "initialDelaySeconds": 10,
+                                    "periodSeconds": 10,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 5
+                                },
+                                "name": "kubernetes-zookeeper",
+                                "ports": [
+                                    {
+                                        "containerPort": 2181,
+                                        "name": "tcp-client",
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "containerPort": 2888,
+                                        "name": "tcp-server",
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "containerPort": 3888,
+                                        "name": "tcp-leader-el",
+                                        "protocol": "TCP"
+                                    },
+                                    {
+                                        "containerPort": 5555,
+                                        "name": "jmx",
+                                        "protocol": "TCP"
+                                    }
+                                ],
+                                "readinessProbe": {
+                                    "exec": {
+                                        "command": [
+                                            "sh",
+                                            "-c",
+                                            "/etc/confluent/docker/zookeeper-ready 2181"
+                                        ]
+                                    },
+                                    "failureThreshold": 3,
+                                    "initialDelaySeconds": 10,
+                                    "periodSeconds": 10,
+                                    "successThreshold": 1,
+                                    "timeoutSeconds": 5
+                                },
+                                "resources": {},
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File",
+                                "volumeMounts": [
+                                    {
+                                        "mountPath": "/var/lib/zookeeper/data",
+                                        "name": "datadir"
+                                    },
+                                    {
+                                        "mountPath": "/var/lib/zookeeper/log",
+                                        "name": "datalogdir"
+                                    }
+                                ]
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {
+                            "fsGroup": 1000
+                        },
+                        "terminationGracePeriodSeconds": 30,
+                        "volumes": [
+                            {
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "zk-global"
+                                },
+                                "name": "zk-global"
+                            }
+                        ]
+                    }
+                },
+                "updateStrategy": {
+                    "type": "RollingUpdate"
+                },
+                "volumeClaimTemplates": [
+                    {
+                        "apiVersion": "v1",
+                        "kind": "PersistentVolumeClaim",
+                        "metadata": {
+                            "creationTimestamp": null,
+                            "name": "datadir"
+                        },
+                        "spec": {
+                            "accessModes": [
+                                "ReadWriteOnce"
+                            ],
+                            "resources": {
+                                "requests": {
+                                    "storage": "5Gi"
+                                }
+                            },
+                            "volumeMode": "Filesystem"
+                        },
+                        "status": {
+                            "phase": "Pending"
+                        }
+                    },
+                    {
+                        "apiVersion": "v1",
+                        "kind": "PersistentVolumeClaim",
+                        "metadata": {
+                            "creationTimestamp": null,
+                            "name": "datalogdir"
+                        },
+                        "spec": {
+                            "accessModes": [
+                                "ReadWriteOnce"
+                            ],
+                            "resources": {
+                                "requests": {
+                                    "storage": "5Gi"
+                                }
+                            },
+                            "volumeMode": "Filesystem"
+                        },
+                        "status": {
+                            "phase": "Pending"
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "replicas": 0
+            }
+        }
+    }
+}
+
+-------------------------------------------------------------------------------
+
+--------------------------- Ansible Task StdOut -------------------------------
+
+TASK [zookeeperset : Wait till the zk-0 is created] ****************************
+task path: /opt/ansible/roles/zookeeperset/tasks/main.yml:353
+
+-------------------------------------------------------------------------------
+{"level":"info","ts":1632255683.8305955,"logger":"logging_event_handler","msg":"[playbook task start]","name":"zookeeperset-lab","namespace":"default","gvk":"dataproxy.jankul02/v1alpha1, Kind=ZookeeperSet","event_type":"playbook_on_task_start","job":"7710321925090064213","EventData.Name":"zookeeperset : Wait till the zk-0 is created"}
+{"level":"info","ts":1632255684.4168441,"logger":"proxy","msg":"Read object from cache","resource":{"IsResourceRequest":true,"Path":"/api/v1/namespaces/default/pods/zk-0","Verb":"get","APIPrefix":"api","APIGroup":"","APIVersion":"v1","Namespace":"default","Resource":"pods","Subresource":"","Name":"zk-0","Parts":["pods","zk-0"]}}
+{"level":"info","ts":1632255684.4234366,"logger":"proxy","msg":"Read object from cache","resource":{"IsResourceRequest":true,"Path":"/api/v1/namespaces/default/pods/zk-0","Verb":"get","APIPrefix":"api","APIGroup":"","APIVersion":"v1","Namespace":"default","Resource":"pods","Subresource":"","Name":"zk-0","Parts":["pods","zk-0"]}}
+{"level":"info","ts":1632255694.4345684,"logger":"proxy","msg":"Read object from cache","resource":{"IsResourceRequest":true,"Path":"/api/v1/namespaces/default/pods/zk-0","Verb":"get","APIPrefix":"api","APIGroup":"","APIVersion":"v1","Namespace":"default","Resource":"pods","Subresource":"","Name":"zk-0","Parts":["pods","zk-0"]}}
+{"level":"info","ts":1632255704.4491496,"logger":"proxy","msg":"Read object from cache","resource":{"IsResourceRequest":true,"Path":"/api/v1/namespaces/default/pods/zk-0","Verb":"get","APIPrefix":"api","APIGroup":"","APIVersion":"v1","Namespace":"default","Resource":"pods","Subresource":"","Name":"zk-0","Parts":["pods","zk-0"]}}
+{"level":"info","ts":1632255714.4657164,"logger":"proxy","msg":"Read object from cache","resource":{"IsResourceRequest":true,"Path":"/api/v1/namespaces/default/pods/zk-0","Verb":"get","APIPrefix":"api","APIGroup":"","APIVersion":"v1","Namespace":"default","Resource":"pods","Subresource":"","Name":"zk-0","Parts":["pods","zk-0"]}}

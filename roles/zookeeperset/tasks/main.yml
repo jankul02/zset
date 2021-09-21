@@ -82,90 +82,6 @@
 
 
 
-# - name: define pod presets
-#   community.kubernetes.k8s:
-#     definition:
-#       apiVersion: redhatcop.redhat.io/v1alpha1
-#       kind: PodPreset
-#       metadata:
-#         name: 'zk-0'
-#         namespace: '{{namespace}}'
-#       spec:
-#         selector:
-#           matchLabels:
-#             app: '{{app}}'
-#             podnamerequired: 'zk-0'
-#         env: 
-#           - name: ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL
-#             value: INFO
-#           - name: ZOOKEEPER_LOG4J_ROOT_LOGLEVEL
-#             value: INFO
-#           - name: WELCOME_MESSAGE
-#             value: "Hello hopla hey hey 0000"
-#           - name: ADDITIONAL_PARAM
-#             value: " 231122"
-#         volumeMounts:
-#           # name must match the volume name below
-#           - name: zksecrets0
-#             mountPath: /mnt/zksecrets
-#           # The secret data is exposed to Containers in the Pod through a Volume.
-#         volumes:
-#           - name: zksecrets0
-#             secret:
-#               secretName: zksecrets0
-#  loop: "{{ instances }}"
-  
-
-
-# - name: nginx services
-#   community.kubernetes.k8s:
-#     state: present
-#     definition:
-#       apiVersion: v1
-#       kind: Service
-#       metadata:
-#         name: my-nginx{{item}}-svc
-#         namespace: default        
-#         labels:
-#           app: nginx{{item}}
-#       spec:
-#         type: LoadBalancer
-#         ports:
-#         - port: 80
-#         selector:
-#           app: nginx{{item}}    
-#   loop: "{{ range(0, 20, 1)|list }}"
-
-# - name: nginx apps
-#   community.kubernetes.k8s:
-#     state: present
-#     definition:
-#       apiVersion: apps/v1
-#       kind: Deployment
-#       metadata:
-#         name: my-nginx{{item}}
-#         namespace: default            
-#         labels:
-#           app: nginx{{item}}
-#       spec:
-#         replicas: 1
-#         selector:
-#           matchLabels:
-#             app: nginx{{item}}
-#         template:
-#           metadata:
-#             labels:
-#               app: nginx{{item}}
-#           spec:
-#             containers:
-#             - name: nginx{{item}}
-#               image: nginx:1.14.2
-#               ports:
-#               - containerPort: 80
-#   loop: "{{ range(0, 20, 1)|list }}"
-
-
-
 - name: get the configname (uuid) of the comming deployment    
   set_fact:
     configname: "zk-config-{{ data  | default({}) | to_uuid  }}"  
@@ -206,6 +122,8 @@
           name: tcp-server
         - port: 3888
           name: tcp-leader-el
+        - port: 2181
+          name: tcp-client
         clusterIP: None
         selector:
           app: '{{ app }}'   
@@ -226,7 +144,7 @@
       spec:
         ports:
         - port: 2181
-          name: client
+          name: tcp-client
         selector:
           app: '{{ app }}'    
 
@@ -252,6 +170,10 @@
         mountPath: /var/lib/zookeeper
       - name: zk-global
         mountPath: /mnt/zk-global
+      # - name: datalogdir
+      #   mountPath: /var/lib/zookeeper/log  
+
+      
 
 - name: volumes
   set_fact:
@@ -344,7 +266,7 @@
               - containerPort: 2888
                 name: tcp-server
               - containerPort: 3888
-                name: tcp-leader-el            
+                name: tcp-leader-el
               command:
               - sh
               - -c
@@ -366,11 +288,11 @@
                   - "/etc/confluent/docker/zookeeper-ready 2181"
                 initialDelaySeconds: 10
                 timeoutSeconds: 5
-              volumeMounts: "{{ volumemounts }}"
+              volumeMounts: "{{volumemounts}}"
             volumes: "{{ volumes }}"
             securityContext:
       #        runAsUser: 1000
-              fsGroup: 1000
+              fsGroup: 1000            
         volumeClaimTemplates:
         - metadata:
             name: datadir
@@ -378,7 +300,14 @@
             accessModes: [ "ReadWriteOnce" ]
             resources:
               requests:
-                storage: 10Gi
+                storage: "5Gi"
+        # - metadata:
+        #     name: datalogdir
+        #   spec:
+        #     accessModes: [ "ReadWriteOnce" ]
+        #     resources:
+        #       requests:
+        #         storage: "5Gi"
   register: stsresult
 
 
@@ -386,32 +315,32 @@
   debug:
     msg:  '{{ stsresult }}'    
 
-- name: Wait till the zk-0 is created
-  community.kubernetes.k8s_info:
-    kind: Pod
-    wait: yes
-    name: zk-0
-    namespace: '{{namespace}}'
-    wait_sleep: 10
-    wait_timeout: 360
+# - name: Wait till the zk-0 is created
+#   community.kubernetes.k8s_info:
+#     kind: Pod
+#     wait: yes
+#     name: zk-0
+#     namespace: '{{namespace}}'
+#     wait_sleep: 10
+#     wait_timeout: 360
 
-- name: Wait till the zk-1 is created
-  community.kubernetes.k8s_info:
-    kind: Pod
-    wait: yes
-    name: zk-1
-    namespace: '{{namespace}}'
-    wait_sleep: 10
-    wait_timeout: 360
+# - name: Wait till the zk-1 is created
+#   community.kubernetes.k8s_info:
+#     kind: Pod
+#     wait: yes
+#     name: zk-1
+#     namespace: '{{namespace}}'
+#     wait_sleep: 10
+#     wait_timeout: 360
 
-- name: Wait till the zk-2 is created
-  community.kubernetes.k8s_info:
-    kind: Pod
-    wait: yes
-    name: zk-2
-    namespace: '{{namespace}}'
-    wait_sleep: 10
-    wait_timeout: 360
+# - name: Wait till the zk-2 is created
+#   community.kubernetes.k8s_info:
+#     kind: Pod
+#     wait: yes
+#     name: zk-2
+#     namespace: '{{namespace}}'
+#     wait_sleep: 10
+#     wait_timeout: 360
 
 - name: Kafka headless service
   community.kubernetes.k8s:
@@ -422,14 +351,14 @@
         name: kafka-hs
         namespace: '{{namespace}}'
         labels:
-          app: '{{kafkaapp}}'
+          app: '{{kafka.app}}'
       spec:
         ports:
           - port: 9092
             name: broker
         clusterIP: None
         selector:
-          app: '{{kafkaapp}}'
+          app: '{{kafka.app}}'
 
 - name: Kafka service
   community.kubernetes.k8s:
@@ -440,15 +369,13 @@
         name: kafka
         namespace: '{{namespace}}'
         labels:
-          app: '{{kafkaapp}}'
+          app: '{{kafka.app}}'
       spec:
         ports:
           - port: 9092
             name: broker
-          - port: 5556
-            name: metrics
         selector:
-          app: '{{kafkaapp}}'
+          app: '{{kafka.app}}'
 
 - name: Kafka deployment
   community.kubernetes.k8s:
@@ -459,11 +386,11 @@
         name: kafka
         namespace: '{{namespace}}'
         labels:
-          app: '{{kafkaapp}}'
+          app: '{{kafka.app}}'
       spec:
         selector:
           matchLabels:
-            app: '{{kafkaapp}}'
+            app: '{{kafka.app}}'
         serviceName: kafka-hs
         podManagementPolicy: OrderedReady
         replicas: 3
@@ -472,7 +399,7 @@
         template:
           metadata:
             labels:
-              app: '{{kafkaapp}}'
+              app: '{{kafka.app}}'
             annotations:
           spec:
             affinity:
@@ -485,11 +412,11 @@
                         - key: "app"
                           operator: In
                           values:
-                          - '{{kafkaapp}}'
+                          - '{{kafka.app}}'
                     topologyKey: "kubernetes.io/hostname"
             containers:
-            - name: cp-kafka-broker
-              image: "confluentinc/cp-kafka:6.1.0"
+            - name: kafka-broker
+              image: '{{kafka.image}}'
               imagePullPolicy: "Always"
               securityContext:
                 runAsUser: 0
@@ -518,13 +445,9 @@
               - name: KAFKA_HEAP_OPTS
                 value: -Xms512M -Xmx512M
               - name: KAFKA_ZOOKEEPER_CONNECT
-                value: "zk-cs:2181"
+                value: "zk-hs:2181"
               - name: KAFKA_LOG_DIRS
                 value: "/opt/kafka/data-0/logs"
-              - name: KAFKA_METRIC_REPORTERS
-                value: "io.confluent.metrics.reporter.ConfluentMetricsReporter"
-              - name: CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS
-                value: "PLAINTEXT://kafka-hs:9092"
               - name: KAFKA_LOG4J_ROOT_LOGLEVEL
                 value: "DEBUG"
               - name: KAFKA_TOOLS_LOG4J_LOGLEVEL
@@ -548,14 +471,3 @@
                 export KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://${POD_NAME}.kafka-hs.${POD_NAMESPACE}:9092,EXTERNAL://${HOST_IP}:$((31090 + ${KAFKA_BROKER_ID})) && \
                 unset KAFKA_PORT && \
                 exec /etc/confluent/docker/run
-              volumeMounts:
-                - name: datadir-0
-                  mountPath: /opt/kafka/data-0
-        volumeClaimTemplates:
-        - metadata:
-            name: datadir-0
-          spec:
-            accessModes: [ "ReadWriteOnce" ]
-            resources:
-              requests:
-                storage: "5Gi"

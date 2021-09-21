@@ -15,7 +15,7 @@ spec:
     name: zk-config
   - kind: Secret
     name: zksecrets0    
-  image: jankul02/kubernetes-zookeeper:0.0.30
+  image: jankul02/kubernetes-zookeeper:0.0.33
   instances:
   - id: "0"
     nodeSelector:
@@ -67,7 +67,10 @@ spec:
         - name: zksecrets2
           secret:
             secretName: zksecrets2
-  kafkaapp: kafkaapp
+  kafka:
+    app: kafkaapp
+    image: confluentinc/cp-kafka:6.2.0
+
 
 # secureClientPort=2182
 # serverCnxnFactory=org.apache.zookeeper.server.NettyServerCnxnFactory
