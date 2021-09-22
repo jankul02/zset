@@ -533,3 +533,130 @@ To connect from a client pod:
 
   # Consume a test message from the topic
   kafka-console-consumer --bootstrap-server cp-helm-charts-1632213534-cp-kafka-headless:9092 --topic cp-helm-charts-1632213534-topic --from-beginning --timeout-ms 2000 --max-messages 1 | grep "$MESSAGE"
+
+
+
+
+```
+// openssl genrsa -out ca.key
+// openssl req -new -x509 -key ca.key -out ca.crt
+openssl req -new   -x509  -days 3650  -keyout ca.key  -out ca.crt   -subj "/C=DE/L=Munich/CN=Certificate Authority" 
+Generating a RSA private key
+............................+++++
+.......................+++++
+writing new private key to 'ca.key'
+-----
+```
+
+```
+san=dns:kafka-0.default.svc.cluster.local,dns:test.example.net,dns:test2.example.com,ip:XX.XXX.XX.XXX
+
+ 2219  keytool -genkey -keystore server.keystore.kafka-0 -alias localhost -dname CN=kafka-0.default.svc.cluster.local -keyalg RSA -validity 3650  -ext san=dns:kafka-0
+ 2221  keytool -genkey -keystore server.keystore.kafka-1 -alias localhost -dname CN=kafka-1.default.svc.cluster.local -keyalg RSA 
+ 2222  keytool -genkey -keystore server.keystore.kafka-2 -alias localhost -dname CN=kafka-2.default.svc.cluster.local -keyalg RSA 
+ 2223  keytool -genkey -keystore server.keystore.zk-0 -alias localhost -dname CN=zk-0.default.svc.cluster.local -keyalg RSA -validity 3650  -ext san=dns:zk-0
+ 2224  keytool -genkey -keystore server.keystore.zk-1 -alias localhost -dname CN=zk-1.default.svc.cluster.local -keyalg RSA -validity 3650  -ext san=dns:zk-1
+ 2225  keytool -genkey -keystore server.keystore.zk-2 -alias localhost -dname CN=zk-2.default.svc.cluster.local -keyalg RSA -validity 3650  -ext san=dns:zk-2
+ 2226  keytool -genkey -keystore server.keystore.zk-client-0 -alias localhost -dname CN=zk-client-0.default.svc.cluster.local -keyalg RSA -validity 3650  -ext san=dns:zk-client-0
+ 2227  keytool -genkey -keystore server.keystore.kafka-client-0 -alias localhost -dname CN=kafka-client-0.default.svc.cluster.local -keyalg RSA -validity 3650  -ext san=dns:kafka-client-0
+
+
+
+keytool -keystore server.keystore.zk-client-0 -alias CARoot -importcert -file ca.crt  --storepass ********* -noprompt
+keytool -keystore server.keystore.kafka-client-0 -alias CARoot -importcert -file ca.crt --storepass ********* -noprompt
+keytool -keystore server.keystore.kafka-0 -alias CARoot -importcert -file ca.crt --storepass ********* -noprompt
+keytool -keystore server.keystore.kafka-1 -alias CARoot -importcert -file ca.crt --storepass ********* -noprompt
+keytool -keystore server.keystore.kafka-2 -alias CARoot -importcert -file ca.crt --storepass ********* -noprompt
+keytool -keystore server.keystore.zk-0 -alias CARoot -importcert -file ca.crt --storepass ********* -noprompt
+keytool -keystore server.keystore.zk-1 -alias CARoot -importcert -file ca.crt --storepass ********* -noprompt
+keytool -keystore server.keystore.zk-2 -alias CARoot -importcert -file ca.crt --storepass ********* -noprompt
+
+
+ 2244  keytool -keystore server.keystore.kafka-0 -alias localhost -certreq -file cert-file-kafka-0
+ 2245  keytool -keystore server.keystore.kafka-1 -alias localhost -certreq -file cert-file-kafka-1
+ 2246  keytool -keystore server.keystore.kafka-2 -alias localhost -certreq -file cert-file-kafka-2
+ 2247  keytool -keystore server.keystore.zk-2 -alias localhost -certreq -file cert-file-zk-2
+ 2248  keytool -keystore server.keystore.zk-1 -alias localhost -certreq -file cert-file-zk-1
+ 2249  keytool -keystore server.keystore.zk-0 -alias localhost -certreq -file cert-file-zk-0
+ 2250  keytool -keystore server.keystore.zk-client-0 -alias localhost -certreq -file cert-file-zk-client-0
+ 2251  keytool -keystore server.keystore.kafka-client-0 -alias localhost -certreq -file cert-file-kafka-client-0
+
+
+ 2253  openssl x509 -req -CA ca.crt -CAkey ca.key -in cert-file-kafka-0 -out cert-signed-kafka-0 -days 3650 -CAcreateserial pass:tapowa01
+ 2254  openssl x509 -req -CA ca.crt -CAkey ca.key -in cert-file-kafka-0 -out cert-signed-kafka-0 -days 3650 -CAcreateserial -passin pass:tapowa01
+ 2255  openssl x509 -req -CA ca.crt -CAkey ca.key -in cert-file-kafka-1 -out cert-signed-kafka-1 -days 3650 -CAcreateserial -passin pass:tapowa01
+ 2256  openssl x509 -req -CA ca.crt -CAkey ca.key -in cert-file-kafka-2 -out cert-signed-kafka-2 -days 3650 -CAcreateserial -passin pass:tapowa01
+ 2257  openssl x509 -req -CA ca.crt -CAkey ca.key -in cert-file-zk-2 -out cert-signed-zk-2 -days 3650 -CAcreateserial -passin pass:tapowa01
+ 2258  openssl x509 -req -CA ca.crt -CAkey ca.key -in cert-file-zk-1 -out cert-signed-zk-1 -days 3650 -CAcreateserial -passin pass:tapowa01
+ 2259  openssl x509 -req -CA ca.crt -CAkey ca.key -in cert-file-zk-0 -out cert-signed-zk-0 -days 3650 -CAcreateserial -passin pass:tapowa01
+ 2260  openssl x509 -req -CA ca.crt -CAkey ca.key -in cert-file-zk-client-0 -out cert-signed-zk-client-0 -days 3650 -CAcreateserial -passin pass:tapowa01
+ 2261  openssl x509 -req -CA ca.crt -CAkey ca.key -in cert-file-kafka-client-0 -out cert-signed-kafka-client-0 -days 3650 -CAcreateserial -passin pass:tapowa01
+```
+
+
+
+keytool -keystore server.keystore.kafka-0 -alias CARoot -importcert -file ca.crt
+keytool -keystore server.keystore.kafka-0  -alias localhost -importcert -file cert-signed-kafka-0
+
+################
+```
+janusz@janusz-strix:~/projects/zookeeperset/kafka-tls$ keytool -genkey -keystore server.keystore.zk-0 -alias localhost -dname CN=zk-0.default.svc.cluster.local -keyalg RSA -validity 3650  -ext san=dns:zk-0
+Enter keystore password:  
+Re-enter new password: 
+Generating 2,048 bit RSA key pair and self-signed certificate (SHA256withRSA) with a validity of 3,650 days
+        for: CN=zk-0.default.svc.cluster.local
+janusz@janusz-strix:~/projects/zookeeperset/kafka-tls$ keytool -genkey -keystore server.keystore.zk-1 -alias localhost -dname CN=zk-1.default.svc.cluster.local -keyalg RSA -validity 3650  -ext san=dns:zk-1
+Enter keystore password:  
+Re-enter new password: 
+Generating 2,048 bit RSA key pair and self-signed certificate (SHA256withRSA) with a validity of 3,650 days
+        for: CN=zk-1.default.svc.cluster.local
+janusz@janusz-strix:~/projects/zookeeperset/kafka-tls$ keytool -genkey -keystore server.keystore.zk-2 -alias localhost -dname CN=zk-2.default.svc.cluster.local -keyalg RSA -validity 3650  -ext san=dns:zk-2
+Enter keystore password:  
+Re-enter new password: 
+Generating 2,048 bit RSA key pair and self-signed certificate (SHA256withRSA) with a validity of 3,650 days
+        for: CN=zk-2.default.svc.cluster.local
+
+janusz@janusz-strix:~/projects/zookeeperset/kafka-tls$ keytool -keystore server.keystore.zk-0 -alias localhost -certreq -file cert-file-zk-0
+Enter keystore password:  
+janusz@janusz-strix:~/projects/zookeeperset/kafka-tls$ keytool -keystore server.keystore.zk-1 -alias localhost -certreq -file cert-file-zk-1
+Enter keystore password:  
+janusz@janusz-strix:~/projects/zookeeperset/kafka-tls$ keytool -keystore server.keystore.zk-2 -alias localhost -certreq -file cert-file-zk-2
+Enter keystore password:  
+
+janusz@janusz-strix:~/projects/zookeeperset/kafka-tls$ openssl x509 -req -CA ca.crt -CAkey ca.key -in cert-file-zk-0 -out cert-signed-zk-0 -days 3650 -CAcreateserial
+Signature ok
+subject=CN = zk-0.default.svc.cluster.local
+Getting CA Private Key
+Enter pass phrase for ca.key:
+janusz@janusz-strix:~/projects/zookeeperset/kafka-tls$ openssl x509 -req -CA ca.crt -CAkey ca.key -in cert-file-zk-1 -out cert-signed-zk-1 -days 3650 -CAcreateserial
+Signature ok
+subject=CN = zk-1.default.svc.cluster.local
+Getting CA Private Key
+Enter pass phrase for ca.key:
+janusz@janusz-strix:~/projects/zookeeperset/kafka-tls$ openssl x509 -req -CA ca.crt -CAkey ca.key -in cert-file-zk-2 -out cert-signed-zk-2 -days 3650 -CAcreateserial
+Signature ok
+subject=CN = zk-2.default.svc.cluster.local
+Getting CA Private Key
+Enter pass phrase for ca.key:
+```
+
+
+create secrets for the key stores
+```
+printf "" > keystores.base64.secret.yaml; for KEYST in zk-0 zk-1 zk-2 kafka-0 kafka-1 kafka-2 kafka-client-0 zk-client-0
+do
+cat server.keystore.${KEYST} | base64 -w0 > server.keystore.${KEYST}.base64  
+cat << EOF >>keystores.base64.secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: secret-${KEYST}
+  namespace: default
+data:
+  keystore.jks: "$(cat server.keystore.${KEYST}.base64)"
+---
+EOF
+done
+kubectl apply -f keystores.base64.secret.yaml
+
+```

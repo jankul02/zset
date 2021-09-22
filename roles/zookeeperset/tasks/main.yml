@@ -315,52 +315,8 @@
   debug:
     msg:  '{{ stsresult }}'    
 
-# - name: Wait till the zk-0 is created
-#   community.kubernetes.k8s_info:
-#     kind: Pod
-#     wait: yes
-#     name: zk-0
-#     namespace: '{{namespace}}'
-#     wait_sleep: 10
-#     wait_timeout: 360
-
-# - name: Wait till the zk-1 is created
-#   community.kubernetes.k8s_info:
-#     kind: Pod
-#     wait: yes
-#     name: zk-1
-#     namespace: '{{namespace}}'
-#     wait_sleep: 10
-#     wait_timeout: 360
-
-# - name: Wait till the zk-2 is created
-#   community.kubernetes.k8s_info:
-#     kind: Pod
-#     wait: yes
-#     name: zk-2
-#     namespace: '{{namespace}}'
-#     wait_sleep: 10
-#     wait_timeout: 360
 
 - name: Kafka headless service
-  community.kubernetes.k8s:
-    definition:
-      apiVersion: v1
-      kind: Service
-      metadata:
-        name: kafka-hs
-        namespace: '{{namespace}}'
-        labels:
-          app: '{{kafka.app}}'
-      spec:
-        ports:
-          - port: 9092
-            name: broker
-        clusterIP: None
-        selector:
-          app: '{{kafka.app}}'
-
-- name: Kafka service
   community.kubernetes.k8s:
     definition:
       apiVersion: v1
@@ -373,9 +329,88 @@
       spec:
         ports:
           - port: 9092
-            name: broker
+            name: tcp-intranet-kafka
+          - port: 9093
+            name: tcp-internet-kafka
+        clusterIP: None
         selector:
           app: '{{kafka.app}}'
+
+- name: Kafka service
+  community.kubernetes.k8s:
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: kafka-cs
+        namespace: '{{namespace}}'
+        labels:
+          app: '{{kafka.app}}'
+      spec:
+        ports:
+          - port: 9092
+            name: tcp-intranet-kafka
+          - port: 9093
+            name: tcp-internet-kafka
+        selector:
+          app: '{{kafka.app}}'
+
+- name: define kafka pod presets
+  community.kubernetes.k8s:
+    definition:
+      apiVersion: redhatcop.redhat.io/v1alpha1
+      kind: PodPreset
+      metadata:
+        name: 'kafka-{{ item.id }}'
+        namespace: '{{namespace}}'
+      spec: 
+        selector:
+          matchLabels:
+            app: '{{kafka.app}}'
+            podnamerequired: 'kafka-{{ item.id }}'
+        env: '{{ item.spec.env | default([]) }}'
+        volumes: '{{ item.spec.volumes | default([]) }}'
+        volumeMounts: '{{ item.spec.volumeMounts | default([]) }}'
+  loop: "{{ kafka.instances }}"
+  register: kafkapresettingresults
+
+- name: print kafkapresettingresults
+  debug:
+    msg:  '{{ kafkapresettingresults }}'    
+
+
+
+- name:  Kafka depends on
+  community.kubernetes.k8s_info:
+    kind: '{{item.kind}}'
+    name: '{{item.name}}'
+    namespace: '{{namespace}}'
+  loop: '{{ kafka.updateOnChange }}'  
+  register: kafkaupdateonchangeresources
+
+- name: print kafkaupdateonchangeresources
+  debug:
+    msg:  '{{ kafkaupdateonchangeresources }}'    
+
+- name: print resources
+  debug:
+    msg:  'item: {{ item }}'    
+  loop: '{{ kafkaupdateonchangeresources.results }}'  
+
+- name: annotate dependent update Kafka
+  set_fact:
+      kafkaannotation: '{{ ( kafkaannotation | default([]) ) + item.resources }}'
+  loop: '{{ kafkaupdateonchangeresources.results }}'  
+  when: item.resources | length > 0
+
+- name: print dependent update kafka
+  debug:
+    msg:  '{{ kafkaannotation }}'  
+
+- name: make annotation update kafka
+  set_fact:
+      kafkarolloutAnnotation: "{{ kafkaannotation | hash('sha1') }}" 
+
 
 - name: Kafka deployment
   community.kubernetes.k8s:
@@ -391,7 +426,7 @@
         selector:
           matchLabels:
             app: '{{kafka.app}}'
-        serviceName: kafka-hs
+        serviceName: kafka
         podManagementPolicy: OrderedReady
         replicas: 3
         updateStrategy:
@@ -401,6 +436,7 @@
             labels:
               app: '{{kafka.app}}'
             annotations:
+              rolloutAnnotation: '{{kafkarolloutAnnotation}}'  
           spec:
             affinity:
               podAntiAffinity:
@@ -422,7 +458,9 @@
                 runAsUser: 0
               ports:
               - containerPort: 9092
-                name: kafka
+                name: tcp-intranet-kafka
+              - containerPort: 9093
+                name: tcp-internet-kafka
               resources:
                 {}
               env:
@@ -452,9 +490,7 @@
                 value: "DEBUG"
               - name: KAFKA_TOOLS_LOG4J_LOGLEVEL
                 value: "DEBUG"
-              - name: "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP"
-                value: "PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT"
-              - name: "KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR"
+              - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
                 value: "3"
               # This is required because the Downward API does not yet support identification of
               # pod numbering in statefulsets. Thus, we are required to specify a command which
@@ -468,6 +504,10 @@
                 export KAFKA_LOG4J_ROOT_LOGLEVEL=DEBUG && \
                 export KAFKA_TOOLS_LOG4J_LOGLEVEL=DEBUG && \
                 export KAFKA_BROKER_ID=${HOSTNAME##*-} && \
-                export KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://${POD_NAME}.kafka-hs.${POD_NAMESPACE}:9092,EXTERNAL://${HOST_IP}:$((31090 + ${KAFKA_BROKER_ID})) && \
+                export KAFKA_LISTENERS=INTERNET://:9092,INTRANET://:9093 && \
+                export KAFKA_LISTENER_SECURITY_PROTOCOL_MAP="INTERNET:SSL,INTRANET:SSL" && \
+                EXPORT KAFKA_SSL_KEYSTORE_LOCATION=/mnt/server.keystore
+                export KAFKA_ADVERTISED_LISTENERS=INTERNET://${HOST_IP}:$((31090 + ${KAFKA_BROKER_ID}),INTRANET://${POD_NAME}.kafka-hs.${POD_NAMESPACE}:9092) && \
+                export KAFKA_OPTS="${KAFKA_OPTS:-'-Djavax.net.debug=all'}"  && \
                 unset KAFKA_PORT && \
                 exec /etc/confluent/docker/run

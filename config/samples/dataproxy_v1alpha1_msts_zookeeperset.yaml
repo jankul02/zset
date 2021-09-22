@@ -20,9 +20,9 @@ spec:
   - id: "0"
     nodeSelector:
       zkinstanceid: "0"
-    updateOnChange:
-    - kind: Secret
-      name: zksecrets0
+      updateOnChange:
+      - kind: Secret
+        name: secret-zk-0
     spec:
       env: 
         - name: ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL
@@ -35,19 +35,44 @@ spec:
           value: " 2311225"
       volumeMounts:
         # name must match the volume name below
-        - name: zksecrets0
-          mountPath: /mnt/zksecrets
+        - name: secret-zk-0
+          mountPath: server.keystore
         # The secret data is exposed to Containers in the Pod through a Volume.
       volumes:
-        - name: zksecrets0
+        - name: secret-zk-0
           secret:
-            secretName: zksecrets0
+            secretName: secret-zk-0
+  - id: "1"
+    nodeSelector:
+      zkinstanceid: "1"
+      updateOnChange:
+      - kind: Secret
+        name: secret-zk-1
+    spec:
+      env: 
+        - name: ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL
+          value: DEBUG
+        - name: ZOOKEEPER_LOG4J_ROOT_LOGLEVEL
+          value: INFO
+        - name: WELCOME_MESSAGE
+          value: "Hello ajaja 1000"
+        - name: ADDITIONAL_PARAM
+          value: " 2311225"
+      volumeMounts:
+        # name must match the volume name below
+        - name: secret-zk-1
+          mountPath: server.keystore
+        # The secret data is exposed to Containers in the Pod through a Volume.
+      volumes:
+        - name: secret-zk-1
+          secret:
+            secretName: secret-zk-1            
   - id: "2"
     nodeSelector:
       zkinstanceid: "2"  
-    updateOnChange:
-    - kind: Secret
-      name: zksecrets2
+      updateOnChange:
+      - kind: Secret
+        name: secret-zk-2
     spec:  
       env: 
         - name: ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL
@@ -60,16 +85,93 @@ spec:
           value: " 231100-q3242"
       volumeMounts:
         # name must match the volume name below
-        - name: zksecrets2
-          mountPath: /mnt/zksecrets
+        - name: secret-zk-2
+          mountPath: server.keystore
         # The secret data is exposed to Containers in the Pod through a Volume.
       volumes:
-        - name: zksecrets2
+        - name: secret-zk-2
           secret:
-            secretName: zksecrets2
+            secretName: secret-zk-2
   kafka:
     app: kafkaapp
     image: confluentinc/cp-kafka:6.2.0
+    instances:
+    - id: "0"
+      nodeSelector:
+        kafkainstanceid: "0"
+      updateOnChange:
+      - kind: Secret
+        name: secret-kafka-0
+      spec:
+        env: 
+          - name: WELCOME_MESSAGE
+            value: "Hello ajaja 1000"
+          - name: ADDITIONAL_PARAM
+            value: " 2311225"
+        volumeMounts:
+          # name must match the volume name below
+          - name: secret-kafka-0
+            mountPath: server.keystore
+          # The secret data is exposed to Containers in the Pod through a Volume.
+        volumes:
+          - name: secret-kafka-0
+            secret:
+              secretName: secret-kafka-0
+    - id: "1"
+      nodeSelector:
+        kafkainstanceid: "1"  
+      updateOnChange:
+      - kind: Secret
+        name: secret-kafka-1
+      spec:  
+        env: 
+          - name: WELCOME_MESSAGE
+            value: "How are you 2ooo"
+          - name: ADDITIONAL_PARAM
+            value: " 231100-q3242"
+          - name: KAFKA_SSL_KEYSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: ssl-secrets-kafka-1
+                key: keystorepassword
+          - name: KAFKA_SSL_KEY_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: ssl-secrets-kafka-1
+                key: keypassword            
+          - name: KAFKA_LISTENERS
+            value: INTERNET://:9092,INTRANET://:9093
+            KAFKA_ADVERTISED_LISTENERS: LISTENER_BOB://kafka0:29092,LISTENER_FRED://localhost:9092            
+        volumeMounts:
+          # name must match the volume name below
+          - name: secret-kafka-1
+            mountPath: server.keystore
+          # The secret data is exposed to Containers in the Pod through a Volume.
+        volumes:
+          - name: secret-kafka-1
+            secret:
+              secretName: secret-kafka-1          
+    - id: "2"
+      nodeSelector:
+        kafkainstanceid: "2"  
+      updateOnChange:
+      - kind: Secret
+        name: secret-kafka-2
+      spec:  
+        env: 
+          - name: WELCOME_MESSAGE
+            value: "How are you 2ooo"
+          - name: ADDITIONAL_PARAM
+            value: " 231100-q3242"
+        volumeMounts:
+          # name must match the volume name below
+          - name: secret-kafka-2
+            mountPath: server.keystore
+          # The secret data is exposed to Containers in the Pod through a Volume.
+        volumes:
+          - name: secret-kafka-2
+            secret:
+              secretName: secret-kafka-2
 
 
 # secureClientPort=2182
