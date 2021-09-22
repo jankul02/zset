@@ -33,6 +33,16 @@ spec:
           value: "Hello ajaja 1000"
         - name: ADDITIONAL_PARAM
           value: " 2311225"
+        - name: KAFKA_SSL_KEYSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ssl-secrets-zk-0
+              key: keystorepassword
+        - name: KAFKA_SSL_KEY_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ssl-secrets-zk-0
+              key: keypassword             
       volumeMounts:
         # name must match the volume name below
         - name: secret-zk-0
@@ -83,6 +93,16 @@ spec:
           value: "How are you 2ooo"
         - name: ADDITIONAL_PARAM
           value: " 231100-q3242"
+        - name: KAFKA_SSL_KEYSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ssl-secrets-zk-2
+              key: keystorepassword
+        - name: KAFKA_SSL_KEY_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ssl-secrets-zk-2
+              key: keypassword             
       volumeMounts:
         # name must match the volume name below
         - name: secret-zk-2
@@ -95,6 +115,19 @@ spec:
   kafka:
     app: kafkaapp
     image: confluentinc/cp-kafka:6.2.0
+    updateOnChange:
+    - kind: Secret
+      name: secret-kafka-0  
+    - kind: Secret
+      name: secret-kafka-1
+    - kind: Secret
+      name: secret-kafka-2  
+    - kind: Secret
+      name: ssl-secrets-kafka-0  
+    - kind: Secret
+      name: ssl-secrets-kafka-1  
+    - kind: Secret
+      name: ssl-secrets-kafka-0  
     instances:
     - id: "0"
       nodeSelector:
@@ -108,10 +141,38 @@ spec:
             value: "Hello ajaja 1000"
           - name: ADDITIONAL_PARAM
             value: " 2311225"
+          - name: KAFKA_SSL_KEYSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: ssl-secrets-kafka-0
+                key: keystorepassword
+          - name: KAFKA_SSL_KEY_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: ssl-secrets-kafka-0
+                key: keypassword
+          - name: KAFKA_SSL_TRUSTSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: ssl-secrets-kafka-0
+                key: truststorepassword                   
+          - name: KAFKA_LISTENERS
+            value: "INTERNET://:9092,INTRANET://:9093"
+          - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+            value: "INTERNET:SSL,INTRANET:SSL"
+          - name: KAFKA_ADVERTISED_LISTENERS
+            value: "INTERNET://kafka-0.default.svc.cluster.local:9092,INTRANET://kafka-0.default.svc.cluster.local:9093"
+          - name: KAFKA_ZOOKEEPER_CONNECT
+            value: "zk-hs.default.svc.cluster.local:2181"      
+          - name: KAFKA_SSL_KEYSTORE_LOCATION
+            value: "/mnt/keystore.jks"
+          - name: KAFKA_SSL_TRUSTSTORE_LOCATION
+            value: "/mnt/trustore.jks"
+
         volumeMounts:
           # name must match the volume name below
           - name: secret-kafka-0
-            mountPath: server.keystore
+            mountPath: /mnt
           # The secret data is exposed to Containers in the Pod through a Volume.
         volumes:
           - name: secret-kafka-0
@@ -138,14 +199,29 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: ssl-secrets-kafka-1
-                key: keypassword            
+                key: keypassword  
+          - name: KAFKA_SSL_TRUSTSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: ssl-secrets-kafka-1
+                key: truststorepassword                             
           - name: KAFKA_LISTENERS
-            value: INTERNET://:9092,INTRANET://:9093
-            KAFKA_ADVERTISED_LISTENERS: LISTENER_BOB://kafka0:29092,LISTENER_FRED://localhost:9092            
+            value: "INTERNET://:9092,INTRANET://:9093"
+          - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+            value: "INTERNET:SSL,INTRANET:SSL"
+          - name: KAFKA_ADVERTISED_LISTENERS
+            value: "INTERNET://kafka-1.default.svc.cluster.local:9092,INTRANET://kafka-1.default.svc.cluster.local:9093"
+          - name: KAFKA_ZOOKEEPER_CONNECT
+            value: "zk-hs.default.svc.cluster.local:2181"  
+          - name: KAFKA_SSL_KEYSTORE_LOCATION
+            value: "/mnt/keystore.jks"
+          - name: KAFKA_SSL_TRUSTSTORE_LOCATION
+            value: "/mnt/trustore.jks"
+      
         volumeMounts:
           # name must match the volume name below
           - name: secret-kafka-1
-            mountPath: server.keystore
+            mountPath: /mnt
           # The secret data is exposed to Containers in the Pod through a Volume.
         volumes:
           - name: secret-kafka-1
@@ -163,10 +239,40 @@ spec:
             value: "How are you 2ooo"
           - name: ADDITIONAL_PARAM
             value: " 231100-q3242"
+          - name: KAFKA_SSL_KEYSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: ssl-secrets-kafka-2
+                key: keystorepassword
+          - name: KAFKA_SSL_KEY_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: ssl-secrets-kafka-2
+                key: keypassword     
+          - name: KAFKA_SSL_TRUSTSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: ssl-secrets-kafka-2
+                key: truststorepassword     
+          - name: KAFKA_LISTENERS
+            value: "INTERNET://:9092,INTRANET://:9093"
+          - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+            value: "INTERNET:SSL,INTRANET:SSL"
+          - name: KAFKA_ADVERTISED_LISTENERS
+            value: "INTERNET://kafka-2.default.svc.cluster.local:9092,INTRANET://kafka-2.default.svc.cluster.local:9093"
+          - name: KAFKA_ZOOKEEPER_CONNECT
+            value: "zk-hs.default.svc.cluster.local:2181"  
+          - name: KAFKA_INTER_BROKER_LISTENER_NAME
+            value: INTRANET
+          - name: KAFKA_SSL_KEYSTORE_LOCATION
+            value: "/mnt/keystore.jks"
+          - name: KAFKA_SSL_TRUSTSTORE_LOCATION
+            value: "/mnt/trustore.jks"
+                                                                                   
         volumeMounts:
           # name must match the volume name below
           - name: secret-kafka-2
-            mountPath: server.keystore
+            mountPath: /mnt
           # The secret data is exposed to Containers in the Pod through a Volume.
         volumes:
           - name: secret-kafka-2

@@ -562,10 +562,10 @@ san=dns:kafka-0.default.svc.cluster.local,dns:test.example.net,dns:test2.example
 
 
 
-keytool -keystore server.keystore.zk-client-0 -alias CARoot -importcert -file ca.crt  --storepass ********* -noprompt
-keytool -keystore server.keystore.kafka-client-0 -alias CARoot -importcert -file ca.crt --storepass ********* -noprompt
-keytool -keystore server.keystore.kafka-0 -alias CARoot -importcert -file ca.crt --storepass ********* -noprompt
-keytool -keystore server.keystore.kafka-1 -alias CARoot -importcert -file ca.crt --storepass ********* -noprompt
+keytool -keystore server.keystore.zk-client-0 -alias CARoot -importcert -file ca.crt  --storepass $ST0REPASS -noprompt
+keytool -keystore server.keystore.kafka-client-0 -alias CARoot -importcert -file ca.crt --storepass $ST0REPASS -noprompt
+keytool -keystore server.keystore.kafka-0 -alias CARoot -importcert -file ca.crt --storepass $ST0REPASS -noprompt
+keytool -keystore server.keystore.kafka-1 -alias CARoot -importcert -file ca.crt --storepass $ST0REPASS -noprompt
 keytool -keystore server.keystore.kafka-2 -alias CARoot -importcert -file ca.crt --storepass ********* -noprompt
 keytool -keystore server.keystore.zk-0 -alias CARoot -importcert -file ca.crt --storepass ********* -noprompt
 keytool -keystore server.keystore.zk-1 -alias CARoot -importcert -file ca.crt --storepass ********* -noprompt
@@ -645,6 +645,10 @@ create secrets for the key stores
 ```
 printf "" > keystores.base64.secret.yaml; for KEYST in zk-0 zk-1 zk-2 kafka-0 kafka-1 kafka-2 kafka-client-0 zk-client-0
 do
+
+
+
+
 cat server.keystore.${KEYST} | base64 -w0 > server.keystore.${KEYST}.base64  
 cat << EOF >>keystores.base64.secret.yaml
 apiVersion: v1
@@ -658,5 +662,75 @@ data:
 EOF
 done
 kubectl apply -f keystores.base64.secret.yaml
+```
+
+            valueFrom:
+              secretKeyRef:
+                name: ssl-secrets-kafka-1
+                key: keystorepassword
+          - name: KAFKA_SSL_KEY_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: ssl-secrets-kafka-1
+                key: keypassword 
+```
+
+openssl req -new -x509 -keyout ca.key -out ca.crt -days 3560 -passout pass:$kpswd
+keytool -keystore kafka.client.truststore.jks -alias CARoot -importcert -file ca.crt
+keytool -keystore kafka.server.truststore.jks -alias CARoot -importcert -file ca.crt
+
+
+
+## create CA pair
+openssl req -new -x509 -keyout ca.key -out ca.crt -days 365 -passout pass:$kpswd -subj "/CN=svc.cluster.local/OU=DataProxy/O=audi/L=Bayern/ST=Munich/C=DE"
+
+printf "" > keystores.base64.secret.yaml
+printf "" > ssl.secrets.yaml
+keystorepassword=$(printf $kpswd | base64)
+keypassword=$(printf $kpswd | base64)
+for KEYST in zk-0 zk-1 zk-2 kafka-0 kafka-1 kafka-2 kafka-client-0 zk-client-0
+do
+
+# 1. Generate SSL key and certificate for each Kafka broker
+keytool -keystore server.keystore.$KEYST -alias localhost -keyalg RSA -validity 3650 -genkey -storepass $keystorepassword -keypass $keypassword -dname "CN=svc.cluster.local, OU=DataProxy, O=audi, L=Bayern, ST=Munich, C=DE" -ext SAN=DNS:$KEYST;DNS:$KEYST.default.svc.cluster.local
+
+
+keytool -genkey -keystore server.keystore.$KEYST -alias localhost -dname CN=$KEYST.default.svc.cluster.local -keyalg RSA -validity 3650  -ext san=dns:$KEYST -storepass $kpswd 
+
+keytool -keystore server.truststore.jks -alias CARoot -importcert -file ca-cert
+
+keytool -keystore server.keystore.$KEYST -alias localhost -certreq -file cert-file-$KEYST -storepass $kpswd
+
+
+
+keytool -keystore server.keystore.$KEYST -alias CARoot -importcert -file ca-cert
+keytool -keystore server.keystore.$KEYST -alias localhost -importcert -file cert-signed-$KEYST
+
+cat server.keystore.${KEYST} | base64 -w0 > server.keystore.${KEYST}.base64  
+cat << EOF >>keystores.base64.secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: secret-${KEYST}
+  namespace: default
+data:
+  keystore.jks: "$(cat server.keystore.${KEYST}.base64)"
+---
+EOF
+
+cat << EOF0 >>ssl.secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ssl-secrets-${KEYST}
+  namespace: default
+data:
+  keystorepassword: ${keystorepassword}
+  keypassword: ${keypassword}
+  truststorepassword: ${keystorepassword}
+---
+EOF0
+done
+kubectl apply -f ssl.secrets.yaml
 
 ```
