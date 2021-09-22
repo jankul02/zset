@@ -432,9 +432,7 @@ kubectl apply -f zksecrets.yaml
 kubectl apply -f zksecrets0.yaml
 kubectl apply -f zksecrets2.yaml
 
-
 kubectl apply -f zookeeperset-lab.yaml
-
 # observe the deployment
 kubectl get pods -w 
 
@@ -460,10 +458,10 @@ kubectl delete pvc datadir-0-kafka-0 datadir-0-kafka-1 datadir-0-kafka-2 datadir
 
 ```
 keytool -keystore server.keystore.jks -alias localhost -validity 5555 -genkey -keyalg RSA -ext SAN=DNS:{FQDN}
-
+```
 
 1. Deploy a zookeeper client pod with configuration:
-
+```
     apiVersion: v1
     kind: Pod
     metadata:
@@ -477,17 +475,19 @@ keytool -keystore server.keystore.jks -alias localhost -validity 5555 -genkey -k
           - sh
           - -c
           - "exec tail -f /dev/null"
-
+```
 2. Log into the Pod
 
+```
   kubectl exec -it zookeeper-client -- /bin/bash
-
+```
 3. Use zookeeper-shell to connect in the zookeeper-client Pod:
-
+```
   zookeeper-shell zk-hs:2181
-
+```
 4. Explore with zookeeper commands, for example:
 
+```
   # Gives the list of active brokers
   ls /brokers/ids
 
@@ -496,12 +496,14 @@ keytool -keystore server.keystore.jks -alias localhost -validity 5555 -genkey -k
 
   # Gives more detailed information of the broker id '0'
   get /brokers/ids/0## ------------------------------------------------------
+```
+
 ## Kafka
 ## ------------------------------------------------------
 To connect from a client pod:
 
 1. Deploy a kafka client pod with configuration:
-
+```
     apiVersion: v1
     kind: Pod
     metadata:
@@ -515,13 +517,13 @@ To connect from a client pod:
           - sh
           - -c
           - "exec tail -f /dev/null"
-
+```
 2. Log into the Pod
-
+```
   kubectl exec -it kafka-client -- /bin/bash
-
+```
 3. Explore with kafka commands:
-
+```
   # Create the topic
   kafka-topics --zookeeper cp-helm-charts-1632213534-cp-zookeeper-headless:2181 --topic cp-helm-charts-1632213534-topic --create --partitions 1 --replication-factor 1 --if-not-exists
 
@@ -533,7 +535,7 @@ To connect from a client pod:
 
   # Consume a test message from the topic
   kafka-console-consumer --bootstrap-server cp-helm-charts-1632213534-cp-kafka-headless:9092 --topic cp-helm-charts-1632213534-topic --from-beginning --timeout-ms 2000 --max-messages 1 | grep "$MESSAGE"
-
+```
 
 
 
@@ -594,12 +596,12 @@ keytool -keystore server.keystore.zk-2 -alias CARoot -importcert -file ca.crt --
 ```
 
 
-
+```
 keytool -keystore server.keystore.kafka-0 -alias CARoot -importcert -file ca.crt
 keytool -keystore server.keystore.kafka-0  -alias localhost -importcert -file cert-signed-kafka-0
 
 ################
-```
+
 janusz@janusz-strix:~/projects/zookeeperset/kafka-tls$ keytool -genkey -keystore server.keystore.zk-0 -alias localhost -dname CN=zk-0.default.svc.cluster.local -keyalg RSA -validity 3650  -ext san=dns:zk-0
 Enter keystore password:  
 Re-enter new password: 
@@ -662,32 +664,44 @@ data:
 EOF
 done
 kubectl apply -f keystores.base64.secret.yaml
-```
 
-            valueFrom:
-              secretKeyRef:
-                name: ssl-secrets-kafka-1
-                key: keystorepassword
-          - name: KAFKA_SSL_KEY_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: ssl-secrets-kafka-1
-                key: keypassword 
-```
 
 openssl req -new -x509 -keyout ca.key -out ca.crt -days 3560 -passout pass:$kpswd
 keytool -keystore kafka.client.truststore.jks -alias CARoot -importcert -file ca.crt
 keytool -keystore kafka.server.truststore.jks -alias CARoot -importcert -file ca.crt
+```
+
+
+A. there are several keystores:
+1. server truststore 
+- ???? for each sever
+2. client truststore 
+- ???? for each client
+3. client keystore 
+- ???? for each client
+3. server keystore 
+- ???? for each server
+You’ll need to create both a keystore (holds it’s own private keys/certificates) and a truststore (holds other client/brokers certificates) for each client and broker.
+
+
+```
+
+##############################################################################################
+
+capswd=$kpswd
+
+## 1.  create the CA pair
+openssl req -new -x509 -keyout ca.key -out ca.crt -days 365 -passout pass:$capswd -subj "/CN=svc.cluster.local/OU=DataProxy/O=audi/L=Bayern/ST=Munich/C=DE"
 
 
 
-## create CA pair
-openssl req -new -x509 -keyout ca.key -out ca.crt -days 365 -passout pass:$kpswd -subj "/CN=svc.cluster.local/OU=DataProxy/O=audi/L=Bayern/ST=Munich/C=DE"
 
 printf "" > keystores.base64.secret.yaml
 printf "" > ssl.secrets.yaml
 keystorepassword=$(printf $kpswd | base64)
 keypassword=$(printf $kpswd | base64)
+
+
 for KEYST in zk-0 zk-1 zk-2 kafka-0 kafka-1 kafka-2 kafka-client-0 zk-client-0
 do
 
@@ -734,3 +748,7 @@ done
 kubectl apply -f ssl.secrets.yaml
 
 ```
+
+
+Cert Manager setup
+
