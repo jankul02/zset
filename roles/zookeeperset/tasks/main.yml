@@ -316,6 +316,11 @@
     msg:  '{{ stsresult }}'    
 
 
+- meta: end_play
+  when: kafka is not defined
+
+
+
 - name: Kafka headless service
   community.kubernetes.k8s:
     definition:
