@@ -31,8 +31,10 @@ spec:
           value: "HW from zk 0"
         - name: ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL
           value: DEBUG
+        - name: ZOOKEEPER_SSL_QUORUM
+          value: "true"
         - name: ZOOKEEPER_LOG4J_ROOT_LOGLEVEL
-          value: INFO
+          value: DEBUG
         - name: ZOOKEEPER_CLIENT_PORT
           value: "2181"
         - name: ZOOKEEPER_TICK_TIME
@@ -105,8 +107,10 @@ spec:
           value: "HW from zk 1"
         - name: ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL
           value: DEBUG
+        - name: ZOOKEEPER_SSL_QUORUM
+          value: "true"
         - name: ZOOKEEPER_LOG4J_ROOT_LOGLEVEL
-          value: INFO
+          value: DEBUG
         - name: ZOOKEEPER_CLIENT_PORT
           value: "2181"
         - name: ZOOKEEPER_TICK_TIME
@@ -180,8 +184,12 @@ spec:
           value: "HW from zk 2"
         - name: ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL
           value: DEBUG
+        - name: ZOOKEEPER_SSL_QUORUM
+          value: "true"
+        - name: ZOOKEEPER_QUORUM_AUTH_ENABLE_SASLSSL
+          value: "true"        
         - name: ZOOKEEPER_LOG4J_ROOT_LOGLEVEL
-          value: INFO
+          value: DEBUG
         - name: ZOOKEEPER_CLIENT_PORT
           value: "2181"
         - name: ZOOKEEPER_TICK_TIME
