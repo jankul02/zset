@@ -31,8 +31,6 @@ spec:
           value: "HW from zk 0"
         - name: ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL
           value: DEBUG
-        - name: ZOOKEEPER_SSL_QUORUM
-          value: "true"
         - name: ZOOKEEPER_LOG4J_ROOT_LOGLEVEL
           value: DEBUG
         - name: ZOOKEEPER_CLIENT_PORT
@@ -44,33 +42,21 @@ spec:
         - name: ZOOKEEPER_SERVER_CNXN_FACTORY
           value: org.apache.zookeeper.server.NettyServerCnxnFactory
         - name: ZOOKEEPER_SSL_KEYSTORE_LOCATION
-          value: /mnt/keystore.pkcs12
+          value: /mnt/keystore.jks
         - name: ZOOKEEPER_SSL_KEYSTORE_TYPE
-          value: PKCS12
+          value: JKS
         - name: ZOOKEEPER_SSL_TRUSTSTORE_LOCATION
-          value: /mnt/truststore.pkcs12
+          value: /mnt/truststore.jks
         - name: ZOOKEEPER_SSL_TRUSTSTORE_TYPE
-          value: PKCS12
-        - name: ZOOKEEPER_SSL_QUORUM_KEYSTORE_LOCATION
-          value: /mnt/keystore.pkcs12
-        - name: ZOOKEEPER_SSL_QUORUM_KEYSTORE_TYPE
-          value: PKCS12
-        - name: ZOOKEEPER_SSL_QUORUM_TRUSTSTORE_LOCATION
-          value: /mnt/truststore.pkcs12
-        - name: ZOOKEEPER_SSL_QUORUM_TRUSTSTORE_TYPE
-          value:  PKCS12
-        - name: ZOOKEEPER_SSL_QUORUM_HOSTNAME_VERIFICATION
-          value:  "false"
+          value: JKS
         - name: ZOOKEEPER_CLIENT_PORT_UNIFICATION
           value:  "true"
         - name: ZOOKEEPER_SSL_CLIENT_AUTH
-          value:  need
+          value:  none
         - name: ZOOKEEPER_AUTH_PROVIDER_X509
           value: org.apache.zookeeper.server.auth.X509AuthenticationProvider
         - name: ZOOKEEPER_AUTH_PROVIDER_SASL
           value: org.apache.zookeeper.server.auth.SASLAuthenticationProvider
-        - name: KAFKA_OPTS
-          value: -Djava.security.auth.login.config=/etc/kafka/secrets/zookeeper_jaas.conf
         - name: ZOOKEEPER_SSL_QUORUM_TRUSTSTORE_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -107,8 +93,6 @@ spec:
           value: "HW from zk 1"
         - name: ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL
           value: DEBUG
-        - name: ZOOKEEPER_SSL_QUORUM
-          value: "true"
         - name: ZOOKEEPER_LOG4J_ROOT_LOGLEVEL
           value: DEBUG
         - name: ZOOKEEPER_CLIENT_PORT
@@ -120,33 +104,21 @@ spec:
         - name: ZOOKEEPER_SERVER_CNXN_FACTORY
           value: org.apache.zookeeper.server.NettyServerCnxnFactory
         - name: ZOOKEEPER_SSL_KEYSTORE_LOCATION
-          value: /mnt/keystore.pkcs12
+          value: /mnt/keystore.jks
         - name: ZOOKEEPER_SSL_KEYSTORE_TYPE
-          value: PKCS12
+          value: JKS
         - name: ZOOKEEPER_SSL_TRUSTSTORE_LOCATION
-          value: /mnt/truststore.pkcs12
+          value: /mnt/truststore.jks
         - name: ZOOKEEPER_SSL_TRUSTSTORE_TYPE
-          value: PKCS12
-        - name: ZOOKEEPER_SSL_QUORUM_KEYSTORE_LOCATION
-          value: /mnt/keystore.pkcs12
-        - name: ZOOKEEPER_SSL_QUORUM_KEYSTORE_TYPE
-          value: PKCS12
-        - name: ZOOKEEPER_SSL_QUORUM_TRUSTSTORE_LOCATION
-          value: /mnt/truststore.pkcs12
-        - name: ZOOKEEPER_SSL_QUORUM_TRUSTSTORE_TYPE
-          value:  PKCS12
-        - name: ZOOKEEPER_SSL_QUORUM_HOSTNAME_VERIFICATION
-          value:  "false"
+          value: JKS
         - name: ZOOKEEPER_CLIENT_PORT_UNIFICATION
           value:  "true"
         - name: ZOOKEEPER_SSL_CLIENT_AUTH
-          value:  need
+          value:  none
         - name: ZOOKEEPER_AUTH_PROVIDER_X509
           value: org.apache.zookeeper.server.auth.X509AuthenticationProvider
         - name: ZOOKEEPER_AUTH_PROVIDER_SASL
           value: org.apache.zookeeper.server.auth.SASLAuthenticationProvider
-        - name: KAFKA_OPTS
-          value: -Djava.security.auth.login.config=/etc/kafka/secrets/zookeeper_jaas.conf
         - name: ZOOKEEPER_SSL_QUORUM_TRUSTSTORE_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -183,11 +155,7 @@ spec:
         - name: WELCOME_MESSAGE
           value: "HW from zk 2"
         - name: ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL
-          value: DEBUG
-        - name: ZOOKEEPER_SSL_QUORUM
-          value: "true"
-        - name: ZOOKEEPER_QUORUM_AUTH_ENABLE_SASLSSL
-          value: "true"        
+          value: DEBUG     
         - name: ZOOKEEPER_LOG4J_ROOT_LOGLEVEL
           value: DEBUG
         - name: ZOOKEEPER_CLIENT_PORT
@@ -199,33 +167,21 @@ spec:
         - name: ZOOKEEPER_SERVER_CNXN_FACTORY
           value: org.apache.zookeeper.server.NettyServerCnxnFactory
         - name: ZOOKEEPER_SSL_KEYSTORE_LOCATION
-          value: /mnt/keystore.pkcs12
+          value: /mnt/keystore.jks
         - name: ZOOKEEPER_SSL_KEYSTORE_TYPE
-          value: PKCS12
+          value: JKS
         - name: ZOOKEEPER_SSL_TRUSTSTORE_LOCATION
-          value: /mnt/truststore.pkcs12
+          value: /mnt/truststore.jks
         - name: ZOOKEEPER_SSL_TRUSTSTORE_TYPE
-          value: PKCS12
-        - name: ZOOKEEPER_SSL_QUORUM_KEYSTORE_LOCATION
-          value: /mnt/keystore.pkcs12
-        - name: ZOOKEEPER_SSL_QUORUM_KEYSTORE_TYPE
-          value: PKCS12
-        - name: ZOOKEEPER_SSL_QUORUM_TRUSTSTORE_LOCATION
-          value: /mnt/truststore.pkcs12
-        - name: ZOOKEEPER_SSL_QUORUM_TRUSTSTORE_TYPE
-          value:  PKCS12
-        - name: ZOOKEEPER_SSL_QUORUM_HOSTNAME_VERIFICATION
-          value:  "false"
+          value: JKS
         - name: ZOOKEEPER_CLIENT_PORT_UNIFICATION
           value:  "true"
         - name: ZOOKEEPER_SSL_CLIENT_AUTH
-          value:  need
+          value:  none
         - name: ZOOKEEPER_AUTH_PROVIDER_X509
           value: org.apache.zookeeper.server.auth.X509AuthenticationProvider
         - name: ZOOKEEPER_AUTH_PROVIDER_SASL
           value: org.apache.zookeeper.server.auth.SASLAuthenticationProvider
-        - name: KAFKA_OPTS
-          value: -Djava.security.auth.login.config=/etc/kafka/secrets/zookeeper_jaas.conf
         - name: ZOOKEEPER_SSL_QUORUM_TRUSTSTORE_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -250,166 +206,166 @@ spec:
         - name: keystore
           secret:
             secretName: keystore-zk-2                  
-  # kafka:
-  #   app: kafkaapp
-  #   image: confluentinc/cp-kafka:6.2.0
-  #   updateOnChange:
-  #   - kind: Secret
-  #     name: keystore-kafka-0  
-  #   - kind: Secret
-  #     name: keystore-kafka-1
-  #   - kind: Secret
-  #     name: keystore-kafka-2  
-  #   - kind: Secret
-  #     name: keystorepasswd-kafka-0  
-  #   - kind: Secret
-  #     name: keystorepasswd-kafka-1  
-  #   - kind: Secret
-  #     name: keystorepasswd-kafka-2 
-  #   instances:
-  #   - id: "0"
-  #     nodeSelector:
-  #       kafkainstanceid: "0"
-  #     updateOnChange:
-  #     - kind: Secret
-  #       name: keystore-kafka-0
-  #     spec:
-  #       env: 
-  #         - name: WELCOME_MESSAGE
-  #           value: "HW from kafka 0"
-  #         - name: KAFKA_SSL_KEYSTORE_PASSWORD
-  #           valueFrom:
-  #             secretKeyRef:
-  #               name: keystorepasswd-kafka-1
-  #               key: keystorepassword
-  #         - name: KAFKA_SSL_KEY_PASSWORD
-  #           valueFrom:
-  #             secretKeyRef:
-  #               name: keystorepasswd-kafka-1
-  #               key: keypassword     
-  #         - name: KAFKA_SSL_TRUSTSTORE_PASSWORD
-  #           valueFrom:
-  #             secretKeyRef:
-  #               name: keystorepasswd-kafka-1
-  #               key: truststorepassword                    
-  #         - name: KAFKA_LISTENERS
-  #           value: "INTERNET://:9092,INTRANET://:9093"
-  #         - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
-  #           value: "INTERNET:SSL,INTRANET:SSL"
-  #         - name: KAFKA_ADVERTISED_LISTENERS
-  #           value: "INTERNET://kafka-0.default.svc.cluster.local:9092,INTRANET://kafka-0.default.svc.cluster.local:9093"
-  #         - name: KAFKA_ZOOKEEPER_CONNECT
-  #           value: "zk-hs.default.svc.cluster.local:2181"      
-  #         - name: KAFKA_SSL_KEYSTORE_LOCATION
-  #           value: "/mnt/keystore.pkcs12"
-  #         - name: KAFKA_SSL_TRUSTSTORE_LOCATION
-  #           value: "/mnt/trustore.pkcs12"
+  kafka:
+    app: kafkaapp
+    image: confluentinc/cp-kafka:6.2.0
+    updateOnChange:
+    - kind: Secret
+      name: keystore-kafka-0  
+    - kind: Secret
+      name: keystore-kafka-1
+    - kind: Secret
+      name: keystore-kafka-2  
+    - kind: Secret
+      name: keystorepasswd-kafka-0  
+    - kind: Secret
+      name: keystorepasswd-kafka-1  
+    - kind: Secret
+      name: keystorepasswd-kafka-2 
+    instances:
+    - id: "0"
+      nodeSelector:
+        kafkainstanceid: "0"
+      updateOnChange:
+      - kind: Secret
+        name: keystore-kafka-0
+      spec:
+        env: 
+          - name: WELCOME_MESSAGE
+            value: "HW from kafka 0"
+          - name: KAFKA_SSL_KEYSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-kafka-1
+                key: keystorepassword
+          - name: KAFKA_SSL_KEY_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-kafka-1
+                key: keystorepassword     
+          - name: KAFKA_SSL_TRUSTSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-kafka-1
+                key: truststorepassword                    
+          - name: KAFKA_LISTENERS
+            value: "INTERNET://:9092,INTRANET://:9093"
+          - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+            value: "INTERNET:SSL,INTRANET:SSL"
+          - name: KAFKA_ADVERTISED_LISTENERS
+            value: "INTERNET://kafka-0.default.svc.cluster.local:9092,INTRANET://kafka-0.default.svc.cluster.local:9093"
+          - name: KAFKA_ZOOKEEPER_CONNECT
+            value: "zk-hs.default.svc.cluster.local:2181"      
+          - name: KAFKA_SSL_KEYSTORE_LOCATION
+            value: "/mnt/keystore.jks"
+          - name: KAFKA_SSL_TRUSTSTORE_LOCATION
+            value: "/mnt/truststore.jks"
 
-  #       volumeMounts:
-  #         # name must match the volume name below
-  #         - name: keystore
-  #           mountPath: /mnt
-  #         # The secret data is exposed to Containers in the Pod through a Volume.
-  #       volumes:
-  #         - name: keystore
-  #           secret:
-  #             secretName: keystore-kafka-0
-  #   - id: "1"
-  #     nodeSelector:
-  #       kafkainstanceid: "1"  
-  #     updateOnChange:
-  #     - kind: Secret
-  #       name: keystore-kafka-1
-  #     spec:  
-  #       env: 
-  #         - name: WELCOME_MESSAGE
-  #           value: "HW from kafka 1"
-  #         - name: KAFKA_SSL_KEYSTORE_PASSWORD
-  #           valueFrom:
-  #             secretKeyRef:
-  #               name: keystorepasswd-kafka-1
-  #               key: keystorepassword
-  #         - name: KAFKA_SSL_KEY_PASSWORD
-  #           valueFrom:
-  #             secretKeyRef:
-  #               name: keystorepasswd-kafka-1
-  #               key: keypassword     
-  #         - name: KAFKA_SSL_TRUSTSTORE_PASSWORD
-  #           valueFrom:
-  #             secretKeyRef:
-  #               name: keystorepasswd-kafka-1
-  #               key: truststorepassword                                
-  #         - name: KAFKA_LISTENERS
-  #           value: "INTERNET://:9092,INTRANET://:9093"
-  #         - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
-  #           value: "INTERNET:SSL,INTRANET:SSL"
-  #         - name: KAFKA_ADVERTISED_LISTENERS
-  #           value: "INTERNET://kafka-1.default.svc.cluster.local:9092,INTRANET://kafka-1.default.svc.cluster.local:9093"
-  #         - name: KAFKA_ZOOKEEPER_CONNECT
-  #           value: "zk-hs.default.svc.cluster.local:2181"  
-  #         - name: KAFKA_SSL_KEYSTORE_LOCATION
-  #           value: "/mnt/keystore.pkcs12"
-  #         - name: KAFKA_SSL_TRUSTSTORE_LOCATION
-  #           value: "/mnt/trustore.pkcs12"
+        volumeMounts:
+          # name must match the volume name below
+          - name: keystore
+            mountPath: /mnt
+          # The secret data is exposed to Containers in the Pod through a Volume.
+        volumes:
+          - name: keystore
+            secret:
+              secretName: keystore-kafka-0
+    - id: "1"
+      nodeSelector:
+        kafkainstanceid: "1"  
+      updateOnChange:
+      - kind: Secret
+        name: keystore-kafka-1
+      spec:  
+        env: 
+          - name: WELCOME_MESSAGE
+            value: "HW from kafka 1"
+          - name: KAFKA_SSL_KEYSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-kafka-1
+                key: keystorepassword
+          - name: KAFKA_SSL_KEY_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-kafka-1
+                key: keystorepassword     
+          - name: KAFKA_SSL_TRUSTSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-kafka-1
+                key: truststorepassword                                
+          - name: KAFKA_LISTENERS
+            value: "INTERNET://:9092,INTRANET://:9093"
+          - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+            value: "INTERNET:SSL,INTRANET:SSL"
+          - name: KAFKA_ADVERTISED_LISTENERS
+            value: "INTERNET://kafka-1.default.svc.cluster.local:9092,INTRANET://kafka-1.default.svc.cluster.local:9093"
+          - name: KAFKA_ZOOKEEPER_CONNECT
+            value: "zk-hs.default.svc.cluster.local:2181"  
+          - name: KAFKA_SSL_KEYSTORE_LOCATION
+            value: "/mnt/keystore.jks"
+          - name: KAFKA_SSL_TRUSTSTORE_LOCATION
+            value: "/mnt/truststore.jks"
       
-  #       volumeMounts:
-  #         # name must match the volume name below
-  #         - name: keystore
-  #           mountPath: /mnt
-  #         # The secret data is exposed to Containers in the Pod through a Volume.
-  #       volumes:
-  #         - name: keystore
-  #           secret:
-  #             secretName: keystore-kafka-1          
-  #   - id: "2"
-  #     nodeSelector:
-  #       kafkainstanceid: "2"  
-  #     updateOnChange:
-  #     - kind: Secret
-  #       name: certificate-kafka-2
-  #     spec:  
-  #       env: 
-  #         - name: WELCOME_MESSAGE
-  #           value: "HW from kafka 2"
-  #         - name: KAFKA_SSL_KEYSTORE_PASSWORD
-  #           valueFrom:
-  #             secretKeyRef:
-  #               name: keystorepasswd-kafka-2
-  #               key: keystorepassword
-  #         - name: KAFKA_SSL_KEY_PASSWORD
-  #           valueFrom:
-  #             secretKeyRef:
-  #               name: keystorepasswd-kafka-2
-  #               key: keypassword     
-  #         - name: KAFKA_SSL_TRUSTSTORE_PASSWORD
-  #           valueFrom:
-  #             secretKeyRef:
-  #               name: keystorepasswd-kafka-2
-  #               key: truststorepassword     
-  #         - name: KAFKA_LISTENERS
-  #           value: "INTERNET://:9092,INTRANET://:9093"
-  #         - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
-  #           value: "INTERNET:SSL,INTRANET:SSL"
-  #         - name: KAFKA_ADVERTISED_LISTENERS
-  #           value: "INTERNET://kafka-2.default.svc.cluster.local:9092,INTRANET://kafka-2.default.svc.cluster.local:9093"
-  #         - name: KAFKA_ZOOKEEPER_CONNECT
-  #           value: "zk-hs.default.svc.cluster.local:2181"  
-  #         - name: KAFKA_INTER_BROKER_LISTENER_NAME
-  #           value: INTRANET
-  #         - name: KAFKA_SSL_KEYSTORE_LOCATION
-  #           value: "/mnt/keystore.pkcs12"
-  #         - name: KAFKA_SSL_TRUSTSTORE_LOCATION
-  #           value: "/mnt/trustore.pkcs12"
+        volumeMounts:
+          # name must match the volume name below
+          - name: keystore
+            mountPath: /mnt
+          # The secret data is exposed to Containers in the Pod through a Volume.
+        volumes:
+          - name: keystore
+            secret:
+              secretName: keystore-kafka-1          
+    - id: "2"
+      nodeSelector:
+        kafkainstanceid: "2"  
+      updateOnChange:
+      - kind: Secret
+        name: certificate-kafka-2
+      spec:  
+        env: 
+          - name: WELCOME_MESSAGE
+            value: "HW from kafka 2"
+          - name: KAFKA_SSL_KEYSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-kafka-2
+                key: keystorepassword
+          - name: KAFKA_SSL_KEY_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-kafka-2
+                key: keystorepassword     
+          - name: KAFKA_SSL_TRUSTSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-kafka-2
+                key: truststorepassword     
+          - name: KAFKA_LISTENERS
+            value: "INTERNET://:9092,INTRANET://:9093"
+          - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+            value: "INTERNET:SSL,INTRANET:SSL"
+          - name: KAFKA_ADVERTISED_LISTENERS
+            value: "INTERNET://kafka-2.default.svc.cluster.local:9092,INTRANET://kafka-2.default.svc.cluster.local:9093"
+          - name: KAFKA_ZOOKEEPER_CONNECT
+            value: "zk-hs.default.svc.cluster.local:2181"  
+          - name: KAFKA_INTER_BROKER_LISTENER_NAME
+            value: INTRANET
+          - name: KAFKA_SSL_KEYSTORE_LOCATION
+            value: "/mnt/keystore.jks"
+          - name: KAFKA_SSL_TRUSTSTORE_LOCATION
+            value: "/mnt/truststore.jks"
                                                                                    
-  #       volumeMounts:
-  #         # name must match the volume name below
-  #         - name: keystore
-  #           mountPath: /mnt
-  #         # The secret data is exposed to Containers in the Pod through a Volume.
-  #       volumes:
-  #         - name: keystore
-  #           secret:
-  #             secretName: keystore-kafka-2
+        volumeMounts:
+          # name must match the volume name below
+          - name: keystore
+            mountPath: /mnt
+          # The secret data is exposed to Containers in the Pod through a Volume.
+        volumes:
+          - name: keystore
+            secret:
+              secretName: keystore-kafka-2
 
 
 # secureClientPort=2182
