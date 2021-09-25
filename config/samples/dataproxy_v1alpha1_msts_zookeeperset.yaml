@@ -18,7 +18,7 @@ spec:
       name: keystorepasswd-zk-0    
     - kind: Secret
       name: keystore-zk-0
-    image: jankul02/kubernetes-zookeeper:0.0.43
+    image: jankul02/kubernetes-zookeeper:0.0.47
     spec:
       env:
         - name: WELCOME_MESSAGE
