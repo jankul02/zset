@@ -25,7 +25,7 @@
       kind: Service
       apiVersion: v1
       metadata:
-        name: zk-hs
+        name: zk-hs     
         namespace: '{{ namespace }}'
         labels:
           app: '{{ zookeeper.app }}'    
@@ -37,6 +37,7 @@
           name: tcp-leader-el
         - port: 2181
           name: tcp-client
+        publishNotReadyAddresses: true           
         clusterIP: None
         selector:
           app: '{{ zookeeper.app }}'   

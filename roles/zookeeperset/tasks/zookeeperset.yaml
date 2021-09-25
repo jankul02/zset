@@ -13,7 +13,7 @@
         replicas: {{zookeeper.autoscale.target }}                  
         updateStrategy:
           type: RollingUpdate
-        podManagementPolicy: OrderedReady
+        podManagementPolicy: Parallel
         template:
           metadata:
             labels:
@@ -51,22 +51,22 @@
               - -c
               - "/etc/confluent/docker/start-zookeeper \
                  --servers=3"
-              readinessProbe:
-                exec:
-                  command:
-                  - sh
-                  - -c
-                  - "/etc/confluent/docker/zookeeper-ready 2181"
-                initialDelaySeconds: 10
-                timeoutSeconds: 5
-              livenessProbe:
-                exec:
-                  command:
-                  - sh
-                  - -c
-                  - "/etc/confluent/docker/zookeeper-ready 2181"
-                initialDelaySeconds: 10
-                timeoutSeconds: 5
+              # readinessProbe:
+              #   exec:
+              #     command:
+              #     - sh
+              #     - -c
+              #     - "/etc/confluent/docker/zookeeper-ready 2181"
+              #   initialDelaySeconds: 10
+              #   timeoutSeconds: 5
+              # livenessProbe:
+              #   exec:
+              #     command:
+              #     - sh
+              #     - -c
+              #     - "/etc/confluent/docker/zookeeper-ready 2181"
+                # initialDelaySeconds: 10
+                # timeoutSeconds: 5
               volumeMounts: {{volumemounts}}
             volumes: {{ volumes | default([])}}
             securityContext:

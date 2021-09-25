@@ -18,7 +18,7 @@ spec:
       name: keystorepasswd-zk-0    
     - kind: Secret
       name: keystore-zk-0
-    image: jankul02/kubernetes-zookeeper:0.0.47
+    image: jankul02/kubernetes-zookeeper:0.0.65
     spec:
       env:
         - name: WELCOME_MESSAGE
@@ -39,6 +39,10 @@ spec:
           value: /mnt/keystore.jks
         - name: ZOOKEEPER_SSL_QUORUM_TRUSTSTORE_LOCATION
           value: /mnt/truststore.jks
+        - name: ZOOKEEPER_SSL_QUORUM_HOSTNAME_VERIFICATION
+          value: "false"
+        - name: ZOOKEEPER_SSL_HOSTNAME_VERIFICATION
+          value: "false"
         - name: ZOOKEEPER_SERVER_CNXN_FACTORY
           value: org.apache.zookeeper.server.NettyServerCnxnFactory
         - name: ZOOKEEPER_SSL_KEYSTORE_LOCATION
@@ -52,7 +56,7 @@ spec:
         - name: ZOOKEEPER_CLIENT_PORT_UNIFICATION
           value:  "true"
         - name: ZOOKEEPER_SSL_CLIENT_AUTH
-          value:  none
+          value:  need
         - name: ZOOKEEPER_AUTH_PROVIDER_X509
           value: org.apache.zookeeper.server.auth.X509AuthenticationProvider
         - name: ZOOKEEPER_AUTH_PROVIDER_SASL
