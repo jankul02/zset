@@ -37,6 +37,8 @@
           name: tcp-leader-el
         - port: 2181
           name: tcp-client
+        - port: 2182
+          name: tcp-secclient          
         publishNotReadyAddresses: true           
         clusterIP: None
         selector:
@@ -57,6 +59,8 @@
         ports:
         - port: 2181
           name: tcp-client
+        - port: 2182
+          name: tcp-secclient          
         selector:
           app: '{{ zookeeper.app }}'    
 
@@ -115,7 +119,7 @@
 
 
 - meta: end_play
-#  when: kafka is not defined
+  when: kafka is not defined
 
 
 
@@ -135,6 +139,7 @@
             name: tcp-intra-kafka
           - port: 9092
             name: tcp-inter-kafka
+        publishNotReadyAddresses: true                
         clusterIP: None
         selector:
           app: '{{kafka.app}}'
@@ -227,7 +232,7 @@
           matchLabels:
             app: '{{kafka.app}}'
         serviceName: kafka
-        podManagementPolicy: OrderedReady
+        podManagementPolicy: Parallel
         replicas: 3
         updateStrategy:
           type: RollingUpdate
@@ -307,7 +312,7 @@
                 export KAFKA_SSL_KEYSTORE_LOCATION=${KAFKA_SSL_KEYSTORE_LOCATION:-/mnt/keystore.jks} && \
                 export KAFKA_SSL_TRUSTSTORE_LOCATION=${KAFKA_SSL_TRUSTSTORE_LOCATION:-/mnt/trustore.jks} && \
                 export KAFKA_ADVERTISED_LISTENERS=${KAFKA_ADVERTISED_LISTENERS:-"INTERNET://${HOST_IP}:$((31090 + ${KAFKA_BROKER_ID}),INTRANET://${POD_NAME}.kafka-hs.${POD_NAMESPACE}:9092)"} && \
-                export KAFKA_ZOOKEEPER_CONNECT=${KAFKA_ZOOKEEPER_CONNECT:-"zk-hs:2181"}  && \
+                export KAFKA_ZOOKEEPER_CONNECT=${KAFKA_ZOOKEEPER_CONNECT:-"zk-hs.default.svc.cluster.local:2182"}  && \
                 export KAFKA_INTER_BROKER_LISTENER_NAME=${KAFKA_INTER_BROKER_LISTENER_NAME:-INTRANET} && \
                 # export KAFKA_OPTS=-Djavax.net.debug=all  && \
                 unset KAFKA_PORT && \

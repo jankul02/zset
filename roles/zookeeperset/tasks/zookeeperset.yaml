@@ -42,6 +42,8 @@
               ports:
               - containerPort: 2181
                 name: tcp-client
+              - containerPort: 2182
+                name: tcp-secclient
               - containerPort: 2888
                 name: tcp-server
               - containerPort: 3888
