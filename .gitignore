@@ -7,6 +7,15 @@
 *.dylib
 bin
 
+
+# logs
+*.log
+
+#
+*.cer
+*.crt
+
+
 # editor and IDE paraphernalia
 .idea
 *.swp
