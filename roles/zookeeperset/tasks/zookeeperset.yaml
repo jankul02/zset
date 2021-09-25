@@ -67,7 +67,7 @@
               #     - "/etc/confluent/docker/zookeeper-ready 2181"
                 # initialDelaySeconds: 10
                 # timeoutSeconds: 5
-              volumeMounts: {{volumemounts}}
+              volumeMounts: {{volumemounts | default([])}}
             volumes: {{ volumes | default([])}}
             securityContext:
       #        runAsUser: 1000
