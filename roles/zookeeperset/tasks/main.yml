@@ -17,7 +17,7 @@
   loop: "{{ zookeeper.instances }}"
   register: zookeeperPresettingResults
 
-# - meta: end_play
+
 
 - name: zookeepersetapp hsvc
   community.kubernetes.k8s:
@@ -101,107 +101,16 @@
   loop: '{{ zookeeperupdateonchangeresources.results }}'  
   when: item.resources | length > 0
 
-# - name: print dependent update ZookeeperSet
-#   debug:
-#     msg:  '{{ zookeeperannotation }}'  
-
 - name: make annotation update ZookeeperSet
   set_fact:
       zookeeperRolloutAnnotation: "{{ zookeeperannotation | hash('sha1') }}" 
 
 
-
 - name: Zookeeperset deployment
   community.kubernetes.k8s:
-    definition:
-      apiVersion: apps/v1
-      kind: StatefulSet
-      metadata:
-        name: zk
-        namespace: '{{ namespace }}'       
-        labels:
-          app: '{{ zookeeper.app }}'
-      spec:
-        selector:
-          matchLabels:
-            app: '{{ zookeeper.app }}'
-        serviceName: zk-hs
-        replicas: 3        
-        updateStrategy:
-          type: RollingUpdate
-        podManagementPolicy: OrderedReady
-        template:
-          metadata:
-            labels:
-              app: '{{ zookeeper.app }}'
-            annotations: 
-              rolloutAnnotation: '{{zookeeperRolloutAnnotation}}'                
-          spec:
-            affinity:
-              podAntiAffinity:
-                requiredDuringSchedulingIgnoredDuringExecution:
-                  - labelSelector:
-                      matchExpressions:
-                        - key: "app"
-                          operator: In
-                          values:
-                          - '{{ zookeeper.app }}'    
-                    topologyKey: "kubernetes.io/hostname"
-            containers:
-            - name: kubernetes-zookeeper
-              imagePullPolicy: Always
-              image: '{{ zookeeper.image }}'
-              resources:
-                requests:
-                  memory: "1Gi"
-                  cpu: "0.5"
-              ports:
-              - containerPort: 2181
-                name: tcp-client
-              - containerPort: 2888
-                name: tcp-server
-              - containerPort: 3888
-                name: tcp-leader-el
-              command:
-              - sh
-              - -c
-              - "/etc/confluent/docker/start-zookeeper \
-                 --servers=3"
-              readinessProbe:
-                exec:
-                  command:
-                  - sh
-                  - -c
-                  - "/etc/confluent/docker/zookeeper-ready 2181"
-                initialDelaySeconds: 10
-                timeoutSeconds: 5
-              livenessProbe:
-                exec:
-                  command:
-                  - sh
-                  - -c
-                  - "/etc/confluent/docker/zookeeper-ready 2181"
-                initialDelaySeconds: 10
-                timeoutSeconds: 5
-              volumeMounts: "{{volumemounts}}"
-            volumes: "{{ volumes | default([])}}"
-            securityContext:
-      #        runAsUser: 1000
-              fsGroup: 1000            
-        volumeClaimTemplates:
-        - metadata:
-            name: datadir
-          spec:
-            accessModes: [ "ReadWriteOnce" ]
-            resources:
-              requests:
-                storage: "5Gi"
+    definition: "{{lookup('template', 'zookeeperset.yaml') }}"
+
   register: zookeeperStsresult
-
-
-# - name: print zookeeperStsresult
-#   debug:
-#     msg:  '{{ zookeeperStsresult }}'    
 
 
 - meta: end_play

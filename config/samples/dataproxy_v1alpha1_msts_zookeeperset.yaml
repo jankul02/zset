@@ -10,6 +10,7 @@ spec:
       range:
         min: 3
         max: 5
+      target: 3
     maxUnavailable: 1
     updateOnChange:
     #TODO redesign and implement
@@ -17,7 +18,7 @@ spec:
       name: keystorepasswd-zk-0    
     - kind: Secret
       name: keystore-zk-0
-    image: jankul02/kubernetes-zookeeper:0.0.40 
+    image: jankul02/kubernetes-zookeeper:0.0.43
     spec:
       env:
         - name: WELCOME_MESSAGE
