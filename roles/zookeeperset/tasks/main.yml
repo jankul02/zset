@@ -1,22 +1,3 @@
-# - name: define zk pod presets
-#   community.kubernetes.k8s:
-#     definition:
-#       apiVersion: redhatcop.redhat.io/v1alpha1
-#       kind: PodPreset
-#       metadata:
-#         name: 'zk-{{ item.id }}'
-#         namespace: '{{namespace}}'
-#       spec: 
-#         selector:
-#           matchLabels:
-#             app: '{{ zookeeper.app }}'
-#             podnamerequired: 'zk-{{ item.id }}'
-#         env: '{{ (item.spec.env | default([]))+ (zookeeper.spec.env | default([]) )  }}'
-#         volumes: '{{  item.spec.volumes | default([]) + (zookeeper.spec.volumes | default([]) )  }}'
-#         volumeMounts: '{{  ( item.spec.volumeMounts | default([]) ) + (zookeeper.spec.volumeMounts | default([]) ) }}'
-#   loop: "{{ zookeeper.instances }}"
-#   register: zookeeperPresettingResults
-
 - name: define zk pod presets
   community.kubernetes.k8s:
     definition:
@@ -30,16 +11,11 @@
           matchLabels:
             app: '{{ zookeeper.app }}'
             podnamerequired: 'zk-{{ item.id }}'
-        env: '{{ item.spec.env | default([]) }}'
-        volumes: '{{  item.spec.volumes | default([])  }}'
-        volumeMounts: '{{  item.spec.volumeMounts | default([])  }}'
+        env: '{{ (item.spec.env | default([]))+ (zookeeper.spec.env | default([]) )  }}'
+        volumes: '{{  item.spec.volumes | default([]) + (zookeeper.spec.volumes | default([]) )  }}'
+        volumeMounts: '{{  ( item.spec.volumeMounts | default([]) ) + (zookeeper.spec.volumeMounts | default([]) ) }}'
   loop: "{{ zookeeper.instances }}"
   register: zookeeperPresettingResults
-
-# - name: print zookeeperPresettingResults
-#   debug:
-#     msg:  '{{ zookeeperPresettingResults }}'    
-
 
 # - meta: end_play
 
@@ -64,8 +40,6 @@
         clusterIP: None
         selector:
           app: '{{ zookeeper.app }}'   
-
-
 
           
 - name: Service zookeepersetapp-csvc
