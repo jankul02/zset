@@ -17,7 +17,7 @@ spec:
       name: keystorepasswd-zk-0    
     - kind: Secret
       name: keystore-zk-0
-    image: jankul02/kubernetes-zookeeper:0.0.40
+    image: jankul02/kubernetes-zookeeper:0.0.40 
     spec:
       env:
         - name: WELCOME_MESSAGE
@@ -32,6 +32,12 @@ spec:
           value: "2000"
         - name: ZOOKEEPER_SECURE_CLIENT_PORT
           value: "2182"
+        - name: ZOOKEEPER_SSL_QUORUM
+          value: "true"
+        - name: ZOOKEEPER_SSL_QUORUM_KEYSTORE_LOCATION
+          value: /mnt/keystore.jks
+        - name: ZOOKEEPER_SSL_QUORUM_TRUSTSTORE_LOCATION
+          value: /mnt/truststore.jks
         - name: ZOOKEEPER_SERVER_CNXN_FACTORY
           value: org.apache.zookeeper.server.NettyServerCnxnFactory
         - name: ZOOKEEPER_SSL_KEYSTORE_LOCATION
@@ -60,6 +66,11 @@ spec:
       spec:
         env: 
           - name: ZOOKEEPER_SSL_QUORUM_TRUSTSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-zk-1
+                key: keystorepassword
+          - name: ZOOKEEPER_SSL_QUORUM_KEYSTORE_PASSWORD
             valueFrom:
               secretKeyRef:
                 name: keystorepasswd-zk-1
@@ -96,6 +107,11 @@ spec:
               secretKeyRef:
                 name: keystorepasswd-zk-0
                 key: keystorepassword
+          - name: ZOOKEEPER_SSL_QUORUM_KEYSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-zk-0
+                key: keystorepassword
           - name: ZOOKEEPER_SSL_KEYSTORE_PASSWORD
             valueFrom:
               secretKeyRef:
@@ -126,6 +142,11 @@ spec:
           - name: WELCOME_MESSAGE
             value: "HW from zk 2"
           - name: ZOOKEEPER_SSL_QUORUM_TRUSTSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-zk-2
+                key: keystorepassword
+          - name: ZOOKEEPER_SSL_QUORUM_KEYSTORE_PASSWORD
             valueFrom:
               secretKeyRef:
                 name: keystorepasswd-zk-2
