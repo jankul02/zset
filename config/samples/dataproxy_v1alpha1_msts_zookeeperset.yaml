@@ -20,6 +20,8 @@ spec:
     image: jankul02/kubernetes-zookeeper:0.0.40
     spec:
       env:
+        - name: WELCOME_MESSAGE
+          value: "The generic Hello World from zookeeper"      
         - name: ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL
           value: DEBUG
         - name: ZOOKEEPER_LOG4J_ROOT_LOGLEVEL
@@ -49,40 +51,6 @@ spec:
         - name: ZOOKEEPER_AUTH_PROVIDER_SASL
           value: org.apache.zookeeper.server.auth.SASLAuthenticationProvider
     instances:
-    - id: "0"
-      nodeSelector:
-        zkinstanceid: "0"
-        updateOnChange:
-        - kind: Secret
-          name: keystore-zk-0
-      spec:
-        env: 
-          - name: WELCOME_MESSAGE
-            value: "HW from zk 0"
-          - name: ZOOKEEPER_SSL_QUORUM_TRUSTSTORE_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: keystorepasswd-zk-0
-                key: keystorepassword
-          - name: ZOOKEEPER_SSL_KEYSTORE_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: keystorepasswd-zk-0
-                key: keystorepassword
-          - name: ZOOKEEPER_SSL_TRUSTSTORE_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: keystorepasswd-zk-0
-                key: keystorepassword    
-        volumeMounts:
-          # name must match the volume name below
-          - name: keystore
-            mountPath: /mnt
-          # The secret data is exposed to Containers in the Pod through a Volume.
-        volumes:
-          - name: keystore
-            secret:
-              secretName: keystore-zk-0
     - id: "1"
       nodeSelector:
         zkinstanceid: "1"
@@ -91,8 +59,6 @@ spec:
           name: keystore-zk-1
       spec:
         env: 
-          - name: WELCOME_MESSAGE
-            value: "HW from zk 1"
           - name: ZOOKEEPER_SSL_QUORUM_TRUSTSTORE_PASSWORD
             valueFrom:
               secretKeyRef:
@@ -116,7 +82,39 @@ spec:
         volumes:
           - name: keystore
             secret:
-              secretName: keystore-zk-1              
+              secretName: keystore-zk-1           
+    - id: "0"
+      nodeSelector:
+        zkinstanceid: "0"
+        updateOnChange:
+        - kind: Secret
+          name: keystore-zk-0
+      spec:
+        env: 
+          - name: ZOOKEEPER_SSL_QUORUM_TRUSTSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-zk-0
+                key: keystorepassword
+          - name: ZOOKEEPER_SSL_KEYSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-zk-0
+                key: keystorepassword
+          - name: ZOOKEEPER_SSL_TRUSTSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-zk-0
+                key: keystorepassword
+        volumeMounts:
+          # name must match the volume name below
+          - name: keystore
+            mountPath: /mnt
+          # The secret data is exposed to Containers in the Pod through a Volume.
+        volumes:
+          - name: keystore
+            secret:
+              secretName: keystore-zk-0      
     - id: "2"
       nodeSelector:
         zkinstanceid: "2"  

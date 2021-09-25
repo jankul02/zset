@@ -1,6 +1,21 @@
-- name: print zookeeper    
-  debug:
-    msg:  'zookeeper spec {{ zookeeper}}'
+# - name: define zk pod presets
+#   community.kubernetes.k8s:
+#     definition:
+#       apiVersion: redhatcop.redhat.io/v1alpha1
+#       kind: PodPreset
+#       metadata:
+#         name: 'zk-{{ item.id }}'
+#         namespace: '{{namespace}}'
+#       spec: 
+#         selector:
+#           matchLabels:
+#             app: '{{ zookeeper.app }}'
+#             podnamerequired: 'zk-{{ item.id }}'
+#         env: '{{ (item.spec.env | default([]))+ (zookeeper.spec.env | default([]) )  }}'
+#         volumes: '{{  item.spec.volumes | default([]) + (zookeeper.spec.volumes | default([]) )  }}'
+#         volumeMounts: '{{  ( item.spec.volumeMounts | default([]) ) + (zookeeper.spec.volumeMounts | default([]) ) }}'
+#   loop: "{{ zookeeper.instances }}"
+#   register: zookeeperPresettingResults
 
 - name: define zk pod presets
   community.kubernetes.k8s:
@@ -15,22 +30,20 @@
           matchLabels:
             app: '{{ zookeeper.app }}'
             podnamerequired: 'zk-{{ item.id }}'
-        env: '{{ (zookeeper.spec.env | default([]) ) + (item.spec.env | default([])) }}'
-        volumes: '{{ (zookeeper.spec.volumes | default([]) ) + item.spec.volumes | default([]) }}'
-        volumeMounts: '{{ (zookeeper.spec.volumeMounts | default([]) ) + item.spec.volumeMounts | default([]) }}'
+        env: '{{ item.spec.env | default([]) }}'
+        volumes: '{{  item.spec.volumes | default([])  }}'
+        volumeMounts: '{{  item.spec.volumeMounts | default([])  }}'
   loop: "{{ zookeeper.instances }}"
   register: zookeeperPresettingResults
 
-- name: print zookeeperPresettingResults
-  debug:
-    msg:  '{{ zookeeperPresettingResults }}'    
+# - name: print zookeeperPresettingResults
+#   debug:
+#     msg:  '{{ zookeeperPresettingResults }}'    
 
 
-- meta: end_play
+# - meta: end_play
 
-
-
-- name: Service hsvc
+- name: zookeepersetapp hsvc
   community.kubernetes.k8s:
     definition:
       kind: Service
@@ -72,7 +85,7 @@
         selector:
           app: '{{ zookeeper.app }}'    
 
-- name: policy for pod disruption budget 
+- name: zookeeper.app policy for pod disruption budget 
   community.kubernetes.k8s:
     definition:
       apiVersion: policy/v1
@@ -85,16 +98,14 @@
           matchLabels:
             app: '{{ zookeeper.app }}'    
         #TODO: variable for maxUnavailable
-        maxUnavailable: '{{zookeeper.maxUnavailable}}'  
+        maxUnavailable: 1 
 
 - name: zookeeper volumemounts
   set_fact:
     volumemounts:
       - name: datadir
         mountPath: /var/lib/zookeeper
-
         
-
 
 - name:  ZookeeperSet depends on
   community.kubernetes.k8s_info:
@@ -104,11 +115,10 @@
   loop: '{{ zookeeper.updateOnChange }}'  
   register: zookeeperupdateonchangeresources
 
-
-- name: print resources
-  debug:
-    msg:  'item: {{ item }}'    
-  loop: '{{ zookeeperupdateonchangeresources.results }}'  
+# - name: print resources
+#   debug:
+#     msg:  'item: {{ item }}'    
+#   loop: '{{ zookeeperupdateonchangeresources.results }}'  
 
 
 - name: annotate dependent update ZookeeperSet
@@ -117,13 +127,14 @@
   loop: '{{ zookeeperupdateonchangeresources.results }}'  
   when: item.resources | length > 0
 
-- name: print dependent update ZookeeperSet
-  debug:
-    msg:  '{{ zookeeperannotation }}'  
+# - name: print dependent update ZookeeperSet
+#   debug:
+#     msg:  '{{ zookeeperannotation }}'  
 
 - name: make annotation update ZookeeperSet
   set_fact:
       zookeeperRolloutAnnotation: "{{ zookeeperannotation | hash('sha1') }}" 
+
 
 
 - name: Zookeeperset deployment
@@ -150,7 +161,6 @@
             labels:
               app: '{{ zookeeper.app }}'
             annotations: 
-              configname: '{{zookeeperConfigname}}' 
               rolloutAnnotation: '{{zookeeperRolloutAnnotation}}'                
           spec:
             affinity:
@@ -182,7 +192,7 @@
               - sh
               - -c
               - "/etc/confluent/docker/start-zookeeper \
-                 --servers={{zookeeper.replicas}}"
+                 --servers=3"
               readinessProbe:
                 exec:
                   command:
@@ -199,7 +209,7 @@
                   - "/etc/confluent/docker/zookeeper-ready 2181"
                 initialDelaySeconds: 10
                 timeoutSeconds: 5
-              volumeMounts: "{{volumemounts} default([]) }"
+              volumeMounts: "{{volumemounts}}"
             volumes: "{{ volumes | default([])}}"
             securityContext:
       #        runAsUser: 1000
@@ -215,13 +225,13 @@
   register: zookeeperStsresult
 
 
-- name: print zookeeperStsresult
-  debug:
-    msg:  '{{ zookeeperStsresult }}'    
+# - name: print zookeeperStsresult
+#   debug:
+#     msg:  '{{ zookeeperStsresult }}'    
 
 
 - meta: end_play
-  when: kafka is not defined
+#  when: kafka is not defined
 
 
 

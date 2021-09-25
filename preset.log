@@ -1,0 +1,135 @@
+{
+    "apiVersion": "redhatcop.redhat.io/v1alpha1",
+    "kind": "PodPreset",
+    "metadata": {
+        "creationTimestamp": "2021-09-25T09:51:38Z",
+        "generation": 1,
+        "name": "zk-2",
+        "namespace": "default",
+        "ownerReferences": [
+            {
+                "apiVersion": "dataproxy.jankul02/v1alpha1",
+                "kind": "ZookeeperSet",
+                "name": "zookeeperset-lab",
+                "uid": "0bbaad8f-9c45-4a87-a063-b9c3287b4080"
+            }
+        ],
+        "resourceVersion": "456514",
+        "uid": "d7c6fba7-55b7-4e1b-a22b-0a86e8e5f199"
+    },
+    "spec": {
+        "env": [
+            {
+                "name": "WELCOME_MESSAGE",
+                "value": "HW from zk 2"
+            },
+            {
+                "name": "ZOOKEEPER_SSL_QUORUM_TRUSTSTORE_PASSWORD",
+                "valueFrom": {
+                    "secretKeyRef": {
+                        "key": "keystorepassword",
+                        "name": "keystorepasswd-zk-2"
+                    }
+                }
+            },
+            {
+                "name": "ZOOKEEPER_SSL_KEYSTORE_PASSWORD",
+                "valueFrom": {
+                    "secretKeyRef": {
+                        "key": "keystorepassword",
+                        "name": "keystorepasswd-zk-2"
+                    }
+                }
+            },
+            {
+                "name": "ZOOKEEPER_SSL_TRUSTSTORE_PASSWORD",
+                "valueFrom": {
+                    "secretKeyRef": {
+                        "key": "keystorepassword",
+                        "name": "keystorepasswd-zk-2"
+                    }
+                }
+            },
+            {
+                "name": "WELCOME_MESSAGE",
+                "value": "The generic Hello World from zookeeper"
+            },
+            {
+                "name": "ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL",
+                "value": "DEBUG"
+            },
+            {
+                "name": "ZOOKEEPER_LOG4J_ROOT_LOGLEVEL",
+                "value": "DEBUG"
+            },
+            {
+                "name": "ZOOKEEPER_CLIENT_PORT",
+                "value": "2181"
+            },
+            {
+                "name": "ZOOKEEPER_TICK_TIME",
+                "value": "2000"
+            },
+            {
+                "name": "ZOOKEEPER_SECURE_CLIENT_PORT",
+                "value": "2182"
+            },
+            {
+                "name": "ZOOKEEPER_SERVER_CNXN_FACTORY",
+                "value": "org.apache.zookeeper.server.NettyServerCnxnFactory"
+            },
+            {
+                "name": "ZOOKEEPER_SSL_KEYSTORE_LOCATION",
+                "value": "/mnt/keystore.jks"
+            },
+            {
+                "name": "ZOOKEEPER_SSL_KEYSTORE_TYPE",
+                "value": "JKS"
+            },
+            {
+                "name": "ZOOKEEPER_SSL_TRUSTSTORE_LOCATION",
+                "value": "/mnt/truststore.jks"
+            },
+            {
+                "name": "ZOOKEEPER_SSL_TRUSTSTORE_TYPE",
+                "value": "JKS"
+            },
+            {
+                "name": "ZOOKEEPER_CLIENT_PORT_UNIFICATION",
+                "value": "true"
+            },
+            {
+                "name": "ZOOKEEPER_SSL_CLIENT_AUTH",
+                "value": "none"
+            },
+            {
+                "name": "ZOOKEEPER_AUTH_PROVIDER_X509",
+                "value": "org.apache.zookeeper.server.auth.X509AuthenticationProvider"
+            },
+            {
+                "name": "ZOOKEEPER_AUTH_PROVIDER_SASL",
+                "value": "org.apache.zookeeper.server.auth.SASLAuthenticationProvider"
+            }
+        ],
+        "selector": {
+            "matchLabels": {
+                "app": "zk",
+                "podnamerequired": "zk-2"
+            }
+        },
+        "volumeMounts": [
+            {
+                "mountPath": "/mnt",
+                "name": "keystore"
+            }
+        ],
+        "volumes": [
+            {
+                "name": "keystore",
+                "secret": {
+                    "secretName": "keystore-zk-2"
+                }
+            }
+        ]
+    }
+}
