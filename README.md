@@ -765,3 +765,7 @@ kubectl cert-manager renew # allows you to manually trigger a renewal of a speci
 #uninstall
 kubectl delete -f https://github.com/jetstack/cert-manager/releases/download/v1.5.3/cert-manager.yaml
 sudo rm  /usr/local/bin/kubectl-cert_manager
+
+
+
+CLIENT_JVMFLAGS="-Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty -Dzookeeper.ssl.keyStore.location=/mnt/keystore.jks -Dzookeeper.ssl.keyStore.password=tapawa01  -Dzookeeper.ssl.trustStore.location=/mnt/truststore.jks -Dzookeeper.ssl.trustStore.password=tapawa01 -Dzookeeper.client.secure=true" zookeeper-shell  zk-1.zk-hs:2182
