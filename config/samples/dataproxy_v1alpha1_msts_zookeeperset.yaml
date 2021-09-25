@@ -222,7 +222,7 @@ spec:
           - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
             value: "INTERNET:SSL,INTRANET:SSL"
           - name: KAFKA_ADVERTISED_LISTENERS
-            value: "INTERNET://kafka-0.default.svc.cluster.local:9092,INTRANET://kafka-0.default.svc.cluster.local:9093"
+            value: "INTERNET://kafka-0.kafka.default.svc.cluster.local:9092,INTRANET://kafka-0.kafka.default.svc.cluster.local:9093"
           - name: KAFKA_ZOOKEEPER_CONNECT
             value: "zk-hs.default.svc.cluster.local:2181"      
           - name: KAFKA_SSL_KEYSTORE_LOCATION
@@ -269,7 +269,7 @@ spec:
           - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
             value: "INTERNET:SSL,INTRANET:SSL"
           - name: KAFKA_ADVERTISED_LISTENERS
-            value: "INTERNET://kafka-1.default.svc.cluster.local:9092,INTRANET://kafka-1.default.svc.cluster.local:9093"
+            value: "INTERNET://kafka-1.kafka.default.svc.cluster.local:9092,INTRANET://kafka-1.kafka.default.svc.cluster.local:9093"
           - name: KAFKA_ZOOKEEPER_CONNECT
             value: "zk-hs.default.svc.cluster.local:2181"  
           - name: KAFKA_SSL_KEYSTORE_LOCATION
@@ -316,7 +316,7 @@ spec:
           - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
             value: "INTERNET:SSL,INTRANET:SSL"
           - name: KAFKA_ADVERTISED_LISTENERS
-            value: "INTERNET://kafka-2.default.svc.cluster.local:9092,INTRANET://kafka-2.default.svc.cluster.local:9093"
+            value: "INTERNET://kafka-2.kafka.default.svc.cluster.local:9092,INTRANET://kafka-2.kafka.default.svc.cluster.local:9093"
           - name: KAFKA_ZOOKEEPER_CONNECT
             value: "zk-hs.default.svc.cluster.local:2181"  
           - name: KAFKA_INTER_BROKER_LISTENER_NAME
