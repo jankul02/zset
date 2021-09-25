@@ -1,60 +1,6 @@
-- name: print configuration values    
+- name: print zookeeper    
   debug:
-    msg:  '{{ app }} has  autoscale.range.min: {{ autoscale.range.min }}  '
-
-- name: calculate replicas  
-  #TODO real calculation upon node metrics and external hints
-  set_fact:
-    replicas: '{{autoscale.range.min | int}}'
-
-- name: print replicas    
-  debug:
-    msg:  'replicas {{ replicas }}'    
-  
-
-
-
-- name: init specs    
-  set_fact:
-    instancesspeclist:  []  
- 
-- name: print allspecs   
-  debug:
-    msg:  'instance {{ item }}  '    
-  loop: "{{ instances }}"
-
-
-
-# - name: collect allspecs with added preset labels    
-#   set_fact:
-#      instancesspeclist:  "{{ instancesspeclist + [ item | combine({'spec':(item.spec  | default({}))|combine({ 'matchLabels': ( spec.matchLabels | default([]) ) + [ { 'podnamerequired': 'zk-'+ item.id } ] }  ) }) ] }}"
-#   loop: "{{ instances }}"
-
-
-- name: print allspecs    
-  debug:
-    msg:  'instancesspec {{ item }}  '    
-  loop: "{{ instancesspeclist }}"
-
-- name: print specs
-  debug:
-    msg:  'spec: {{ item.spec }}'    
-  loop: "{{ instances }}"
-
-
-
-
-- name: Search for all preset labelled app
-  community.kubernetes.k8s_info:
-    kind: PodPreset
-    api_version: v1alpha1
-    # label_selectors:
-    #   - 'app = {{app}}'
-  register: podpresetsbefore
-
-- name: print podpresetsbefore
-  debug:
-    msg:  '{{ podpresetsbefore }}'    
+    msg:  'zookeeper spec {{ zookeeper}}'
 
 - name: define zk pod presets
   community.kubernetes.k8s:
@@ -67,43 +13,21 @@
       spec: 
         selector:
           matchLabels:
-            app: '{{app}}'
+            app: '{{ zookeeper.app }}'
             podnamerequired: 'zk-{{ item.id }}'
-        env: '{{ item.spec.env | default([]) }}'
-        volumes: '{{ item.spec.volumes | default([]) }}'
-        volumeMounts: '{{ item.spec.volumeMounts | default([]) }}'
-  loop: "{{ instances }}"
-  register: presettingresults
+        env: '{{ (zookeeper.spec.env | default([]) ) + (item.spec.env | default([])) }}'
+        volumes: '{{ (zookeeper.spec.volumes | default([]) ) + item.spec.volumes | default([]) }}'
+        volumeMounts: '{{ (zookeeper.spec.volumeMounts | default([]) ) + item.spec.volumeMounts | default([]) }}'
+  loop: "{{ zookeeper.instances }}"
+  register: zookeeperPresettingResults
 
-- name: print presettingresult
+- name: print zookeeperPresettingResults
   debug:
-    msg:  '{{ presettingresults }}'    
+    msg:  '{{ zookeeperPresettingResults }}'    
 
 
+- meta: end_play
 
-
-- name: get the configname (uuid) of the comming deployment    
-  set_fact:
-    configname: "zk-config-{{ data  | default({}) | to_uuid  }}"  
-
-
-- name: append a stamp to have non empty data   
-  set_fact:
-    data_to_set: "{{ data  | default({}) | combine({ 'metacfg': 'CONFIGNAME='+configname}) }}"
-
-- name: create cnf
-  community.kubernetes.k8s:
-    definition:
-      apiVersion: v1
-      kind: ConfigMap
-      metadata: 
-        name: zk-global
-        namespace: '{{ namespace }}'
-        labels:
-          app: '{{ app }}'
-          configmap: zk-global
-      data: '{{data_to_set}}'  
-    state: present
 
 
 - name: Service hsvc
@@ -115,7 +39,7 @@
         name: zk-hs
         namespace: '{{ namespace }}'
         labels:
-          app: '{{ app }}'    
+          app: '{{ zookeeper.app }}'    
       spec:
         ports:
         - port: 2888
@@ -126,7 +50,7 @@
           name: tcp-client
         clusterIP: None
         selector:
-          app: '{{ app }}'   
+          app: '{{ zookeeper.app }}'   
 
 
 
@@ -140,13 +64,13 @@
         name: zk-cs
         namespace: '{{ namespace }}'
         labels:
-          app: '{{ app }}'    
+          app: '{{ zookeeper.app }}'    
       spec:
         ports:
         - port: 2181
           name: tcp-client
         selector:
-          app: '{{ app }}'    
+          app: '{{ zookeeper.app }}'    
 
 - name: policy for pod disruption budget 
   community.kubernetes.k8s:
@@ -159,60 +83,47 @@
       spec:
         selector:
           matchLabels:
-            app: '{{ app }}'    
+            app: '{{ zookeeper.app }}'    
         #TODO: variable for maxUnavailable
-        maxUnavailable: 1  
+        maxUnavailable: '{{zookeeper.maxUnavailable}}'  
 
-- name: volumemounts
+- name: zookeeper volumemounts
   set_fact:
     volumemounts:
       - name: datadir
         mountPath: /var/lib/zookeeper
-      - name: zk-global
-        mountPath: /mnt/zk-global
-      # - name: datalogdir
-      #   mountPath: /var/lib/zookeeper/log  
 
-      
+        
 
-- name: volumes
-  set_fact:
-    volumes:
-      - name: zk-global
-        configMap:
-          name: zk-global       
 
 - name:  ZookeeperSet depends on
   community.kubernetes.k8s_info:
     kind: '{{item.kind}}'
     name: '{{item.name}}'
     namespace: '{{namespace}}'
-  loop: '{{ updateOnChange }}'  
-  register: updateonchangeresources
+  loop: '{{ zookeeper.updateOnChange }}'  
+  register: zookeeperupdateonchangeresources
 
-- name: print updateonchangeresources
-  debug:
-    msg:  '{{ updateonchangeresources }}'    
 
 - name: print resources
   debug:
     msg:  'item: {{ item }}'    
-  loop: '{{ updateonchangeresources.results }}'  
+  loop: '{{ zookeeperupdateonchangeresources.results }}'  
 
 
 - name: annotate dependent update ZookeeperSet
   set_fact:
-      annotation: '{{ ( annotation | default([]) ) + item.resources }}'
-  loop: '{{ updateonchangeresources.results }}'  
+      zookeeperannotation: '{{ ( zookeeperannotation | default([]) ) + item.resources }}'
+  loop: '{{ zookeeperupdateonchangeresources.results }}'  
   when: item.resources | length > 0
 
 - name: print dependent update ZookeeperSet
   debug:
-    msg:  '{{ annotation }}'  
+    msg:  '{{ zookeeperannotation }}'  
 
 - name: make annotation update ZookeeperSet
   set_fact:
-      rolloutAnnotation: "{{ annotation | hash('sha1') }}" 
+      zookeeperRolloutAnnotation: "{{ zookeeperannotation | hash('sha1') }}" 
 
 
 - name: Zookeeperset deployment
@@ -224,11 +135,11 @@
         name: zk
         namespace: '{{ namespace }}'       
         labels:
-          app: '{{ app }}'
+          app: '{{ zookeeper.app }}'
       spec:
         selector:
           matchLabels:
-            app: '{{ app }}'
+            app: '{{ zookeeper.app }}'
         serviceName: zk-hs
         replicas: 3        
         updateStrategy:
@@ -237,10 +148,10 @@
         template:
           metadata:
             labels:
-              app: '{{ app }}'
+              app: '{{ zookeeper.app }}'
             annotations: 
-              configname: '{{configname}}' 
-              rolloutAnnotation: '{{rolloutAnnotation}}'                
+              configname: '{{zookeeperConfigname}}' 
+              rolloutAnnotation: '{{zookeeperRolloutAnnotation}}'                
           spec:
             affinity:
               podAntiAffinity:
@@ -250,12 +161,12 @@
                         - key: "app"
                           operator: In
                           values:
-                          - '{{ app }}'    
+                          - '{{ zookeeper.app }}'    
                     topologyKey: "kubernetes.io/hostname"
             containers:
             - name: kubernetes-zookeeper
               imagePullPolicy: Always
-              image: '{{ image }}'
+              image: '{{ zookeeper.image }}'
               resources:
                 requests:
                   memory: "1Gi"
@@ -271,7 +182,7 @@
               - sh
               - -c
               - "/etc/confluent/docker/start-zookeeper \
-                 --servers={{replicas}}"
+                 --servers={{zookeeper.replicas}}"
               readinessProbe:
                 exec:
                   command:
@@ -288,8 +199,8 @@
                   - "/etc/confluent/docker/zookeeper-ready 2181"
                 initialDelaySeconds: 10
                 timeoutSeconds: 5
-              volumeMounts: "{{volumemounts}}"
-            volumes: "{{ volumes }}"
+              volumeMounts: "{{volumemounts} default([]) }"
+            volumes: "{{ volumes | default([])}}"
             securityContext:
       #        runAsUser: 1000
               fsGroup: 1000            
@@ -301,19 +212,12 @@
             resources:
               requests:
                 storage: "5Gi"
-        # - metadata:
-        #     name: datalogdir
-        #   spec:
-        #     accessModes: [ "ReadWriteOnce" ]
-        #     resources:
-        #       requests:
-        #         storage: "5Gi"
-  register: stsresult
+  register: zookeeperStsresult
 
 
-- name: print stsresult
+- name: print zookeeperStsresult
   debug:
-    msg:  '{{ stsresult }}'    
+    msg:  '{{ zookeeperStsresult }}'    
 
 
 - meta: end_play

@@ -33,17 +33,38 @@ spec:
             description: Spec defines the desired state of ZookeeperSet
             type: object
             x-kubernetes-preserve-unknown-fields: true
-            required:
-            - image
-            properties:
-              image:
-                description: 'the zookeeper image'
-                type: string
-              replicas: 
-                description: 'the number of innstances allowed 1,3,5'
-                type: integer
-                minimum: 0
-                maximum: 7
+            # properties:
+            #   zookeeper:
+            #     description: 'the zookeeper object'
+            #     type: object
+            #     required:
+            #     - image
+            #     - autoscale
+            #     properties:
+            #       image:
+            #         description: 'the zookeeper image'
+            #         type: string
+            #       autoscale:
+            #         description: 'the autoscale object'
+            #         type: object
+            #         properties:
+            #           range:
+            #             description: 'the range for autoscale'
+            #             type: object
+            #             required:
+            #             - min
+            #             - max
+            #             properties:
+            #                 min: 
+            #                   description: 'the min number of instances allowed 1,3,5'
+            #                   type: integer
+            #                   minimum: 0
+            #                   maximum: 7
+            #                 max: 
+            #                   description: 'the max number of instances allowed 1,3,5'
+            #                   type: integer
+            #                   minimum: 0
+            #                   maximum: 7
           status:
             description: Status defines the observed state of ZookeeperSet
             type: object
