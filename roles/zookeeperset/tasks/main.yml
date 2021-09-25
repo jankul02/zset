@@ -17,8 +17,6 @@
   loop: "{{ zookeeper.instances }}"
   register: zookeeperPresettingResults
 
-
-
 - name: zookeepersetapp hsvc
   community.kubernetes.k8s:
     definition:
@@ -43,7 +41,6 @@
         clusterIP: None
         selector:
           app: '{{ zookeeper.app }}'   
-
           
 - name: Service zookeepersetapp-csvc
   community.kubernetes.k8s:
@@ -79,13 +76,12 @@
         #TODO: variable for maxUnavailable
         maxUnavailable: 1 
 
-- name: zookeeper volumemounts
-  set_fact:
-    volumemounts:
-      - name: datadir
-        mountPath: /var/lib/zookeeper
+# - name: zookeeper volumemounts
+#   set_fact:
+#     volumemounts:
+#       - name: datadir
+#         mountPath: /var/lib/zookeeper
         
-
 - name:  ZookeeperSet depends on
   community.kubernetes.k8s_info:
     kind: '{{item.kind}}'
@@ -93,12 +89,6 @@
     namespace: '{{namespace}}'
   loop: '{{ zookeeper.updateOnChange }}'  
   register: zookeeperupdateonchangeresources
-
-# - name: print resources
-#   debug:
-#     msg:  'item: {{ item }}'    
-#   loop: '{{ zookeeperupdateonchangeresources.results }}'  
-
 
 - name: annotate dependent update ZookeeperSet
   set_fact:
@@ -110,18 +100,13 @@
   set_fact:
       zookeeperRolloutAnnotation: "{{ zookeeperannotation | hash('sha1') }}" 
 
-
 - name: Zookeeperset deployment
   community.kubernetes.k8s:
     definition: "{{lookup('template', 'zookeeperset.yaml') }}"
-
   register: zookeeperStsresult
-
 
 - meta: end_play
   when: kafka is not defined
-
-
 
 - name: Kafka headless service
   community.kubernetes.k8s:
@@ -176,17 +161,11 @@
           matchLabels:
             app: '{{kafka.app}}'
             podnamerequired: 'kafka-{{ item.id }}'
-        env: '{{ item.spec.env | default([]) }}'
-        volumes: '{{ item.spec.volumes | default([]) }}'
-        volumeMounts: '{{ item.spec.volumeMounts | default([]) }}'
+        env: '{{ (item.spec.env | default([]))+ (kafka.spec.env | default([]) )  }}'        
+        volumes: '{{  item.spec.volumes | default([]) + (kafka.spec.volumes | default([]) )  }}'
+        volumeMounts: '{{  ( item.spec.volumeMounts | default([]) ) + (kafka.spec.volumeMounts | default([]) ) }}'
   loop: "{{ kafka.instances }}"
   register: kafkapresettingresults
-
-- name: print kafkapresettingresults
-  debug:
-    msg:  '{{ kafkapresettingresults }}'    
-
-
 
 - name:  Kafka depends on
   community.kubernetes.k8s_info:
@@ -195,22 +174,12 @@
     namespace: '{{namespace}}'
   loop: '{{ kafka.updateOnChange }}'  
   register: kafkaupdateonchangeresources
-  when: kafka.updateOnChange | length > 0
-
-- name: print kafkaupdateonchangeresources
-  debug:
-    msg:  'kafkaupdateonchangeresources {{ kafkaupdateonchangeresources | default([]) }}'    
-
-
+  
 - name: annotate dependent update Kafka
   set_fact:
       kafkaannotation: '{{ ( kafkaannotation | default([]) ) + item.resources }}'
   loop: '{{ kafkaupdateonchangeresources.results }}'  
   when: item.resources | length > 0
-
-- name: print kafka annotaytion for update kafka
-  debug:
-    msg:  'kafkaannotation {{ kafkaannotation | default([]) }}'  
 
 - name: make annotation update kafka
   set_fact:
@@ -219,101 +188,4 @@
 
 - name: Kafka deployment
   community.kubernetes.k8s:
-    definition:
-      apiVersion: apps/v1
-      kind: StatefulSet
-      metadata:
-        name: kafka
-        namespace: '{{namespace}}'
-        labels:
-          app: '{{kafka.app}}'
-      spec:
-        selector:
-          matchLabels:
-            app: '{{kafka.app}}'
-        serviceName: kafka
-        podManagementPolicy: Parallel
-        replicas: 3
-        updateStrategy:
-          type: RollingUpdate
-        template:
-          metadata:
-            labels:
-              app: '{{kafka.app}}'
-            annotations:
-              rolloutAnnotation: '{{kafkarolloutAnnotation}}'  
-          spec:
-            affinity:
-              podAntiAffinity:
-                preferredDuringSchedulingIgnoredDuringExecution:
-                - weight: 1
-                  podAffinityTerm:
-                    labelSelector:
-                      matchExpressions:
-                        - key: "app"
-                          operator: In
-                          values:
-                          - '{{kafka.app}}'
-                    topologyKey: "kubernetes.io/hostname"
-            containers:
-            - name: kafka-broker
-              image: '{{kafka.image}}'
-              imagePullPolicy: "Always"
-              securityContext:
-                runAsUser: 0
-              ports:
-              - containerPort: 9093
-                name: tcp-intra-kafka
-              - containerPort: 9092
-                name: tcp-inter-kafka
-              resources:
-                {}
-              env:
-              - name: POD_IP
-                valueFrom:
-                  fieldRef:
-                    fieldPath: status.podIP
-              - name: HOST_IP
-                valueFrom:
-                  fieldRef:
-                    fieldPath: status.hostIP
-              - name: POD_NAME
-                valueFrom:
-                  fieldRef:
-                    fieldPath: metadata.name
-              - name: POD_NAMESPACE
-                valueFrom:
-                  fieldRef:
-                    fieldPath: metadata.namespace
-              - name: KAFKA_HEAP_OPTS
-                value: -Xms512M -Xmx512M
-              - name: KAFKA_LOG_DIRS
-                value: "/opt/kafka/data-0/logs"
-              - name: KAFKA_LOG4J_ROOT_LOGLEVEL
-                value: "DEBUG"
-              - name: KAFKA_TOOLS_LOG4J_LOGLEVEL
-                value: "DEBUG"
-              - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
-                value: "3"
-              # This is required because the Downward API does not yet support identification of
-              # pod numbering in statefulsets. Thus, we are required to specify a command which
-              # allows us to extract the pod ID for usage as the Kafka Broker ID.
-              # See: https://github.com/kubernetes/kubernetes/issues/31218
-              command:
-              - sh
-              - -exc
-              - |
-                echo "HOSTNAME: ${HOSTNAME} ${HOSTNAME##*-} "  && \
-                export KAFKA_LOG4J_ROOT_LOGLEVEL=${KAFKA_LOG4J_ROOT_LOGLEVEL:-DEBUG} && \
-                export KAFKA_TOOLS_LOG4J_LOGLEVEL=${KAFKA_TOOLS_LOG4J_LOGLEVEL:-DEBUG} && \
-                export KAFKA_BROKER_ID=${HOSTNAME##*-} && \
-                export KAFKA_LISTENERS=${KAFKA_LISTENERS:-"INTERNET://:9092,INTRANET://:9093"} && \
-                export KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=${KAFKA_LISTENER_SECURITY_PROTOCOL_MAP:-"INTERNET:SSL,INTRANET:SSL"} && \
-                export KAFKA_SSL_KEYSTORE_LOCATION=${KAFKA_SSL_KEYSTORE_LOCATION:-/mnt/keystore.jks} && \
-                export KAFKA_SSL_TRUSTSTORE_LOCATION=${KAFKA_SSL_TRUSTSTORE_LOCATION:-/mnt/trustore.jks} && \
-                export KAFKA_ADVERTISED_LISTENERS=${KAFKA_ADVERTISED_LISTENERS:-"INTERNET://${HOST_IP}:$((31090 + ${KAFKA_BROKER_ID}),INTRANET://${POD_NAME}.kafka-hs.${POD_NAMESPACE}:9092)"} && \
-                export KAFKA_ZOOKEEPER_CONNECT=${KAFKA_ZOOKEEPER_CONNECT:-"zk-hs.default.svc.cluster.local:2182"}  && \
-                export KAFKA_INTER_BROKER_LISTENER_NAME=${KAFKA_INTER_BROKER_LISTENER_NAME:-INTRANET} && \
-                # export KAFKA_OPTS=-Djavax.net.debug=all  && \
-                unset KAFKA_PORT && \
-                exec /etc/confluent/docker/run
+    definition: "{{lookup('template', 'kafkaset.yaml') }}"

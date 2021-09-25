@@ -74,11 +74,11 @@
             securityContext:
       #        runAsUser: 1000
               fsGroup: 1000            
-        volumeClaimTemplates:
-        - metadata:
-            name: datadir
-          spec:
-            accessModes: [ "ReadWriteOnce" ]
-            resources:
-              requests:
-                storage: "5Gi"
+        # volumeClaimTemplates:
+        # - metadata:
+        #     name: datadir
+        #   spec:
+        #     accessModes: [ "ReadWriteOnce" ]
+        #     resources:
+        #       requests:
+        #         storage: "5Gi"
