@@ -2,24 +2,24 @@
       kind: StatefulSet
       metadata:
         name: kafka
-        namespace: '{{namespace}}'
+        namespace: {{namespace}}
         labels:
-          app: '{{kafka.app}}'
+          app: {{kafka.app}}
       spec:
         selector:
           matchLabels:
-            app: '{{kafka.app}}'
+            app: {{kafka.app}}
         serviceName: kafka
-        podManagementPolicy: Parallel
         replicas: {{kafka.autoscale.target }}   
         updateStrategy:
           type: RollingUpdate
+        podManagementPolicy: Parallel
         template:
           metadata:
             labels:
-              app: '{{kafka.app}}'
+              app: {{kafka.app}}
             annotations:
-              rolloutAnnotation: '{{kafkarolloutAnnotation}}'  
+              rolloutAnnotation: {{kafkaRolloutAnnotation}}
           spec:
             affinity:
               podAntiAffinity:
@@ -31,21 +31,25 @@
                         - key: "app"
                           operator: In
                           values:
-                          - '{{kafka.app}}'
+                          - {{kafka.app}}
                     topologyKey: "kubernetes.io/hostname"
             containers:
             - name: kafka-broker
-              image: '{{kafka.image}}'
+              image: {{kafka.image}}
               imagePullPolicy: "Always"
-              securityContext:
-                runAsUser: 0
+              resources:
+                {}              
               ports:
               - containerPort: 9093
                 name: tcp-intra-kafka
               - containerPort: 9092
                 name: tcp-inter-kafka
-              resources:
-                {}
+              command:
+              - sh
+              - -c
+              - /etc/confluent/docker/start-kafka 
+              securityContext:
+                runAsUser: 0
               env:
               - name: POD_IP
                 valueFrom:
@@ -63,35 +67,3 @@
                 valueFrom:
                   fieldRef:
                     fieldPath: metadata.namespace
-              - name: KAFKA_HEAP_OPTS
-                value: -Xms512M -Xmx512M
-              - name: KAFKA_LOG_DIRS
-                value: "/opt/kafka/data-0/logs"
-              - name: KAFKA_LOG4J_ROOT_LOGLEVEL
-                value: "DEBUG"
-              - name: KAFKA_TOOLS_LOG4J_LOGLEVEL
-                value: "DEBUG"
-              - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
-                value: "3"
-              # This is required because the Downward API does not yet support identification of
-              # pod numbering in statefulsets. Thus, we are required to specify a command which
-              # allows us to extract the pod ID for usage as the Kafka Broker ID.
-              # See: https://github.com/kubernetes/kubernetes/issues/31218
-              command:
-              - sh
-              - -exc
-              - |
-                echo "HOSTNAME: ${HOSTNAME} ${HOSTNAME##*-} "  && \
-                # export KAFKA_LOG4J_ROOT_LOGLEVEL=${KAFKA_LOG4J_ROOT_LOGLEVEL:-DEBUG} && \
-                # export KAFKA_TOOLS_LOG4J_LOGLEVEL=${KAFKA_TOOLS_LOG4J_LOGLEVEL:-DEBUG} && \
-                export KAFKA_BROKER_ID=${HOSTNAME##*-} && \
-                # export KAFKA_LISTENERS=${KAFKA_LISTENERS:-"INTERNET://:9092,INTRANET://:9093"} && \
-                # export KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=${KAFKA_LISTENER_SECURITY_PROTOCOL_MAP:-"INTERNET:SSL,INTRANET:SSL"} && \
-                # export KAFKA_SSL_KEYSTORE_LOCATION=${KAFKA_SSL_KEYSTORE_LOCATION:-/mnt/keystore.jks} && \
-                # export KAFKA_SSL_TRUSTSTORE_LOCATION=${KAFKA_SSL_TRUSTSTORE_LOCATION:-/mnt/trustore.jks} && \
-                # export KAFKA_ADVERTISED_LISTENERS=${KAFKA_ADVERTISED_LISTENERS:-"INTERNET://${HOST_IP}:$((31090 + ${KAFKA_BROKER_ID}),INTRANET://${POD_NAME}.kafka-hs.${POD_NAMESPACE}:9092)"} && \
-                # export KAFKA_ZOOKEEPER_CONNECT=${KAFKA_ZOOKEEPER_CONNECT:-"zk-hs.default.svc.cluster.local:2182"}  && \
-                # export KAFKA_INTER_BROKER_LISTENER_NAME=${KAFKA_INTER_BROKER_LISTENER_NAME:-INTRANET} && \
-                # export KAFKA_OPTS=-Djavax.net.debug=all  && \
-                unset KAFKA_PORT && \
-                exec /etc/confluent/docker/run

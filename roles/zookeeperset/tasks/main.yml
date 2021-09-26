@@ -11,11 +11,15 @@
           matchLabels:
             app: '{{ zookeeper.app }}'
             podnamerequired: 'zk-{{ item.id }}'
-        env: '{{ (item.spec.env | default([]))+ (zookeeper.spec.env | default([]) )  }}'
-        volumes: '{{  item.spec.volumes | default([]) + (zookeeper.spec.volumes | default([]) )  }}'
-        volumeMounts: '{{  ( item.spec.volumeMounts | default([]) ) + (zookeeper.spec.volumeMounts | default([]) ) }}'
+        env: '{{(zookeeper.spec.env | default([]) ) +  (item.spec.env | default([]))  }}'
+        volumes: '{{   (zookeeper.spec.volumes | default([])) + (item.spec.volumes | default([]) )  }}'
+        volumeMounts: '{{   (zookeeper.spec.volumeMounts | default([]) ) + ( item.spec.volumeMounts | default([]) ) }}'
   loop: "{{ zookeeper.instances }}"
   register: zookeeperPresettingResults
+
+- name: print zookeeperPresettingResults
+  debug:
+    msg: "zookeeperPresettingResults {{zookeeperPresettingResults}}"
 
 - name: zookeepersetapp hsvc
   community.kubernetes.k8s:
@@ -161,11 +165,17 @@
           matchLabels:
             app: '{{kafka.app}}'
             podnamerequired: 'kafka-{{ item.id }}'
-        env: '{{ (item.spec.env | default([]))+ (kafka.spec.env | default([]) )  }}'        
-        volumes: '{{  item.spec.volumes | default([]) + (kafka.spec.volumes | default([]) )  }}'
-        volumeMounts: '{{  ( item.spec.volumeMounts | default([]) ) + (kafka.spec.volumeMounts | default([]) ) }}'
+        env: '{{ (kafka.spec.env | default([]) ) + (item.spec.env | default([]))  }}'        
+        volumes: '{{   (kafka.spec.volumes | default([]) ) + (item.spec.volumes | default([]))   }}'
+        volumeMounts: '{{  (kafka.spec.volumeMounts | default([]) ) + ( item.spec.volumeMounts | default([]) )  }}'
   loop: "{{ kafka.instances }}"
   register: kafkapresettingresults
+
+- name: print kafkapresettingresults
+  debug:
+    msg: "kafkapresettingresults {{kafkapresettingresults}}"
+
+
 
 - name:  Kafka depends on
   community.kubernetes.k8s_info:
@@ -183,7 +193,7 @@
 
 - name: make annotation update kafka
   set_fact:
-      kafkarolloutAnnotation: "{{ kafkaannotation | default([]) | hash('sha1') }}" 
+      kafkaRolloutAnnotation: "{{ kafkaannotation | default([]) | hash('sha1') }}" 
 
 
 - name: Kafka deployment

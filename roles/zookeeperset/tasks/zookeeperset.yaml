@@ -33,8 +33,8 @@
                     topologyKey: "kubernetes.io/hostname"
             containers:
             - name: kubernetes-zookeeper
-              imagePullPolicy: Always
               image: {{ zookeeper.image }}
+              imagePullPolicy: Always
               resources:
                 requests:
                   memory: "1Gi"
@@ -53,22 +53,22 @@
               - -c
               - "/etc/confluent/docker/start-zookeeper \
                  --servers=3"
-              # readinessProbe:
-              #   exec:
-              #     command:
-              #     - sh
-              #     - -c
-              #     - "/etc/confluent/docker/zookeeper-ready 2181"
-              #   initialDelaySeconds: 10
-              #   timeoutSeconds: 5
-              # livenessProbe:
-              #   exec:
-              #     command:
-              #     - sh
-              #     - -c
-              #     - "/etc/confluent/docker/zookeeper-ready 2181"
-                # initialDelaySeconds: 10
-                # timeoutSeconds: 5
+              readinessProbe:
+                exec:
+                  command:
+                  - sh
+                  - -c
+                  - "/etc/confluent/docker/zookeeper-ready 2181"
+                initialDelaySeconds: 10
+                timeoutSeconds: 5
+              livenessProbe:
+                exec:
+                  command:
+                  - sh
+                  - -c
+                  - "/etc/confluent/docker/zookeeper-ready 2181"
+                initialDelaySeconds: 10
+                timeoutSeconds: 5
               volumeMounts: {{volumemounts | default([])}}
             volumes: {{ volumes | default([])}}
             securityContext:
