@@ -752,8 +752,12 @@ kubectl apply -f ssl.secrets.yaml
 
 Cert Manager setup
 
+```
 kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.5.3/cert-manager.yaml
 
+```
+
+```
 curl -L -o kubectl-cert-manager.tar.gz https://github.com/jetstack/cert-manager/releases/latest/download/kubectl-cert_manager-linux-amd64.tar.gz
 tar xzf kubectl-cert-manager.tar.gz
 sudo mv kubectl-cert_manager /usr/local/bin
@@ -768,4 +772,69 @@ sudo rm  /usr/local/bin/kubectl-cert_manager
 
 
 
-CLIENT_JVMFLAGS="-Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty -Dzookeeper.ssl.keyStore.location=/mnt/keystore.jks -Dzookeeper.ssl.keyStore.password=tapawa01  -Dzookeeper.ssl.trustStore.location=/mnt/truststore.jks -Dzookeeper.ssl.trustStore.password=tapawa01 -Dzookeeper.client.secure=true" zookeeper-shell  zk-1.zk-hs:2182
+CLIENT_JVMFLAGS="-Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty -Dzookeeper.ssl.keyStore.location=/mnt/keystore.jks -Dzookeeper.ssl.keyStore.password=tapawa01  -Dzookeeper.ssl.trustStore.location=/mnt/truststore.jks -Dzookeeper.ssl.trustStore.password=tapawa01 -Dzookeeper.client.secure=true" zookeeper-shell  zk-1.zk-hs:
+```
+
+
+Cert Manager setup
+
+```
+kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.5.3/cert-manager.yaml
+
+```
+
+
+
+Weavescope 
+
+```
+kubectl apply -f "https://cloud.weave.works/k8s/scope.yaml?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+kubectl port-forward -n weave "$(kubectl get -n weave pod --selector=weave-scope-component=app -o jsonpath='{.items..metadata.name}')" 4040
+
+```
+
+default namespace
+```
+kubectl config set-context --current --namespace=kafka
+```
+
+Kubernetes-Zookeeper
+```
+cd docker
+make build push 
+```
+
+Kubernetes-Kafka
+```
+cd docker
+make build push 
+```
+
+PodPresets
+```
+make undeploy docker-build docker-push  deploy
+
+```
+
+keys
+```
+cd ~/projects/verifyk8/generatingstores/kafka
+ akafka-generate-ssl-automatic.sh
+kubectl apply -f keystores.base64.secret.yaml
+cd ~/projects/verifyk8/generatingstores/kafka
+./zookeeper.sh 
+kubectl apply -f keystores.base64.secret.yaml
+
+```
+
+zookeeperset
+```
+make undeploy
+make docker-build docker-push deploy
+kubectl apply -f config/samples/dataproxy_v1alpha1_msts_zookeeperset.yaml
+
+```
+
+```
+kubectl logs -n zookeeperset-system  zookeeperset-controller-manager-979878fb8-pzl65 manager
+```

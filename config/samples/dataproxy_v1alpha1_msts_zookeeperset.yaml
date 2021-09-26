@@ -2,7 +2,7 @@ apiVersion: dataproxy.jankul02/v1alpha1
 kind: ZookeeperSet
 metadata:
   name: zookeeperset-lab
-  namespace: default
+  namespace: kafka
 spec:
   zookeeper:
     app: zk
@@ -18,7 +18,7 @@ spec:
       name: keystorepasswd-zk-0    
     - kind: Secret
       name: keystore-zk-0
-    image: jankul02/kubernetes-zookeeper:0.0.65
+    image: jankul02/kubernetes-zookeeper:0.0.67
     spec:
       env:
         - name: WELCOME_MESSAGE
@@ -177,7 +177,7 @@ spec:
               secretName: keystore-zk-2                  
   kafka:
     app: kafkaapp
-    image: jankul02/kubernetes-kafka:0.0.66
+    image: jankul02/kubernetes-kafka:0.0.69
     autoscale:
       range:
         min: 3
@@ -204,9 +204,7 @@ spec:
         - name: KAFKA_LISTENERS
           value: "INTERNET://:9092,INTRANET://:9093"
         - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
-          value: "INTERNET:SSL,INTRANET:SSL"
-        - name: KAFKA_ZOOKEEPER_CONNECT
-          value: "zk-hs.default.svc.cluster.local:2181"      
+          value: "INTERNET:SSL,INTRANET:SSL" 
         - name: KAFKA_SSL_KEYSTORE_LOCATION
           value: "/mnt/keystore.jks"
         - name: KAFKA_SSL_TRUSTSTORE_LOCATION
@@ -243,8 +241,6 @@ spec:
               secretKeyRef:
                 name: keystorepasswd-kafka-1
                 key: truststorepassword                    
-          - name: KAFKA_ADVERTISED_LISTENERS
-            value: "INTERNET://kafka-0.kafka.default.svc.cluster.local:9092,INTRANET://kafka-0.kafka.default.svc.cluster.local:9093"
           - name: KAFKA_SSL_KEYSTORE_LOCATION
             value: "/mnt/keystore.jks"
           - name: KAFKA_SSL_TRUSTSTORE_LOCATION
@@ -282,9 +278,7 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: keystorepasswd-kafka-1
-                key: truststorepassword                                
-          - name: KAFKA_ADVERTISED_LISTENERS
-            value: "INTERNET://kafka-1.kafka.default.svc.cluster.local:9092,INTRANET://kafka-1.kafka.default.svc.cluster.local:9093"      
+                key: truststorepassword                                  
         volumeMounts:
           # name must match the volume name below
           - name: keystore
@@ -319,8 +313,6 @@ spec:
               secretKeyRef:
                 name: keystorepasswd-kafka-2
                 key: truststorepassword     
-          - name: KAFKA_ADVERTISED_LISTENERS
-            value: "INTERNET://kafka-2.kafka.default.svc.cluster.local:9092,INTRANET://kafka-2.kafka.default.svc.cluster.local:9093"
           - name: KAFKA_SSL_KEYSTORE_LOCATION
             value: "/mnt/keystore.jks"
           - name: KAFKA_SSL_TRUSTSTORE_LOCATION
