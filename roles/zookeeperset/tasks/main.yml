@@ -195,6 +195,10 @@
   set_fact:
       kafkaRolloutAnnotation: "{{ kafkaannotation | default([]) | hash('sha1') }}" 
 
+- name: Kafka autoscalling
+  community.kubernetes.k8s:
+    definition: "{{lookup('template', 'kafkasetautoscaling.yaml') }}"
+
 
 - name: Kafka deployment
   community.kubernetes.k8s:

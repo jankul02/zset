@@ -22,9 +22,8 @@ rules:
       - namespaces
       - configmaps
       - podpresets
-      - podpresets
       - podpresets/status
-      - podpresets/finalizers      
+      - podpresets/finalizers    
     verbs:
       - create
       - delete
@@ -33,9 +32,27 @@ rules:
       - patch
       - update
       - watch
+      - autoscaling
+      - deletecollection   
+  - apiGroups:
+      - autoscaling
+    resources:
+      - horizontalpodautoscalers
+      - horizontalpodautoscalers.autoscaling
+      - horizontalpodautoscalers.extensions      
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+      - autoscaling
+      - deletecollection   
   - apiGroups:
       - apps
-      - redhatcop.redhat.io 
+      - redhatcop.redhat.io
     resources:
       - podpresets
       - podpresets/status

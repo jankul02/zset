@@ -179,10 +179,38 @@ spec:
     app: kafkaapp
     image: jankul02/kubernetes-kafka:0.0.69
     autoscale:
-      range:
-        min: 3
-        max: 10
-      target: 3
+      minReplicas: 1
+      maxReplicas: 5
+      initial: 1
+      targetCPUUtilizationPercentage: 10
+      resources:
+        requests: 
+          # memory: "64Mi"
+          cpu: "500m"
+        limits:
+          # memory: "128Mi"
+          cpu: "1000m"
+      behavior:
+        scaleDown: 
+          policies: 
+          - type: Pods 
+            value: 1 
+            periodSeconds: 60 
+          # - type: Percent
+          #   value: 10 
+          #   periodSeconds: 60
+          # selectPolicy: Min 
+          stabilizationWindowSeconds: 90 
+        scaleUp: 
+          policies:
+          - type: Pods
+            value: 1
+            periodSeconds: 70
+          # - type: Percent
+          #   value: 12 
+          #   periodSeconds: 80
+          # selectPolicy: Max
+          stabilizationWindowSeconds: 20
     maxUnavailable: 1    
     updateOnChange:
     - kind: Secret

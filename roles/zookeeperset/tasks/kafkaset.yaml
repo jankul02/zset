@@ -10,7 +10,7 @@
           matchLabels:
             app: {{kafka.app}}
         serviceName: kafka
-        replicas: {{kafka.autoscale.target }}   
+        replicas: {{kafka.autoscale.initial}}   
         updateStrategy:
           type: RollingUpdate
         podManagementPolicy: Parallel
@@ -67,3 +67,4 @@
                 valueFrom:
                   fieldRef:
                     fieldPath: metadata.namespace
+              resources: {{kafka.autoscale.resources }}

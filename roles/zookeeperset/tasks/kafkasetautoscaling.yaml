@@ -1,0 +1,16 @@
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{kafka.app}}-autoscaler
+  namespace: {{namespace}}
+  labels:
+    app: {{kafka.app}}  
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: StatefulSet
+    name: kafka
+  minReplicas: {{kafka.autoscale.minReplicas}}
+  maxReplicas: {{kafka.autoscale.maxReplicas}}
+  targetCPUUtilizationPercentage: {{kafka.autoscale.targetCPUUtilizationPercentage}}
+  behavior: {{kafka.autoscale.behavior}}
