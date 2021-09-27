@@ -179,38 +179,51 @@ spec:
     app: kafkaapp
     image: jankul02/kubernetes-kafka:0.0.69
     autoscale:
-      minReplicas: 1
+      minReplicas: 3
       maxReplicas: 5
-      initial: 1
-      targetCPUUtilizationPercentage: 10
+      initial: 5
+      targetCPUUtilizationPercentage: 1
       resources:
         requests: 
           # memory: "64Mi"
-          cpu: "500m"
+          cpu: "200m"
         limits:
           # memory: "128Mi"
-          cpu: "1000m"
+          cpu: "800m"
       behavior:
         scaleDown: 
           policies: 
           - type: Pods 
-            value: 1 
+            value: 2 
             periodSeconds: 60 
           # - type: Percent
           #   value: 10 
           #   periodSeconds: 60
           # selectPolicy: Min 
-          stabilizationWindowSeconds: 90 
+          stabilizationWindowSeconds: 100
         scaleUp: 
           policies:
           - type: Pods
-            value: 1
+            value: 2
             periodSeconds: 70
           # - type: Percent
           #   value: 12 
           #   periodSeconds: 80
           # selectPolicy: Max
-          stabilizationWindowSeconds: 20
+          stabilizationWindowSeconds: 0
+    affinity: {}
+      # podAntiAffinity:
+      #   preferredDuringSchedulingIgnoredDuringExecution:
+      #   - weight: 1
+      #     podAffinityTerm:
+      #       labelSelector:
+      #         matchExpressions:
+      #           - key: "app"
+      #             operator: In
+      #             values:
+      #             - {{kafka.app}}
+      #       topologyKey: "kubernetes.io/hostname"
+
     maxUnavailable: 1    
     updateOnChange:
     - kind: Secret

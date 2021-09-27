@@ -21,24 +21,11 @@
             annotations:
               rolloutAnnotation: {{kafkaRolloutAnnotation}}
           spec:
-            affinity:
-              podAntiAffinity:
-                preferredDuringSchedulingIgnoredDuringExecution:
-                - weight: 1
-                  podAffinityTerm:
-                    labelSelector:
-                      matchExpressions:
-                        - key: "app"
-                          operator: In
-                          values:
-                          - {{kafka.app}}
-                    topologyKey: "kubernetes.io/hostname"
+            affinity: {{kafka.affinity}}
             containers:
             - name: kafka-broker
               image: {{kafka.image}}
-              imagePullPolicy: "Always"
-              resources:
-                {}              
+              imagePullPolicy: "Always"            
               ports:
               - containerPort: 9093
                 name: tcp-intra-kafka
