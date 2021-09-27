@@ -1,3 +1,41 @@
+- name: define internet gateways
+  community.kubernetes.k8s:
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: 'kafka-{{ item.id }}-internetgw'
+        namespace: '{{namespace}}'
+      spec:
+        type: LoadBalancer
+        selector:
+          statefulset.kubernetes.io/pod-name: 'kafka-{{ item.id }}'
+        ports:
+        - protocol: TCP
+          port: 9092
+          targetPort: 9092    
+  loop: "{{ kafka.instances }}"
+
+
+- name: define intranet gateways
+  community.kubernetes.k8s:
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: 'kafka-{{ item.id }}-intranetgw'
+        namespace: '{{namespace}}'
+      spec:
+        type: LoadBalancer
+        selector:
+          statefulset.kubernetes.io/pod-name: 'kafka-{{ item.id }}'
+        ports:
+        - protocol: TCP
+          port: 9093
+          targetPort: 9093   
+  loop: "{{ kafka.instances }}"
+
+
 - name: define zk pod presets
   community.kubernetes.k8s:
     definition:
@@ -152,6 +190,7 @@
         selector:
           app: '{{kafka.app}}'
 
+
 - name: define kafka pod presets
   community.kubernetes.k8s:
     definition:
@@ -203,3 +242,4 @@
 - name: Kafka deployment
   community.kubernetes.k8s:
     definition: "{{lookup('template', 'kafkaset.yaml') }}"
+

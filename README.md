@@ -2,13 +2,13 @@
 
 ## Overview
 
-The Zookeeperset Operator deploys a zookeeper cluster and automatically operates the cluster.
+The Operator deploys a Kafka cluster with a zookeeper cluster  and automatically operates the cluster.
 
 The Operator implements:
 
 1. High Availability (HA)
-    - instance distribution to different nodes
-    - automatic recovery for zookeeper instances
+    - instance distribution among the k8s nodes 
+    - automatic recovery for kafka and zookeeper instances
     - Quorum Protection (Maintenance Fault Protection)
     - liveness/health checks for instances
 2. Data Persistance
@@ -18,9 +18,8 @@ The Operator implements:
     - automatic cluster deployment
     - autoconfiguration during cluster deployment
     - minor version upgrades for the cluster
-    - instance specific configuration using instance image logic
-    - instance specific secrets using instance image logic
-6. Rollback support for image upgrades
+    - instance specific configuration incl. instance specific secrets using pod presets
+    - clusterwide  configuration 
 
 
 ## Cluster Setup 
@@ -28,24 +27,62 @@ The Operator implements:
 
 ![ZookeeperSet](pictures/zookeeperset.png "ZookeeperSet")
 
-
 ## Basic Configuration
 
-The ZookeeperSet deploys SERVERS="replicas" number of instances.
+### Scaling and Autoscaling kafka
+For the kafka cluster scalling and autoscalling are implemented.
+kafka.spec.autoscale.behavior defines the scaledown/up policies (steps and time periods for metrics and reactions)
 
-$SERVERS is available at start time for all instances .
+```yaml
+    autoscale:
+      minReplicas: 3
+      maxReplicas: 5
+      initial: 3
+      targetCPUUtilizationPercentage: 30
+      resources:
+        requests: 
+          # memory: "64Mi"
+          cpu: "200m"
+        limits:
+          # memory: "128Mi"
+          cpu: "300m"
+      behavior:
+        scaleDown: 
+          policies: 
+          - type: Pods 
+            value: 1
+            periodSeconds: 60 
+          - type: Percent
+            value: 10 
+            periodSeconds: 60
+          selectPolicy: Min 
+          stabilizationWindowSeconds: 100
+        scaleUp: 
+          policies:
+          - type: Pods
+            value: 1
+            periodSeconds: 70
+          - type: Percent
+            value: 12 
+            periodSeconds: 80
+          selectPolicy: Max
+          stabilizationWindowSeconds: 100
+```          
 
-All zookeeper instances receive hostnames to be zk-{$ORD} (like zk-0, zk-1 ) where $ORD is 0..$SERVERS-1.
-All zookeeper instances have the same local dns domain.
-The instances can access the host name and the domain in the following way:
-```
-HOST=`hostname -s`
-DOMAIN=`hostname -d`  # identical for all
-```
-With this values the image can construct the zookeeper config file. 
+### Scaling kafka and PDB protection
+
+
+1. For the zookeeper cluster autoscaling is **NOT implemented** (and potentially will not be).
+2. The "kafka.spec.autoscale.initial" value is treated as the required number of replicas.
+3. A Disruption Budget of instances is set for the zookeeper cluster to be maxUnavailable 1
+
+The insatnces automatically calculate the servers settings during rollout (like for new image) 
 
 
 ## Ordered Automatic Rollout
+
+Is implemented for both kafka and zookeeper clusters.
+
 
 ![Ordered Rollout](pictures/orderedrollout.png "Ordered ROllout")
 
@@ -55,7 +92,7 @@ With this values the image can construct the zookeeper config file.
 # deploy the latest version 
 make deploy
 # alternatively a specific version: 
-# make docker-build docker-push deploy IMAGE_TAG_BASE='jankul02/zookeeperset' VERSION='0.0.151" 
+# make docker-build docker-push deploy IMAGE_TAG_BASE='jankul02/zookeeperset' VERSION='0.0.421" 
 ```
 check if the operator is running:
 ```
@@ -75,16 +112,207 @@ apiVersion: dataproxy.jankul02/v1alpha1
 kind: ZookeeperSet
 metadata:
   name: zookeeperset-lab
-  namespace: default
+  namespace: kafka
 spec:
-  replicas: 3
-  app: "zk"
-  image: jankul02/kubernetes-zookeeper:0.0.25
-  data:
-    cfg: |
-      LOG_LEVEL=INFO
-      WELCOME_MESSAGE="Hey Hey for all"
-      ADDITIONAL_PARAM=" Value"
+  zookeeper:
+    app: zk
+    autoscale:
+      range:
+        min: 3
+        max: 3
+      target: 3
+    maxUnavailable: 1
+    updateOnChange: {}
+    image: jankul02/kubernetes-zookeeper:0.0.67
+    spec:
+      env:
+        - name: WELCOME_MESSAGE
+          value: "The generic Hello World from zookeeper"      
+        - name: ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL
+          value: DEBUG
+        - name: ZOOKEEPER_LOG4J_ROOT_LOGLEVEL
+          value: DEBUG
+        - name: ZOOKEEPER_CLIENT_PORT
+          value: "2181"
+        - name: ZOOKEEPER_TICK_TIME
+          value: "2000"
+        - name: ZOOKEEPER_SECURE_CLIENT_PORT
+          value: "2182"
+        - name: ZOOKEEPER_SSL_QUORUM
+          value: "true"
+        - name: ZOOKEEPER_SSL_QUORUM_KEYSTORE_LOCATION
+          value: /mnt/keystore.jks
+        - name: ZOOKEEPER_SSL_QUORUM_TRUSTSTORE_LOCATION
+          value: /mnt/truststore.jks
+        - name: ZOOKEEPER_SSL_QUORUM_HOSTNAME_VERIFICATION
+          value: "false"
+        - name: ZOOKEEPER_SSL_HOSTNAME_VERIFICATION
+          value: "false"
+        - name: ZOOKEEPER_SERVER_CNXN_FACTORY
+          value: org.apache.zookeeper.server.NettyServerCnxnFactory
+        - name: ZOOKEEPER_SSL_KEYSTORE_LOCATION
+          value: /mnt/keystore.jks
+        - name: ZOOKEEPER_SSL_KEYSTORE_TYPE
+          value: JKS
+        - name: ZOOKEEPER_SSL_TRUSTSTORE_LOCATION
+          value: /mnt/truststore.jks
+        - name: ZOOKEEPER_SSL_TRUSTSTORE_TYPE
+          value: JKS
+        - name: ZOOKEEPER_CLIENT_PORT_UNIFICATION
+          value:  "true"
+        - name: ZOOKEEPER_SSL_CLIENT_AUTH
+          value:  none
+        - name: ZOOKEEPER_AUTH_PROVIDER_X509
+          value: org.apache.zookeeper.server.auth.X509AuthenticationProvider
+        - name: ZOOKEEPER_AUTH_PROVIDER_SASL
+          value: org.apache.zookeeper.server.auth.SASLAuthenticationProvider
+    instances:
+    - id: "0"
+      nodeSelector:
+        zkinstanceid: "0"
+        updateOnChange: {}
+      spec:
+        env: 
+          - name: ZOOKEEPER_SSL_QUORUM_TRUSTSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-zk-0
+                key: keystorepassword
+          - name: ZOOKEEPER_SSL_QUORUM_KEYSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-zk-0
+                key: keystorepassword
+          - name: ZOOKEEPER_SSL_KEYSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-zk-0
+                key: keystorepassword
+          - name: ZOOKEEPER_SSL_TRUSTSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-zk-0
+                key: keystorepassword
+        volumeMounts:
+          # name must match the volume name below
+          - name: keystore
+            mountPath: /mnt
+          # The secret data is exposed to Containers in the Pod through a Volume.
+        volumes:
+          - name: keystore
+            secret:
+              secretName: keystore-zk-0
+    - id: "1"
+      nodeSelector:
+        zkinstanceid: "1"
+        updateOnChange:
+        - kind: Secret
+          name: keystore-zk-1
+...
+
+    - id: "2"
+      nodeSelector:
+        zkinstanceid: "2"  
+        updateOnChange:
+        - kind: Secret
+          name: keystore-zk-2
+...           
+  kafka:
+    app: kafkaapp
+    image: jankul02/kubernetes-kafka:0.0.69
+    autoscale:
+      minReplicas: 3
+      maxReplicas: 3
+      initial: 3
+      targetCPUUtilizationPercentage: 1
+      resources:
+        requests: 
+          cpu: "200m"
+        limits:
+          cpu: "300m"
+      behavior:
+        scaleDown: 
+          policies: 
+          - type: Pods 
+            value: 1
+            periodSeconds: 60 
+
+          stabilizationWindowSeconds: 100
+        scaleUp: 
+          policies:
+          - type: Pods
+            value: 1
+            periodSeconds: 70
+          stabilizationWindowSeconds: 100
+    affinity: {}
+
+    maxUnavailable: 1    
+    updateOnChange: {}
+    spec:
+      env: 
+        - name: KAFKA_LISTENERS
+          value: "INTERNET://:9092,INTRANET://:9093"
+        - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+          value: "INTERNET:PLAINTEXT,INTRANET:PLAINTEXT" 
+        - name: KAFKA_SSL_KEYSTORE_LOCATION
+          value: "/mnt/keystore.jks"
+        - name: KAFKA_SSL_TRUSTSTORE_LOCATION
+          value: "/mnt/truststore.jks"
+        - name: KAFKA_INTER_BROKER_LISTENER_NAME
+          value: INTRANET
+        - name: KAFKA_LOG4J_ROOT_LOGLEVEL
+          value: DEBUG
+        - name: KAFKA_TOOLS_LOG4J_LOGLEVEL
+          value: DEBUG
+    instances:
+    - id: "0"
+      nodeSelector:
+        kafkainstanceid: "0"
+      updateOnChange:
+      - kind: Secret
+        name: keystore-kafka-0
+      spec:
+        env: 
+          - name: KAFKA_SSL_KEYSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-kafka-1
+                key: keystorepassword
+          - name: KAFKA_SSL_KEY_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-kafka-1
+                key: keystorepassword     
+          - name: KAFKA_SSL_TRUSTSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-kafka-1
+                key: truststorepassword                    
+          - name: KAFKA_SSL_KEYSTORE_LOCATION
+            value: "/mnt/keystore.jks"
+          - name: KAFKA_SSL_TRUSTSTORE_LOCATION
+            value: "/mnt/truststore.jks"
+        volumeMounts:
+          - name: keystore
+            mountPath: /mnt
+        volumes:
+          - name: keystore
+            secret:
+              secretName: keystore-kafka-0
+    - id: "1"
+      nodeSelector:
+        kafkainstanceid: "1"  
+      updateOnChange:
+      - kind: Secret
+        name: keystore-kafka-1
+  ...   
+    - id: "2"
+      nodeSelector:
+        kafkainstanceid: "2"  
+      updateOnChange:
+      - kind: Secret
+        name: certificate-kafka-2
+    ....
 ```
 
 Apply the CR defintion.
@@ -113,16 +341,18 @@ for i in 0 1 2; do echo "myid zk-$i";kubectl exec zk-$i -- cat /var/lib/zookeepe
 #### Show fqdn
 
 ```
+for i in 0 1 2; do kubectl exec kafka-$i -- hostname -f; done
 for i in 0 1 2; do kubectl exec zk-$i -- hostname -f; done
+
 ```
 
 ### functional case: write to zk-0 and get it back from zk-1
+
+*if you configured TLS auth then you would  need the -zk-tls-config-file file *
 ```
-kubectl exec zk-0 zkCli.sh create /mykey "hello world"
 
-kubectl exec zk-1 zkCli.sh get /mykey
-
-# kubectl exec zk-0 -- zookeeper-shell localhost:2181 create /mykey "Hello World"
+kubectl exec zk-0 -it -- zookeeper-shell zk-0:2181 create /mykey "Hello World"
+kubectl exec zk-1 -it -- zookeeper-shell zk-1:2181 get /mykey 
 
 ```
 
@@ -200,8 +430,7 @@ kubectl drain $(kubectl get pod zk-2 --template {{.spec.nodeName}}) --ignore-dae
 # drain will be refused
 
 
-# check zookeeper still working 
-kubectl exec zk-0 zkCli.sh get /mykey
+
 
 # uncordon
 kubectl uncordon node-1231 
@@ -217,7 +446,7 @@ Change the image name in the zookeeperset resource file and then apply it and ob
 ```
 kubectl apply -f config/samples/dataproxy_v1alpha1_zookeeperset.yaml
 
-kubectl get pods -w -l # to observe the rollout 
+kubectl get pods -w # to observe the rollout 
 ```
 
 ### Instance Configuration
@@ -227,7 +456,7 @@ kubectl get pods -w -l # to observe the rollout
 ```
 kubectl apply -f config/samples/dataproxy_v1alpha1_zookeeperset.yaml
 
-kubectl get pods -w -l # to observe the restart zk-2 only 
+kubectl get pods -w # to observe the restart zk-2 only 
 
 # view the beginning of the log 
 kubectl logs zk-2
@@ -238,7 +467,7 @@ kubectl logs zk-2
 
 ### Build, push, deploy the operator 
 ```
-make docker-build docker-push deploy VERSION=0.0.38
+make docker-build docker-push deploy VERSION=0.0.390
 ```
 
 ### create a zookeeperset from sample 
@@ -263,202 +492,82 @@ make undeploy
 
 The defaults for all instances ("global") are by defined under:
 ```yaml
-data:
-    cfg: |
-      LOG_LEVEL=INFO
-      WELCOME_MESSAGE="Hey Hey for all"
-      ADDITIONAL_PARAM=" Value"
+  zookeeper:
+    spec:
+        env:
+          - name: WELCOME_MESSAGE
+            value: "The generic Hello World from zookeeper"      
+          - name: ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL
+            value: DEBUG
+          - name: ZOOKEEPER_LOG4J_ROOT_LOGLEVEL
+            value: DEBUG
+        volumes:
+        ....
+        volumeMounts:
+        ....
+...
+  kafka:
+      spec:
+        env: 
+          - name: WELCOME_MESSAGE
+            value: "generic WELCOME"
+          - name: KAFKA_LISTENERS
+            value: "INTERNET://:9092,INTRANET://:9093"
+        volumes:
+        ....
+        volumeMounts:
+        ....
 ``` 
-and will be mounted under:
-```
-/mnt/zk-global
-```
 
 By conventions the instance specific configuration should be named ${ORD}-1 and specified under spec.data like
 
 ```yaml
-  spec:
-    data:
-      ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL=DEBUG
-      ZOOKEEPER_LOG4J_ROOT_LOGLEVEL=DEBUG
-      WELCOME_MESSAGE="Hey Hey for all"
-      ADDITIONAL_PARAM=" Value"
-    0: |
-      ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL=INFO
-      ZOOKEEPER_LOG4J_ROOT_LOGLEVEL=INFO
-      WELCOME_MESSAGE="Hula hop hej hej 0"
-      ADDITIONAL_PARAM=" 231122"
-    2: |
-      ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL=WARN
-      ZOOKEEPER_LOG4J_ROOT_LOGLEVEL=WARN
-      WELCOME_MESSAGE="Hi Hi Ho 2"
-      ADDITIONAL_PARAM=" 23134122" 
-```
-The configuration will be mounted as a file with the name of ${ORD}-1 under /mnt/zk-global/:
-```
-cat /mnt/zk-config/0 | grep WELCOME_MESSAGE
-WELCOME_MESSAGE="Hula hop hej hej 0"
-```
+  kafka:
+...
+  instances:
+    - id: "0"
+      nodeSelector: {}
+      updateOnChange: {}
+      spec:
+        env: 
+          - name: WELCOME_MESSAGE
+            value: "HW from kafka 0"
+          - name: KAFKA_SSL_KEYSTORE_PASSWORD
+        volumes:
+        ....
+        volumeMounts:
+        ....
 
-It is the responisibility of the instance to use the needed configuration in a secure way (like avoiding shell sourcing). 
-
-By conventions the instance specific secrets should be named zksecrets for common secrets and zksecrets0, zksecrets1 ... for instance specific secrets  and specified under spec.data like:
-```yaml
-spec:
-  secrets:
-  - secretname: zksecrets
-    items:
-    - key: username
-      path: zksecrets 
-    - key: password
-      path: zksecrets 
-  - secretname: zksecrets0
-    items:
-    - key: username
-      path: zksecrets0 
-    - key: password
-      path: zksecrets0 
+    - id: "1"
+      nodeSelector: {}
+      updateOnChange: {}
+      spec:
+        env: 
+          - name: WELCOME_MESSAGE
+            value: "HW from kafka 1"
+          - name: KAFKA_SSL_KEYSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-kafka-1
+                key: keystorepassword
+          - name: KAFKA_SSL_KEY_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-kafka-1
+                key: keystorepassword     
+        volumes:
+        ....
+        volumeMounts:
+        ....
+ 
 ```
-The secrets will be mounted as files with the name as their secretname under /mnt/:
+The configuration will be pached into the instances (pods) at their start up.
+The patches can be seen in podpresets:
 ```
-ls /mnt/zksecrets0
+kubectl get pod zk-0 -o json
 ```
 
-## Advanced Configuration Deployment
-
-Create resource definitions:
-
-- all needed secrets
-- a ZookeeperSet CR 
-
-zksecrets.yaml
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: zksecrets
-  namespace: default
-  labels:
-    app: zk
-type: Opaque
-data:
-  username: YWRtaW4=
-  password: ZGZhcXFkcXFhcXEzNDUyOA==  
-```
-zksecrets2.yaml 
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: zksecrets2
-  namespace: default
-  labels:
-    app: zk
-type: Opaque
-data:
-  username: YWRtaW4=
-  password: YXFxZHFxYXFxMzQ1Mjg=
-  api: aHR0cHM6Ly9hcGkuZXhhbXBsZS5jb20=
-```
-
-zksecrets0.yaml
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: zksecrets0
-  namespace: default
-  labels:
-    app: zk
-type: Opaque
-data:
-  username: YWRtaW4=
-  password: MWYyZDFlMmU2N2Rm
-```
-
- and a file like zookeeperset-lab.yaml
-```yaml
-apiVersion: dataproxy.jankul02/v1alpha1
-kind: ZookeeperSet
-metadata:
-  name: zookeeperset-lab
-  namespace: default
-spec:
-  replicas: 3
-  app: "zk"
-  image: jankul02/kubernetes-zookeeper:0.0.25
-  data:
-    cfg: |
-      ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL=DEBUG
-      ZOOKEEPER_LOG4J_ROOT_LOGLEVEL=DEBUG
-      WELCOME_MESSAGE="Hey Hey for all"
-      ADDITIONAL_PARAM=" Value"
-    0: |
-      ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL=INFO
-      ZOOKEEPER_LOG4J_ROOT_LOGLEVEL=INFO
-      WELCOME_MESSAGE="Hula hop hej hej 0"
-      ADDITIONAL_PARAM=" 231122"
-    2: |
-      ZOOKEEPER_TOOLS_LOG4J_LOGLEVEL=WARN
-      ZOOKEEPER_LOG4J_ROOT_LOGLEVEL=WARN
-      WELCOME_MESSAGE="Hi Hi Ho 2"
-      ADDITIONAL_PARAM=" 23134122" 
-  secrets:
-  - secretname: zksecrets
-    items:
-    - key: username
-      path: zksecrets 
-    - key: password
-      path: zksecrets 
-  - secretname: zksecrets0
-    items:
-    - key: username
-      path: zksecrets0 
-    - key: password
-      path: zksecrets0 
-  - secretname: zksecrets2
-    items:
-    - key: username
-      path: zksecrets2
-    - key: password              
-      path: zksecrets2
-    - key: api              
-      path: zksecrets2
-```
-
-Deploy the secrets and the ZookeeperSet
-```
-kubectl apply -f zksecrets.yaml
-kubectl apply -f zksecrets0.yaml
-kubectl apply -f zksecrets2.yaml
-
-kubectl apply -f zookeeperset-lab.yaml
-# observe the deployment
-kubectl get pods -w 
-
-```
-
-## Scaling **not implemented**
-
-(Re)scalling is **not implemented** and there is no protection against changing the value of replicas.
-The results of scalling are unknown and currently unpredictable.
-
-
-```
-#cert manager
-curl -L -o kubectl-cert-manager.tar.gz https://github.com/jetstack/cert-manager/releases/latest/download/kubectl-cert_manager-linux-amd64.tar.gz
-tar xzf kubectl-cert-manager.tar.gz
-sudo mv kubectl-cert_manager /usr/local/bin
-
-kubectl cert-manager x install
-````
-
-kubectl delete pvc datadir-0-kafka-0 datadir-0-kafka-1 datadir-0-kafka-2 datadir-zk-0 datadir-zk-1 datadir-zk-2 datalogdir-zk-0 datalogdir-zk-1 datalogdir-zk-2
-
-
-```
-keytool -keystore server.keystore.jks -alias localhost -validity 5555 -genkey -keyalg RSA -ext SAN=DNS:{FQDN}
-```
+### deploying test client
 
 1. Deploy a zookeeper client pod with configuration:
 ```
@@ -538,244 +647,6 @@ To connect from a client pod:
 ```
 
 
-
-```
-// openssl genrsa -out ca.key
-// openssl req -new -x509 -key ca.key -out ca.crt
-openssl req -new   -x509  -days 3650  -keyout ca.key  -out ca.crt   -subj "/C=DE/L=Munich/CN=Certificate Authority" 
-Generating a RSA private key
-............................+++++
-.......................+++++
-writing new private key to 'ca.key'
------
-```
-
-```
-san=dns:kafka-0.default.svc.cluster.local,dns:test.example.net,dns:test2.example.com,ip:XX.XXX.XX.XXX
-
- 2219  keytool -genkey -keystore server.keystore.kafka-0 -alias localhost -dname CN=kafka-0.default.svc.cluster.local -keyalg RSA -validity 3650  -ext san=dns:kafka-0
- 2221  keytool -genkey -keystore server.keystore.kafka-1 -alias localhost -dname CN=kafka-1.default.svc.cluster.local -keyalg RSA 
- 2222  keytool -genkey -keystore server.keystore.kafka-2 -alias localhost -dname CN=kafka-2.default.svc.cluster.local -keyalg RSA 
- 2223  keytool -genkey -keystore server.keystore.zk-0 -alias localhost -dname CN=zk-0.default.svc.cluster.local -keyalg RSA -validity 3650  -ext san=dns:zk-0
- 2224  keytool -genkey -keystore server.keystore.zk-1 -alias localhost -dname CN=zk-1.default.svc.cluster.local -keyalg RSA -validity 3650  -ext san=dns:zk-1
- 2225  keytool -genkey -keystore server.keystore.zk-2 -alias localhost -dname CN=zk-2.default.svc.cluster.local -keyalg RSA -validity 3650  -ext san=dns:zk-2
- 2226  keytool -genkey -keystore server.keystore.zk-client-0 -alias localhost -dname CN=zk-client-0.default.svc.cluster.local -keyalg RSA -validity 3650  -ext san=dns:zk-client-0
- 2227  keytool -genkey -keystore server.keystore.kafka-client-0 -alias localhost -dname CN=kafka-client-0.default.svc.cluster.local -keyalg RSA -validity 3650  -ext san=dns:kafka-client-0
-
-
-
-keytool -keystore server.keystore.zk-client-0 -alias CARoot -importcert -file ca.crt  --storepass $ST0REPASS -noprompt
-keytool -keystore server.keystore.kafka-client-0 -alias CARoot -importcert -file ca.crt --storepass $ST0REPASS -noprompt
-keytool -keystore server.keystore.kafka-0 -alias CARoot -importcert -file ca.crt --storepass $ST0REPASS -noprompt
-keytool -keystore server.keystore.kafka-1 -alias CARoot -importcert -file ca.crt --storepass $ST0REPASS -noprompt
-keytool -keystore server.keystore.kafka-2 -alias CARoot -importcert -file ca.crt --storepass ********* -noprompt
-keytool -keystore server.keystore.zk-0 -alias CARoot -importcert -file ca.crt --storepass ********* -noprompt
-keytool -keystore server.keystore.zk-1 -alias CARoot -importcert -file ca.crt --storepass ********* -noprompt
-keytool -keystore server.keystore.zk-2 -alias CARoot -importcert -file ca.crt --storepass ********* -noprompt
-
-
- 2244  keytool -keystore server.keystore.kafka-0 -alias localhost -certreq -file cert-file-kafka-0
- 2245  keytool -keystore server.keystore.kafka-1 -alias localhost -certreq -file cert-file-kafka-1
- 2246  keytool -keystore server.keystore.kafka-2 -alias localhost -certreq -file cert-file-kafka-2
- 2247  keytool -keystore server.keystore.zk-2 -alias localhost -certreq -file cert-file-zk-2
- 2248  keytool -keystore server.keystore.zk-1 -alias localhost -certreq -file cert-file-zk-1
- 2249  keytool -keystore server.keystore.zk-0 -alias localhost -certreq -file cert-file-zk-0
- 2250  keytool -keystore server.keystore.zk-client-0 -alias localhost -certreq -file cert-file-zk-client-0
- 2251  keytool -keystore server.keystore.kafka-client-0 -alias localhost -certreq -file cert-file-kafka-client-0
-
-
- 2253  openssl x509 -req -CA ca.crt -CAkey ca.key -in cert-file-kafka-0 -out cert-signed-kafka-0 -days 3650 -CAcreateserial pass:tapowa01
- 2254  openssl x509 -req -CA ca.crt -CAkey ca.key -in cert-file-kafka-0 -out cert-signed-kafka-0 -days 3650 -CAcreateserial -passin pass:tapowa01
- 2255  openssl x509 -req -CA ca.crt -CAkey ca.key -in cert-file-kafka-1 -out cert-signed-kafka-1 -days 3650 -CAcreateserial -passin pass:tapowa01
- 2256  openssl x509 -req -CA ca.crt -CAkey ca.key -in cert-file-kafka-2 -out cert-signed-kafka-2 -days 3650 -CAcreateserial -passin pass:tapowa01
- 2257  openssl x509 -req -CA ca.crt -CAkey ca.key -in cert-file-zk-2 -out cert-signed-zk-2 -days 3650 -CAcreateserial -passin pass:tapowa01
- 2258  openssl x509 -req -CA ca.crt -CAkey ca.key -in cert-file-zk-1 -out cert-signed-zk-1 -days 3650 -CAcreateserial -passin pass:tapowa01
- 2259  openssl x509 -req -CA ca.crt -CAkey ca.key -in cert-file-zk-0 -out cert-signed-zk-0 -days 3650 -CAcreateserial -passin pass:tapowa01
- 2260  openssl x509 -req -CA ca.crt -CAkey ca.key -in cert-file-zk-client-0 -out cert-signed-zk-client-0 -days 3650 -CAcreateserial -passin pass:tapowa01
- 2261  openssl x509 -req -CA ca.crt -CAkey ca.key -in cert-file-kafka-client-0 -out cert-signed-kafka-client-0 -days 3650 -CAcreateserial -passin pass:tapowa01
-```
-
-
-```
-keytool -keystore server.keystore.kafka-0 -alias CARoot -importcert -file ca.crt
-keytool -keystore server.keystore.kafka-0  -alias localhost -importcert -file cert-signed-kafka-0
-
-################
-
-janusz@janusz-strix:~/projects/zookeeperset/kafka-tls$ keytool -genkey -keystore server.keystore.zk-0 -alias localhost -dname CN=zk-0.default.svc.cluster.local -keyalg RSA -validity 3650  -ext san=dns:zk-0
-Enter keystore password:  
-Re-enter new password: 
-Generating 2,048 bit RSA key pair and self-signed certificate (SHA256withRSA) with a validity of 3,650 days
-        for: CN=zk-0.default.svc.cluster.local
-janusz@janusz-strix:~/projects/zookeeperset/kafka-tls$ keytool -genkey -keystore server.keystore.zk-1 -alias localhost -dname CN=zk-1.default.svc.cluster.local -keyalg RSA -validity 3650  -ext san=dns:zk-1
-Enter keystore password:  
-Re-enter new password: 
-Generating 2,048 bit RSA key pair and self-signed certificate (SHA256withRSA) with a validity of 3,650 days
-        for: CN=zk-1.default.svc.cluster.local
-janusz@janusz-strix:~/projects/zookeeperset/kafka-tls$ keytool -genkey -keystore server.keystore.zk-2 -alias localhost -dname CN=zk-2.default.svc.cluster.local -keyalg RSA -validity 3650  -ext san=dns:zk-2
-Enter keystore password:  
-Re-enter new password: 
-Generating 2,048 bit RSA key pair and self-signed certificate (SHA256withRSA) with a validity of 3,650 days
-        for: CN=zk-2.default.svc.cluster.local
-
-janusz@janusz-strix:~/projects/zookeeperset/kafka-tls$ keytool -keystore server.keystore.zk-0 -alias localhost -certreq -file cert-file-zk-0
-Enter keystore password:  
-janusz@janusz-strix:~/projects/zookeeperset/kafka-tls$ keytool -keystore server.keystore.zk-1 -alias localhost -certreq -file cert-file-zk-1
-Enter keystore password:  
-janusz@janusz-strix:~/projects/zookeeperset/kafka-tls$ keytool -keystore server.keystore.zk-2 -alias localhost -certreq -file cert-file-zk-2
-Enter keystore password:  
-
-janusz@janusz-strix:~/projects/zookeeperset/kafka-tls$ openssl x509 -req -CA ca.crt -CAkey ca.key -in cert-file-zk-0 -out cert-signed-zk-0 -days 3650 -CAcreateserial
-Signature ok
-subject=CN = zk-0.default.svc.cluster.local
-Getting CA Private Key
-Enter pass phrase for ca.key:
-janusz@janusz-strix:~/projects/zookeeperset/kafka-tls$ openssl x509 -req -CA ca.crt -CAkey ca.key -in cert-file-zk-1 -out cert-signed-zk-1 -days 3650 -CAcreateserial
-Signature ok
-subject=CN = zk-1.default.svc.cluster.local
-Getting CA Private Key
-Enter pass phrase for ca.key:
-janusz@janusz-strix:~/projects/zookeeperset/kafka-tls$ openssl x509 -req -CA ca.crt -CAkey ca.key -in cert-file-zk-2 -out cert-signed-zk-2 -days 3650 -CAcreateserial
-Signature ok
-subject=CN = zk-2.default.svc.cluster.local
-Getting CA Private Key
-Enter pass phrase for ca.key:
-```
-
-
-create secrets for the key stores
-```
-printf "" > keystores.base64.secret.yaml; for KEYST in zk-0 zk-1 zk-2 kafka-0 kafka-1 kafka-2 kafka-client-0 zk-client-0
-do
-
-
-
-
-cat server.keystore.${KEYST} | base64 -w0 > server.keystore.${KEYST}.base64  
-cat << EOF >>keystores.base64.secret.yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: secret-${KEYST}
-  namespace: default
-data:
-  keystore.jks: "$(cat server.keystore.${KEYST}.base64)"
----
-EOF
-done
-kubectl apply -f keystores.base64.secret.yaml
-
-
-openssl req -new -x509 -keyout ca.key -out ca.crt -days 3560 -passout pass:$kpswd
-keytool -keystore kafka.client.truststore.jks -alias CARoot -importcert -file ca.crt
-keytool -keystore kafka.server.truststore.jks -alias CARoot -importcert -file ca.crt
-```
-
-
-A. there are several keystores:
-1. server truststore 
-- ???? for each sever
-2. client truststore 
-- ???? for each client
-3. client keystore 
-- ???? for each client
-3. server keystore 
-- ???? for each server
-You’ll need to create both a keystore (holds it’s own private keys/certificates) and a truststore (holds other client/brokers certificates) for each client and broker.
-
-
-```
-
-##############################################################################################
-
-capswd=$kpswd
-
-## 1.  create the CA pair
-openssl req -new -x509 -keyout ca.key -out ca.crt -days 365 -passout pass:$capswd -subj "/CN=svc.cluster.local/OU=DataProxy/O=audi/L=Bayern/ST=Munich/C=DE"
-
-
-
-
-printf "" > keystores.base64.secret.yaml
-printf "" > ssl.secrets.yaml
-keystorepassword=$(printf $kpswd | base64)
-keypassword=$(printf $kpswd | base64)
-
-
-for KEYST in zk-0 zk-1 zk-2 kafka-0 kafka-1 kafka-2 kafka-client-0 zk-client-0
-do
-
-# 1. Generate SSL key and certificate for each Kafka broker
-keytool -keystore server.keystore.$KEYST -alias localhost -keyalg RSA -validity 3650 -genkey -storepass $keystorepassword -keypass $keypassword -dname "CN=svc.cluster.local, OU=DataProxy, O=audi, L=Bayern, ST=Munich, C=DE" -ext SAN=DNS:$KEYST;DNS:$KEYST.default.svc.cluster.local
-
-
-keytool -genkey -keystore server.keystore.$KEYST -alias localhost -dname CN=$KEYST.default.svc.cluster.local -keyalg RSA -validity 3650  -ext san=dns:$KEYST -storepass $kpswd 
-
-keytool -keystore server.truststore.jks -alias CARoot -importcert -file ca-cert
-
-keytool -keystore server.keystore.$KEYST -alias localhost -certreq -file cert-file-$KEYST -storepass $kpswd
-
-
-
-keytool -keystore server.keystore.$KEYST -alias CARoot -importcert -file ca-cert
-keytool -keystore server.keystore.$KEYST -alias localhost -importcert -file cert-signed-$KEYST
-
-cat server.keystore.${KEYST} | base64 -w0 > server.keystore.${KEYST}.base64  
-cat << EOF >>keystores.base64.secret.yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: secret-${KEYST}
-  namespace: default
-data:
-  keystore.jks: "$(cat server.keystore.${KEYST}.base64)"
----
-EOF
-
-cat << EOF0 >>ssl.secrets.yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: ssl-secrets-${KEYST}
-  namespace: default
-data:
-  keystorepassword: ${keystorepassword}
-  keypassword: ${keypassword}
-  truststorepassword: ${keystorepassword}
----
-EOF0
-done
-kubectl apply -f ssl.secrets.yaml
-
-```
-
-
-Cert Manager setup
-
-```
-kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.5.3/cert-manager.yaml
-
-```
-
-```
-curl -L -o kubectl-cert-manager.tar.gz https://github.com/jetstack/cert-manager/releases/latest/download/kubectl-cert_manager-linux-amd64.tar.gz
-tar xzf kubectl-cert-manager.tar.gz
-sudo mv kubectl-cert_manager /usr/local/bin
-rm kubectl-cert-manager.tar.gz
-
-
-kubectl cert-manager renew # allows you to manually trigger a renewal of a specific certificate.
-
-#uninstall
-kubectl delete -f https://github.com/jetstack/cert-manager/releases/download/v1.5.3/cert-manager.yaml
-sudo rm  /usr/local/bin/kubectl-cert_manager
-
-
-
-CLIENT_JVMFLAGS="-Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty -Dzookeeper.ssl.keyStore.location=/mnt/keystore.jks -Dzookeeper.ssl.keyStore.password=tapawa01  -Dzookeeper.ssl.trustStore.location=/mnt/truststore.jks -Dzookeeper.ssl.trustStore.password=tapawa01 -Dzookeeper.client.secure=true" zookeeper-shell  zk-1.zk-hs:
-```
-
-
 Cert Manager setup
 
 ```
@@ -785,7 +656,7 @@ kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.5
 
 
 
-Weavescope 
+Weavescope setup
 
 ```
 kubectl apply -f "https://cloud.weave.works/k8s/scope.yaml?k8s-version=$(kubectl version | base64 | tr -d '\n')"
@@ -793,7 +664,7 @@ kubectl port-forward -n weave "$(kubectl get -n weave pod --selector=weave-scope
 
 ```
 
-default namespace
+setting 'kafka' as the default namespace
 ```
 kubectl config set-context --current --namespace=kafka
 ```

@@ -9,7 +9,7 @@ spec:
     autoscale:
       range:
         min: 3
-        max: 5
+        max: 3
       target: 3
     maxUnavailable: 1
     updateOnChange:
@@ -180,8 +180,8 @@ spec:
     image: jankul02/kubernetes-kafka:0.0.69
     autoscale:
       minReplicas: 3
-      maxReplicas: 5
-      initial: 5
+      maxReplicas: 3
+      initial: 3
       targetCPUUtilizationPercentage: 1
       resources:
         requests: 
@@ -189,12 +189,12 @@ spec:
           cpu: "200m"
         limits:
           # memory: "128Mi"
-          cpu: "800m"
+          cpu: "300m"
       behavior:
         scaleDown: 
           policies: 
           - type: Pods 
-            value: 2 
+            value: 1
             periodSeconds: 60 
           # - type: Percent
           #   value: 10 
@@ -204,13 +204,13 @@ spec:
         scaleUp: 
           policies:
           - type: Pods
-            value: 2
+            value: 1
             periodSeconds: 70
           # - type: Percent
           #   value: 12 
           #   periodSeconds: 80
           # selectPolicy: Max
-          stabilizationWindowSeconds: 0
+          stabilizationWindowSeconds: 100
     affinity: {}
       # podAntiAffinity:
       #   preferredDuringSchedulingIgnoredDuringExecution:
@@ -245,7 +245,7 @@ spec:
         - name: KAFKA_LISTENERS
           value: "INTERNET://:9092,INTRANET://:9093"
         - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
-          value: "INTERNET:SSL,INTRANET:SSL" 
+          value: "INTERNET:PLAINTEXT,INTRANET:PLAINTEXT" 
         - name: KAFKA_SSL_KEYSTORE_LOCATION
           value: "/mnt/keystore.jks"
         - name: KAFKA_SSL_TRUSTSTORE_LOCATION
@@ -270,17 +270,17 @@ spec:
           - name: KAFKA_SSL_KEYSTORE_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: keystorepasswd-kafka-1
+                name: keystorepasswd-kafka-0
                 key: keystorepassword
           - name: KAFKA_SSL_KEY_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: keystorepasswd-kafka-1
+                name: keystorepasswd-kafka-0
                 key: keystorepassword     
           - name: KAFKA_SSL_TRUSTSTORE_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: keystorepasswd-kafka-1
+                name: keystorepasswd-kafka-0
                 key: truststorepassword                    
           - name: KAFKA_SSL_KEYSTORE_LOCATION
             value: "/mnt/keystore.jks"
@@ -357,8 +357,7 @@ spec:
           - name: KAFKA_SSL_KEYSTORE_LOCATION
             value: "/mnt/keystore.jks"
           - name: KAFKA_SSL_TRUSTSTORE_LOCATION
-            value: "/mnt/truststore.jks"
-                                                                                   
+            value: "/mnt/truststore.jks"                                                                                   
         volumeMounts:
           # name must match the volume name below
           - name: keystore
@@ -368,6 +367,116 @@ spec:
           - name: keystore
             secret:
               secretName: keystore-kafka-2
+    - id: "3"
+      nodeSelector:
+        kafkainstanceid: "3"  
+      updateOnChange:
+      - kind: Secret
+        name: keystore-kafka-3
+      spec:  
+        env: 
+          - name: WELCOME_MESSAGE
+            value: "HW from kafka 3"
+          - name: KAFKA_SSL_KEYSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-kafka-3
+                key: keystorepassword
+          - name: KAFKA_SSL_KEY_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-kafka-3
+                key: keystorepassword     
+          - name: KAFKA_SSL_TRUSTSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-kafka-3
+                key: truststorepassword                                  
+        volumeMounts:
+          # name must match the volume name below
+          - name: keystore
+            mountPath: /mnt
+          # The secret data is exposed to Containers in the Pod through a Volume.
+        volumes:
+          - name: keystore
+            secret:
+              secretName: keystore-kafka-3        
+    - id: "4"
+      nodeSelector:
+        kafkainstanceid: "4"  
+      updateOnChange:
+      - kind: Secret
+        name: certificate-kafka-4
+      spec:  
+        env: 
+          - name: WELCOME_MESSAGE
+            value: "HW from kafka 4"
+          - name: KAFKA_SSL_KEYSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-kafka-4
+                key: keystorepassword
+          - name: KAFKA_SSL_KEY_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-kafka-4
+                key: keystorepassword     
+          - name: KAFKA_SSL_TRUSTSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-kafka-4
+                key: truststorepassword     
+          - name: KAFKA_SSL_KEYSTORE_LOCATION
+            value: "/mnt/keystore.jks"
+          - name: KAFKA_SSL_TRUSTSTORE_LOCATION
+            value: "/mnt/truststore.jks"                                                                                   
+        volumeMounts:
+          # name must match the volume name below
+          - name: keystore
+            mountPath: /mnt
+          # The secret data is exposed to Containers in the Pod through a Volume.
+        volumes:
+          - name: keystore
+            secret:
+              secretName: keystore-kafka-4
+    - id: "5"
+      nodeSelector:
+        kafkainstanceid: "5"  
+      updateOnChange:
+      - kind: Secret
+        name: certificate-kafka-5
+      spec:  
+        env: 
+          - name: WELCOME_MESSAGE
+            value: "HW from kafka 5"
+          - name: KAFKA_SSL_KEYSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-kafka-5
+                key: keystorepassword
+          - name: KAFKA_SSL_KEY_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-kafka-5
+                key: keystorepassword     
+          - name: KAFKA_SSL_TRUSTSTORE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keystorepasswd-kafka-5
+                key: truststorepassword     
+          - name: KAFKA_SSL_KEYSTORE_LOCATION
+            value: "/mnt/keystore.jks"
+          - name: KAFKA_SSL_TRUSTSTORE_LOCATION
+            value: "/mnt/truststore.jks"                                                                                   
+        volumeMounts:
+          # name must match the volume name below
+          - name: keystore
+            mountPath: /mnt
+          # The secret data is exposed to Containers in the Pod through a Volume.
+        volumes:
+          - name: keystore
+            secret:
+              secretName: keystore-kafka-5
 
 
 # secureClientPort=2182
